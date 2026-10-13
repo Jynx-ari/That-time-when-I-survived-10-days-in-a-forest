@@ -4,14 +4,17 @@ from classes.tree import gen_Tree
 ##-- GAME CONFIG --##
 w,h = 1200,800
 
-fps=60
-
 
 game_conf = {
     "background color": (25,45,30),
-    "exittap": 3
+    "exittap": 3,
+    "fps": 60
 }
+
 exittap: int = 0
+
+tree_pos = (600, 400)
+
 def main():
     pygame.init()
 
@@ -21,12 +24,18 @@ def main():
     clock  = pygame.time.Clock()
     running = True
 
-    ##Quit handler
 
+    the_tree = gen_Tree(tree_pos)
+    the_tree.draw(screen)
+
+
+    ##Quit handler
     def quit():
         pygame.quit()
         sys.exit()
         return True
+
+
 
     ##Game loop
 
@@ -46,14 +55,12 @@ def main():
 
         #game
         screen.fill(game_conf["background color"])
-       
-        the_tree = gen_Tree(tree_pos)
-        the_tree.draw(screen)
+      
 
 
         #pygame update screen
         pygame.display.flip()
-    
+        clock.tick(game_conf["fps"])
     pygame.quit()
 
 if __name__ == "__main__":
