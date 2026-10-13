@@ -42,26 +42,21 @@ def generate_forest(count):
     while len(trees) < count and attempts < max_attempts:
         attempts += 1
         
-        #70% chance to get an edge position.. heh edging ;)
+        
+        x,y = random.randint(40, w - 40), random.randint(55, h -55)
 
-        if random.random() < 0.7:
-            edge = random.choice([1,2,3,4])
+        #calc edging distance...~ heh :>
+        edge_distance = min(x,w-x,h-y)
+        
+        #edge maxxing?!?!?
+        max_edge_distance = min(w,h)/2
 
-            if edge == 1:
-                #left edge
-                x, y = random.randint(40, 150), random.randint(55, h - 55)
-            elif edge == 2:
-                #right edge
-                 x, y = random.randint(w - 150, w - 40), random.randint(55, h - 55)
-            elif edge == 3:
-                #top edge
-                x, y = random.randint(40, w-40), random.randint(55, 150)
-            else:
-                #bottom edge
-                x,y=random.randint(40, w-40), random.randint(h-150, h-55)
-        else:
-            #30% chance to get an edging positionm~??~?? WOAH?
-            x,y =random.randint(40,w-40), random.randint(55, h-55)
+        density = 0.15 + 0.85 * (
+            1 - edge_distance / max_edge_distance
+        )
+
+        if random.random() > density:
+            continue
         
         if (x-center_x) ** 2 + (y-center_y) ** 2 < center_exclusion_radius_squared:
             continue
