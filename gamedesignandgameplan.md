@@ -17,12 +17,15 @@ This section tracks what has actually been implemented in the repository, separa
 - [x] Minimum spacing check between generated trees (`tree minimum distance`).
 - [x] Configurable tree scale, clamped to the range 0.0–1.0 (`tree scale`).
 - [x] Configurable central clearing around the radio tower (`tree center exclusion radius`).
+- [ ] Bias tree placement toward the map edges and generate denser outer clusters instead of distributing trees uniformly.
 - [x] Separate trunk and leaves drawing passes, so trunks are drawn behind all canopies.
 - [x] Draw a square radio tower and a smaller square antenna above it.
 - [ ] Add the player triangle and keyboard movement.
 - [ ] Add player collision with trees and the tower.
 
 Forest generation can be tuned in the `game_conf` dictionary in `main.py`: change `tree count` to control how many trees are attempted, `tree scale` to control their size, `tree minimum distance` to control spacing between tree centers, and `tree center exclusion radius` to control how large the open area around the map center is. The generator has a limited number of placement attempts, so very high tree counts or spacing values may result in fewer trees than requested.
+
+**Planned forest layout (not implemented yet):** keep the central clearing open, allow relatively sparse trees through the middle, and make trees progressively more common toward the outer edges. The perimeter should read as bundled woodland rather than a uniform scatter. One possible approach is to bias candidate positions toward the edges or generate several loose clusters near the perimeter, while retaining minimum spacing and the center-exclusion check. Do not mark this as complete until the result has been coded and visually tested.
 
 The tower and antenna are currently visual placeholders; tower health, power, signal integrity, and pulse behavior are not implemented yet.
 
@@ -59,7 +62,10 @@ survive increasingly difficult attacks.
 
 The playable area is a forest clearing in a fictional Philippine rural
 region, with dense tropical forest around the edges and some open field
-in the center.
+in the center. Tree density should be biased outward: a relatively open
+central area around the radio tower, a transition zone with scattered
+trees, and thicker bundled growth near the perimeter. Avoid an evenly
+random distribution across the entire map.
 
 ### Functional areas
 
