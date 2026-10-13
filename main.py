@@ -55,7 +55,7 @@ def generate_forest(count):
                  x, y = random.randint(w - 150, w - 40), random.randint(55, h - 55)
             elif edge == 3:
                 #top edge
-                x, y = random.randint(40, w-40), random.randint(55, h-55)
+                x, y = random.randint(40, w-40), random.randint(55, 150)
             else:
                 #bottom edge
                 x,y=random.randint(40, w-40), random.randint(h-150, h-55)
