@@ -9,7 +9,7 @@
 
 This section tracks what has actually been implemented in the repository, separately from the full design plan.
 
-TICK OFF IF THE SAID DESIGN/IMPLEMENTATION/FEATURE IS DONE!
+**Mandatory project workflow:** Before suggesting or changing code, check the current GitHub files. After an implementation or design item is actually completed and verified, update this status checklist in the same work session. Never tick off a feature that is only planned or has not been checked.
 
 - [x] Pygame window and main game loop.
 - [x] Configurable forest tree count in `main.py` (`tree count`).
