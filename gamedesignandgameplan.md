@@ -25,7 +25,7 @@ This section tracks what has actually been implemented in the repository, separa
 
 Forest generation can be tuned in the `game_conf` dictionary in `main.py`: change `tree count` to control how many trees are attempted, `tree scale` to control their size, `tree minimum distance` to control spacing between tree centers, and `tree center exclusion radius` to control how large the open area around the map center is. The generator has a limited number of placement attempts, so very high tree counts or spacing values may result in fewer trees than requested.
 
-**Planned forest layout (not implemented yet):** represent vegetation as simple circles viewed directly from above, not illustrated trees with visible trunks and side-facing canopies. Keep the central clearing open, let a small number of obstacles appear through a gradual transition zone to preserve exploration routes, and increase obstacle density toward a mostly continuous outer forest wall. Avoid a hard circular boundary or a perfectly even ring. The outer forest should feel dense while retaining a few navigable gaps. Candidate placement should use distance from the map edges or center to influence density, while preserving minimum spacing and the center-exclusion check. Do not mark this as complete until the result has been coded and visually tested.
+**Planned forest layout (not implemented yet):** replace the current illustrated tree sprites with simple circular canopy/vegetation obstacles suited to a true bird's-eye view. Keep the tower's immediate clearing open, then use a subtle, irregular transition from sparse obstacles to moderate density and finally a mostly continuous dense outer forest wall. Preserve small traversable gaps and routes into the forest so the player can explore and scavenge; do not seal the map perimeter or create a hard circular boundary. Candidate placement should make vegetation density increase toward the map edges while preserving minimum spacing and the center-exclusion check. Do not mark this as complete until the result has been coded and visually tested.
 
 The tower and antenna are currently visual placeholders; tower health, power, signal integrity, and pulse behavior are not implemented yet.
 
@@ -73,13 +73,10 @@ random distribution across the entire map.
 -   **Forest trails and gaps:** narrow routes through the transition zone and outer forest that support short exploration trips, retreat routes, and enemy approach paths. Preserve some traversable gaps rather than sealing the perimeter completely.
 -   **Abandoned rural structures:** possible scavenging sites such as a
     shed, small house, sari-sari store, or farm outbuilding.
--   **Forest obstacles:** simple circles representing overhead vegetation; solid obstacles that shape movement and potentially line of sight if those rules are added later.
+-   **Forest obstacles:** simple circles representing vegetation viewed from directly above; solid obstacles that shape movement and potentially line of sight if those rules are added later. Their density gradually increases from the clearing toward the perimeter, with gaps that support exploration.
 -   **Outer perimeter:** enemy spawn points distributed around the map.
 
-The first map should be a compact arena, not a large open world. Use a
-few deliberately placed trees, rocks, fences, and buildings. The layout
-should make routes readable and give the player several meaningful
-locations to defend.
+The first map should be a compact explorable area, not a large open world. Use simple circular vegetation obstacles, a few rocks, fences, and abandoned structures or loot locations. The outer forest should feel dense without blocking all travel: preserve readable routes and small gaps that let the player leave the tower's clearing, find supplies, and return. The layout should give the player several meaningful locations to explore and defend.
 
 ## 4. Core gameplay loop
 
@@ -94,7 +91,7 @@ locations to defend.
 5.  Repeat through Day 10. Survive the final assault to complete the
     campaign.
 
-Preparation is the main opportunity for short exploration and scavenging. The first version should keep exploration compact and readable: the player can leave the tower's clearing, follow gaps between forest obstacles, search limited loot spots, and return before the next wave. Scavenging locations contain limited loot and do not endlessly regenerate during a run unless a later design decision changes that rule. As a future event, an airdrop can land away from the tower and offer a tempting higher-value cache; it should be optional and risky to reach, not a required detour in the first prototype.
+Preparation is the main opportunity for short exploration and scavenging. Exploration must be small but meaningful: the player leaves the tower's clearing, follows gaps through the gradual vegetation transition, visits limited loot locations, and weighs how far to travel before returning for the next wave. Keep the first map compact and avoid turning exploration into a huge open world. Scavenging locations contain limited loot and do not endlessly regenerate during a run unless a later design decision changes that rule. As a later event, an airdrop can land away from the tower and offer a tempting higher-value cache; it should be optional and risky to reach, not a required detour in the first prototype.
 
 ## 5. Player mechanics
 
@@ -514,12 +511,12 @@ These can remain undecided while the prototype is built:
     version.
 -   Final costs, loot quantities, enemy counts, and tower stats.
 -   Whether scavenging sites ever restock.
--   Final visual style, asset resolution, and sound design.
+-   Final visual style, asset resolution, and sound design. Current direction: bird's-eye view with simple circular vegetation instead of visible trunks and side-facing tree canopies.
 -   Airdrop frequency, warning/landing presentation, contents, and whether drops arrive on fixed days or as random events.
 
 ## 17. Reference and inspiration
 
-**Reference:** [Defend Bunker from Zombies on Roblox](https://www.roblox.com/games/134361906638337/Defend-Bunker-from-Zombies). Its public description highlights building and fortifying a base, rescuing survivors, and exploring for resources and rare loot. Those broad ideas are useful inspiration for our own loop: defend the radio tower, make short scavenging trips, and occasionally weigh the risk of traveling farther for better supplies. Airdrops are a possible extension of that exploration/reward loop, not a claim about a specific mechanic in the reference game. This project remains a distinct, single-player 10-day game focused on a radio tower, scrap-funded defenses, and a compact bird's-eye-view wilderness arena; do not copy the reference game's specific assets or progression systems.
+**Reference:** [Defend Bunker from Zombies on Roblox](https://www.roblox.com/games/134361906638337/Defend-Bunker-from-Zombies). Its public description highlights building, fortifying, and upgrading a base, rescuing and training survivors, and exploring for resources and rare loot. We can learn from the broad loop of leaving a defended base to gather resources, then returning to prepare for escalating attacks. For this game, adapt that idea to a solo 10-day rescue countdown: short scavenging trips, limited loot locations, scrap-funded defenses, and optional airdrops that tempt the player to travel farther. Airdrops are our planned idea, not a claim that the reference game has that exact mechanic. This project remains a distinct, single-player bird's-eye-view wilderness survival game centered on a radio tower; do not copy the reference game's specific assets or progression systems.
 
 **Design principle:** finish a small, coherent survival loop first.
 Expand only when the current version is fun enough to justify the next
