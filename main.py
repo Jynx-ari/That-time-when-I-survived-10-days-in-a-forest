@@ -13,10 +13,10 @@ game_conf = {
     "fps": 60,
 
     # Forest generation settings
-    "tree count": 75,  # How many trees to try to generate
-    "tree scale": 0.2,  # 0.0 to 1.0; larger values make trees bigger
+    "tree count": 175,  # How many trees to try to generate
+    "tree scale": 0.7,  # 0.0 to 1.0; larger values make trees bigger
     "tree minimum distance": 50,  # Minimum distance between tree centers
-    "tree center exclusion radius": 150,  # Keep this area around the map center clear
+    "tree center exclusion radius": 300,  # Keep this area around the map center clear
 
     "tower color": "#96a09b",
     "antenna color": "#d2372d",
@@ -62,7 +62,10 @@ def generate_forest(count):
         if random.random() > density:
             continue
         
-        if (x-center_x) ** 2 + (y-center_y) ** 2 < center_exclusion_radius_squared:
+        if (
+            abs(x-center_x) < clearance_size
+            and abs(y-center_y) < clearance_size
+        ):
             continue
 
         too_close = any(
