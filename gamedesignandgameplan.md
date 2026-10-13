@@ -5,6 +5,23 @@
 > **prototype** are starting points for testing, not final balance
 > decisions.
 
+## Current implementation status
+
+This section tracks what has actually been implemented in the repository, separately from the full design plan.
+
+- [x] Pygame window and main game loop.
+- [x] Configurable forest tree count in `main.py`.
+- [x] Random tree positions generated once when the run starts.
+- [x] Minimum spacing check between generated trees.
+- [x] Configurable tree scale, clamped to the range 0.0–1.0.
+- [x] Separate trunk and leaves drawing passes, so trunks are drawn behind all canopies.
+- [x] Draw a square radio tower and a smaller square antenna above it.
+- [ ] Add the player triangle and keyboard movement.
+- [ ] Prevent trees from spawning inside the tower/antenna area.
+- [ ] Add player collision with trees and the tower.
+
+The current tree-spacing value is a prototype setting and can be tuned after visually testing the forest. The tower and antenna are currently visual placeholders; tower health, power, signal integrity, and pulse behavior are not implemented yet.
+
 ## 1. High concept
 
 **Genre:** Top-down 2D action-survival with light tower-defense and
@@ -466,6 +483,8 @@ scenes, and extra enemy types until the core loop is enjoyable.
 ## 15. First playable prototype acceptance checklist
 
 -   [ ] Player moves and collides with obstacles.
+-   [x] A configurable forest of randomly generated trees is drawn with spacing and separate trunk/canopy layers.
+-   [x] A square radio tower and square antenna are drawn as visual placeholders.
 -   [ ] One enemy can navigate toward the tower.
 -   [ ] Player can damage and defeat the enemy.
 -   [ ] Enemy can damage the tower.
