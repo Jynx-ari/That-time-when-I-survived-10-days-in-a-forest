@@ -46,7 +46,7 @@ def generate_forest(count):
         x,y = random.randint(40, w - 40), random.randint(55, h -55)
 
         #calc edging distance...~ heh :>
-        edge_distance = min(x,w-x,h-y)
+        edge_distance = min(x,w-x, y,h-y)
         
         #edge maxxing?!?!?
         max_edge_distance = min(w,h)/2
