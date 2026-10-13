@@ -11,42 +11,32 @@ game_conf = {
     "background color": "#365F1A",
     "exittap": 3,
     "fps": 60,
-    "tree count": 100,
+    "tree count": 40,
     "tower color": "#96a09b",
     "antenna color": "#d2372d"
 }
 
 exittap: int = 0
 
-# tree_pos = (300, 200)
-
-
-
-
-# def generate_forest(count, margin, nono_zones):
-#     trees = []
-
-#     for _ in range(count):
-#         attempts = 0
-#         while attepts < 100:
-#             x = random.randint(margin, w - margin)
-#             y = random.randint(margin, h - margin)
-#             tree_rect = pygame.Rect(x -27, y - 27, 54, 54)
-#             if any(tree_rect.collidrect(area) for  area in nono_zones):
-#                 attempts+=1
-#                 continue
-            
 
 
 def generate_forest(count):
     trees = []
-    for _ in range(count):
-        x, y = random.randint(40, w-40), random.randint(40, h-40)
-        tree = gen_Tree((x,y))
-        trees.append(tree)
-        return trees
+    min_distance = 20
+    max_attempts = count * 50
+    attempts = 0
 
+    while len(trees) <  count and attempts < max_attempts:
+        attempts += 1
+        x, y = random.randint(40, w-40), random.randint(55, h-55)
+        
+        too_close = any(
+            (x-tree.leaves_pos[0]) ** 2 + (y - tree.leaves_pos[1]) ** 2 < min_distance ** 2 for tree in trees
+        )
 
+        if not too_close:
+            trees.append(gen_Tree((x,y)))
+    return trees
 
 def main():
     pygame.init()
@@ -90,9 +80,11 @@ def main():
 
         # the_tree.draw(screen)
         for tree in trees:
-            tree.draw(screen)
+            tree.draw_trunk(screen)
 
-
+        for tree in trees:
+            tree.draw_leaves(screen)
+            
         #pygame update screen
         pygame.display.flip()
         clock.tick(game_conf["fps"])
