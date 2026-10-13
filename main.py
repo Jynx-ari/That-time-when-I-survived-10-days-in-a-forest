@@ -12,6 +12,8 @@ game_conf = {
     "exittap": 3,
     "fps": 60,
     "tree count": 40,
+    "tree scale": 0.2,  # 0.0 to 1.0
+    "tree minimum distance": 50,
     "tower color": "#96a09b",
     "antenna color": "#d2372d"
 }
@@ -22,7 +24,7 @@ exittap: int = 0
 
 def generate_forest(count):
     trees = []
-    min_distance = 20
+    min_distance = game_conf["tree minimum distance"]
     max_attempts = count * 50
     attempts = 0
 
@@ -35,7 +37,7 @@ def generate_forest(count):
         )
 
         if not too_close:
-            trees.append(gen_Tree((x,y)))
+            trees.append(gen_Tree((x, y), tree_scale=game_conf["tree scale"]))
     return trees
 
 def main():
@@ -50,6 +52,22 @@ def main():
 
     #the_tree = gen_Tree(tree_pos)
     trees = generate_forest(game_conf["tree count"])
+
+    # Centerpiece: square radio tower with a smaller square antenna on top.
+    tower_size = 60
+    tower_rect = pygame.Rect(
+        w // 2 - tower_size // 2,
+        h // 2 - tower_size // 2,
+        tower_size,
+        tower_size,
+    )
+    antenna_size = 18
+    antenna_rect = pygame.Rect(
+        tower_rect.centerx - antenna_size // 2,
+        tower_rect.top - antenna_size + 4,
+        antenna_size,
+        antenna_size,
+    )
 
     ##Quit handler
     def quit():
@@ -84,7 +102,11 @@ def main():
 
         for tree in trees:
             tree.draw_leaves(screen)
-            
+
+        # Draw the tower first, then the antenna on top of it.
+        pygame.draw.rect(screen, game_conf["tower color"], tower_rect)
+        pygame.draw.rect(screen, game_conf["antenna color"], antenna_rect)
+
         #pygame update screen
         pygame.display.flip()
         clock.tick(game_conf["fps"])
