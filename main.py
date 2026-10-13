@@ -13,7 +13,7 @@ game_conf = {
     "fps": 60,
 
     # Forest generation settings
-    "tree count": 40,  # How many trees to try to generate
+    "tree count": 75,  # How many trees to try to generate
     "tree scale": 0.2,  # 0.0 to 1.0; larger values make trees bigger
     "tree minimum distance": 50,  # Minimum distance between tree centers
     "tree center exclusion radius": 150,  # Keep this area around the map center clear
@@ -41,21 +41,43 @@ def generate_forest(count):
 
     while len(trees) < count and attempts < max_attempts:
         attempts += 1
-        x, y = random.randint(40, w - 40), random.randint(55, h - 55)
+        
+        #70% chance to get an edge position.. heh edging ;)
 
-        # Leave an open clearing around the radio tower.
-        if (x - center_x) ** 2 + (y - center_y) ** 2 < center_exclusion_radius_squared:
+        if random.random() < 0.7:
+            edge = random.choice([1,2,3,4])
+
+            if edge == 1:
+                #left edge
+                x, y = random.randint(40, 150), random.randint(55, h - 55)
+            elif edge == 2:
+                #right edge
+                 x, y = random.randint(w - 150, w - 40), random.randint(55, h - 55)
+            elif edge == 3:
+                #top edge
+                x, y = random.randint(40, w-40), random.randint(55, h-55)
+            else:
+                #bottom edge
+                x,y=random.randint(40, w-40), random.randint(h-150, h-55)
+        else:
+            #30% chance to get an edging positionm~??~?? WOAH?
+            x,y =random.randint(40,w-40), random.randint(55, h-55)
+        
+        if (x-center_x) ** 2 + (y-center_y) ** 2 < center_exclusion_radius_squared:
             continue
 
-        # Keep generated trees from crowding one another.
         too_close = any(
-            (x - tree.leaves_pos[0]) ** 2 + (y - tree.leaves_pos[1]) ** 2
+            (x - tree.leaves_pos[0]) ** 2 + (y-tree.leaves_pos[1]) ** 2
             < min_distance_squared
             for tree in trees
         )
 
         if not too_close:
-            trees.append(gen_Tree((x, y), tree_scale=game_conf["tree scale"]))
+            trees.append(
+                gen_Tree((x,y),
+                tree_scale=game_conf["tree scale"]
+                )
+            )
 
     return trees
 
