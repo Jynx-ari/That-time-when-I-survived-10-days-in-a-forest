@@ -19,13 +19,14 @@ This section tracks what has actually been implemented in the repository, separa
 - [x] Configurable central clearing around the radio tower (`tree center exclusion radius`).
 - [ ] Bias tree placement toward the map edges and generate denser outer clusters instead of distributing trees uniformly.
 - [x] Separate trunk and leaves drawing passes, so trunks are drawn behind all canopies.
+- [ ] Give each tree a square trunk hidden in the normal overhead view; when the player enters its canopy, make the canopy translucent and reveal the trunk so the player can see their position and collision obstacle.
 - [x] Draw a square radio tower and a smaller square antenna above it.
 - [ ] Add the player triangle and keyboard movement.
 - [ ] Add player collision with trees and the tower.
 
 Forest generation can be tuned in the `game_conf` dictionary in `main.py`: change `tree count` to control how many trees are attempted, `tree scale` to control their size, `tree minimum distance` to control spacing between tree centers, and `tree center exclusion radius` to control how large the open area around the map center is. The generator has a limited number of placement attempts, so very high tree counts or spacing values may result in fewer trees than requested.
 
-**Planned forest layout (not implemented yet):** replace the current illustrated tree sprites with simple circular canopy/vegetation obstacles suited to a true bird's-eye view. Keep the tower's immediate clearing open, then use a subtle, irregular transition from sparse obstacles to moderate density and finally a mostly continuous dense outer forest wall. Preserve small traversable gaps and routes into the forest so the player can explore and scavenge; do not seal the map perimeter or create a hard circular boundary. Candidate placement should make vegetation density increase toward the map edges while preserving minimum spacing and the center-exclusion check. Do not mark this as complete until the result has been coded and visually tested.
+**Planned forest layout (not implemented yet):** use simple circular canopies suited to a true bird's-eye view. Each tree should have a perfect square trunk as its solid collision obstacle, but the trunk should be hidden during the normal view so the forest reads as circles. When the player passes under a tree's canopy, make that canopy translucent and reveal the square trunk underneath; this keeps the player visible and communicates where the obstacle is. Keep the tower's immediate clearing open, then use a subtle, irregular transition from sparse obstacles to moderate density and finally a mostly continuous dense outer forest wall. Preserve small traversable gaps and routes into the forest so the player can explore and scavenge; do not seal the map perimeter or create a hard circular boundary. Candidate placement should make vegetation density increase toward the map edges while preserving minimum spacing and the center-exclusion check. Do not mark these planned behaviors as complete until they have been coded and visually tested.
 
 The tower and antenna are currently visual placeholders; tower health, power, signal integrity, and pulse behavior are not implemented yet.
 
@@ -73,10 +74,10 @@ random distribution across the entire map.
 -   **Forest trails and gaps:** narrow routes through the transition zone and outer forest that support short exploration trips, retreat routes, and enemy approach paths. Preserve some traversable gaps rather than sealing the perimeter completely.
 -   **Abandoned rural structures:** possible scavenging sites such as a
     shed, small house, sari-sari store, or farm outbuilding.
--   **Forest obstacles:** simple circles representing vegetation viewed from directly above; solid obstacles that shape movement and potentially line of sight if those rules are added later. Their density gradually increases from the clearing toward the perimeter, with gaps that support exploration.
+-   **Forest obstacles:** circular canopies viewed from directly above, with a perfect square trunk beneath each canopy as the solid collision obstacle. Trunks are hidden in the normal view. When the player enters a canopy, that canopy becomes translucent and the square trunk is revealed, keeping the player visible and making the collision obstacle readable. Vegetation density gradually increases from the clearing toward the perimeter, with gaps that support exploration.
 -   **Outer perimeter:** enemy spawn points distributed around the map.
 
-The first map should be a compact explorable area, not a large open world. Use simple circular vegetation obstacles, a few rocks, fences, and abandoned structures or loot locations. The outer forest should feel dense without blocking all travel: preserve readable routes and small gaps that let the player leave the tower's clearing, find supplies, and return. The layout should give the player several meaningful locations to explore and defend.
+The first map should be a compact explorable area, not a large open world. Use simple circular canopies with hidden square trunks that become visible beneath translucent leaves when the player enters a canopy, plus a few rocks, fences, and abandoned structures or loot locations. The outer forest should feel dense without blocking all travel: preserve readable routes and small gaps that let the player leave the tower's clearing, find supplies, and return. The layout should give the player several meaningful locations to explore and defend.
 
 ## 4. Core gameplay loop
 
@@ -511,7 +512,7 @@ These can remain undecided while the prototype is built:
     version.
 -   Final costs, loot quantities, enemy counts, and tower stats.
 -   Whether scavenging sites ever restock.
--   Final visual style, asset resolution, and sound design. Current direction: bird's-eye view with simple circular vegetation instead of visible trunks and side-facing tree canopies.
+-   Final asset resolution and sound design. Current visual direction: bird's-eye view with circular canopies and no visible trunks in the normal view; each tree has a square trunk that is revealed when its canopy becomes translucent around the player.
 -   Airdrop frequency, warning/landing presentation, contents, and whether drops arrive on fixed days or as random events.
 
 ## 17. Reference and inspiration
