@@ -12,17 +12,19 @@ This section tracks what has actually been implemented in the repository, separa
 TICK OFF IF THE SAID DESIGN/IMPLEMENTATION/FEATURE IS DONE!
 
 - [x] Pygame window and main game loop.
-- [x] Configurable forest tree count in `main.py`.
+- [x] Configurable forest tree count in `main.py` (`tree count`).
 - [x] Random tree positions generated once when the run starts.
-- [x] Minimum spacing check between generated trees.
-- [x] Configurable tree scale, clamped to the range 0.0–1.0.
+- [x] Minimum spacing check between generated trees (`tree minimum distance`).
+- [x] Configurable tree scale, clamped to the range 0.0–1.0 (`tree scale`).
+- [x] Configurable central clearing around the radio tower (`tree center exclusion radius`).
 - [x] Separate trunk and leaves drawing passes, so trunks are drawn behind all canopies.
 - [x] Draw a square radio tower and a smaller square antenna above it.
 - [ ] Add the player triangle and keyboard movement.
-- [ ] Prevent trees from spawning inside the tower/antenna area.
 - [ ] Add player collision with trees and the tower.
 
-The current tree-spacing value is a prototype setting and can be tuned after visually testing the forest. The tower and antenna are currently visual placeholders; tower health, power, signal integrity, and pulse behavior are not implemented yet.
+Forest generation can be tuned in the `game_conf` dictionary in `main.py`: change `tree count` to control how many trees are attempted, `tree scale` to control their size, `tree minimum distance` to control spacing between tree centers, and `tree center exclusion radius` to control how large the open area around the map center is. The generator has a limited number of placement attempts, so very high tree counts or spacing values may result in fewer trees than requested.
+
+The tower and antenna are currently visual placeholders; tower health, power, signal integrity, and pulse behavior are not implemented yet.
 
 ## 1. High concept
 
@@ -485,7 +487,7 @@ scenes, and extra enemy types until the core loop is enjoyable.
 ## 15. First playable prototype acceptance checklist
 
 -   [ ] Player moves and collides with obstacles.
--   [x] A configurable forest of randomly generated trees is drawn with spacing and separate trunk/canopy layers.
+-   [x] A configurable forest of randomly generated trees is drawn with spacing, a clear central area, and separate trunk/canopy layers.
 -   [x] A square radio tower and square antenna are drawn as visual placeholders.
 -   [ ] One enemy can navigate toward the tower.
 -   [ ] Player can damage and defeat the enemy.
