@@ -1,6 +1,7 @@
 import pygame
 import sys
 from classes.tree import gen_Tree
+from functions.center import draw_center
 import random
 
 ##-- GAME CONFIG --##
@@ -54,20 +55,7 @@ def main():
     trees = generate_forest(game_conf["tree count"])
 
     # Centerpiece: square radio tower with a smaller square antenna on top.
-    tower_size = 60
-    tower_rect = pygame.Rect(
-        w // 2 - tower_size // 2,
-        h // 2 - tower_size // 2,
-        tower_size,
-        tower_size,
-    )
-    antenna_size = 18
-    antenna_rect = pygame.Rect(
-        tower_rect.centerx - antenna_size // 2,
-        tower_rect.top - antenna_size + 4,
-        antenna_size,
-        antenna_size,
-    )
+    
 
     ##Quit handler
     def quit():
@@ -104,9 +92,7 @@ def main():
             tree.draw_leaves(screen)
 
         # Draw the tower first, then the antenna on top of it.
-        pygame.draw.rect(screen, game_conf["tower color"], tower_rect)
-        pygame.draw.rect(screen, game_conf["antenna color"], antenna_rect)
-
+        draw_center(screen, (w,h), game_conf["tower color"], game_conf["antenna color"])
         #pygame update screen
         pygame.display.flip()
         clock.tick(game_conf["fps"])

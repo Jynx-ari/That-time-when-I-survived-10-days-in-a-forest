@@ -9,6 +9,8 @@
 
 This section tracks what has actually been implemented in the repository, separately from the full design plan.
 
+TICK OFF IF THE SAID DESIGN/IMPLEMENTATION/FEATURE IS DONE!
+
 - [x] Pygame window and main game loop.
 - [x] Configurable forest tree count in `main.py`.
 - [x] Random tree positions generated once when the run starts.
