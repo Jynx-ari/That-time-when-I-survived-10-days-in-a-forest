@@ -1,5 +1,6 @@
 import pygame
 import sys
+from classes.tree import gen_Tree
 ##-- GAME CONFIG --##
 w,h = 1200,800
 
@@ -8,8 +9,9 @@ fps=60
 
 game_conf = {
     "background color": (25,45,30),
+    "exittap": 3
 }
-
+exittap: int = 0
 def main():
     pygame.init()
 
@@ -36,11 +38,19 @@ def main():
                 quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    quit()
+                    global exittap
+                    exittap += 1
+                    if exittap >= game_conf["exittap"]:
+                        
+                        quit()
 
         #game
         screen.fill(game_conf["background color"])
-        
+       
+        the_tree = gen_Tree(tree_pos)
+        the_tree.draw(screen)
+
+
         #pygame update screen
         pygame.display.flip()
     
