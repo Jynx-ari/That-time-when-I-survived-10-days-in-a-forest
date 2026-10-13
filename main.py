@@ -20,6 +20,9 @@ game_conf = {
 
     "tower color": "#96a09b",
     "antenna color": "#d2372d",
+
+    "center clearance size": 250,
+
 }
 
 
@@ -38,6 +41,7 @@ def generate_forest(count):
     center_x, center_y = w // 2, h // 2
     center_exclusion_radius_squared = center_exclusion_radius ** 2
     min_distance_squared = min_distance ** 2
+    clearance_size = game_conf["center clearance size"]
 
     while len(trees) < count and attempts < max_attempts:
         attempts += 1
