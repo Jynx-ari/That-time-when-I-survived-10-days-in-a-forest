@@ -7,6 +7,9 @@ import random
 ##-- GAME CONFIG --##
 w, h = 1200, 800
 
+# Map config
+m_w,m_h = 2400, 1600
+
 game_conf = {
     "background color": "#365F1A",
     "exittap": 3,
