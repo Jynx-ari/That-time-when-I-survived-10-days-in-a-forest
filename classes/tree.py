@@ -4,11 +4,11 @@ import pygame
 default_trunk = [
     10,                 # Width
     40,                 # Height
-    (85, 58, 37),       # Color
+    "#7B381A",       # Color
 ]
 
 default_leaves = [
-    (17, 38, 25),       # Color
+    "#39752A",       # Color
     22,                 # Radius
 ]
 

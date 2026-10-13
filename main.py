@@ -6,7 +6,7 @@ w,h = 1200,800
 
 
 game_conf = {
-    "background color": (25,45,30),
+    "background color": "#365F1A",
     "exittap": 3,
     "fps": 60
 }
