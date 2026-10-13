@@ -22,7 +22,10 @@ game_conf = {
     "antenna color": "#d2372d",
 }
 
+
+
 exittap: int = 0
+
 
 
 def generate_forest(count):
@@ -55,6 +58,8 @@ def generate_forest(count):
             trees.append(gen_Tree((x, y), tree_scale=game_conf["tree scale"]))
 
     return trees
+
+
 
 
 def main():
