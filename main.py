@@ -13,7 +13,7 @@ game_conf = {
 
 exittap: int = 0
 
-tree_pos = (600, 400)
+tree_pos = (300, 200)
 
 def main():
     pygame.init()
@@ -26,8 +26,7 @@ def main():
 
 
     the_tree = gen_Tree(tree_pos)
-    the_tree.draw(screen)
-
+    
 
     ##Quit handler
     def quit():
@@ -55,7 +54,9 @@ def main():
 
         #game
         screen.fill(game_conf["background color"])
-      
+
+        the_tree.draw(screen)
+
 
 
         #pygame update screen
