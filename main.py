@@ -116,9 +116,9 @@ def main():
         # Draw the world
         screen.fill(game_conf["background color"])
 
-        for tree in trees:
-            tree.draw_trunk(screen)
-
+        # for tree in trees:
+        #     tree.draw_trunk(screen)
+        # Since its bird's eye view, trunks werent never meant to be seen
         for tree in trees:
             tree.draw_leaves(screen)
 
