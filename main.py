@@ -8,7 +8,10 @@ w,h = 1200,800
 game_conf = {
     "background color": "#365F1A",
     "exittap": 3,
-    "fps": 60
+    "fps": 60,
+    "tree count": 40,
+    "tower color": "#96a09b",
+    "antenna color": "#d2372d"
 }
 
 exittap: int = 0
