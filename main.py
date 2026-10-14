@@ -147,7 +147,7 @@ def main():
         
         player.move(keys, dt, (m_w, m_h))
         camera.follow(player.pos, (m_w, m_h), (w,h))
-        player.aimlook(pygame.mouse.get_pos(), camera)
+        
 
 
         # Draw the world
@@ -166,6 +166,7 @@ def main():
             tree.draw_leaves(screen, screen_pos)
 
         player_screen_pos = camera.syncworld_to_screen(player.pos)
+        player.aimlook(pygame.mouse.get_pos(), camera)
         player.draw(screen, player_screen_pos)
         pygame.display.flip()
        
