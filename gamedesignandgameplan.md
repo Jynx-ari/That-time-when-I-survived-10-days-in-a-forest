@@ -17,16 +17,16 @@ This section tracks what has actually been implemented in the repository, separa
 - [x] Minimum spacing check between generated trees (`tree minimum distance`).
 - [x] Configurable tree scale, clamped to the range 0.0–1.0 (`tree scale`).
 - [x] Configurable square central clearance around the radio tower (`center clearance size`); the square check is in place, with visual tuning still possible.
-- [ ] Bias tree placement toward the map edges and generate denser outer clusters instead of distributing trees uniformly.
+- [ ] Tune the existing outward density bias into a gradual increase toward the distant map edges; the chosen design is a huge, mostly open central field with a forest that thickens outward.
 - [x] Separate trunk and leaves drawing passes, so trunks are drawn behind all canopies.
 - [ ] Give each tree a square trunk hidden in the normal overhead view; when the player enters its canopy, make the canopy translucent and reveal the trunk so the player can see their position and collision obstacle.
 - [x] Draw a square radio tower and a smaller square antenna above it.
 - [ ] Add the player triangle and keyboard movement.
 - [ ] Add player collision with trees and the tower.
 
-Forest generation can be tuned in the `game_conf` dictionary in `main.py`: change `tree count` to control how many trees are attempted, `tree scale` to control their size, `tree minimum distance` to control spacing between tree centers, and `center clearance size` to control the half-width and half-height of the square clearing around the map center. The generator has a limited number of placement attempts, so very high tree counts or spacing values may result in fewer trees than requested. The current prototype still uses the window-sized 1200 × 800 area as its generation bounds. Keep this for now; when the camera is introduced, separate world/map dimensions from the screen viewport and generate trees in world coordinates.
+Forest generation can be tuned in the `game_conf` dictionary in `main.py`: change `tree count` to control how many trees are attempted, `tree scale` to control their size, `tree minimum distance` to control spacing between tree centers, and `center clearance size` to control the half-width and half-height of the square clearing around the map center. The generator has a limited number of placement attempts, so very high tree counts or spacing values may result in fewer trees than requested. The configured world is 2400 × 1600 and the viewport is 1200 × 800. The latest code now samples tree positions and calculates edge distance using the world dimensions, but the clearing center is still calculated from the viewport dimensions and trees are drawn directly in world coordinates with no camera offset. The world-coordinate transition is therefore incomplete; fix the center calculation and introduce a camera before treating large-world rendering as working.
 
-**Planned forest layout (not implemented yet):** use simple circular canopies suited to a true bird's-eye view. Each tree should have a perfect square trunk as its solid collision obstacle, but the trunk should be hidden during the normal view so the forest reads as circles. When the player passes under a tree's canopy, make that canopy translucent and reveal the square trunk underneath; this keeps the player visible and communicates where the obstacle is. Keep the tower's immediate clearing open, then use a subtle, irregular transition from sparse obstacles to moderate density and finally a mostly continuous dense outer forest wall. Preserve small traversable gaps and routes into the forest so the player can explore and scavenge; do not seal the map perimeter or create a hard circular boundary. Candidate placement should make vegetation density increase toward the map edges while preserving minimum spacing and the square central-clearance check. For the current prototype, these edges are the current map bounds; the screen and world dimensions will be separated when the camera is implemented. Do not mark these planned behaviors as complete until they have been coded and visually tested.
+**Chosen forest layout (not implemented/visually verified yet):** use simple circular canopies suited to a true bird's-eye view. The central area should be a huge, mostly open field around the radio tower, with a distant forest that gradually becomes denser toward the outer map edges. Avoid a tight ring of individual trees and avoid a sudden solid wall. Preserve scattered trees and traversable routes through the transition, with denser vegetation near the perimeter. Each tree should have a perfect square trunk as its solid collision obstacle, but the trunk should be hidden during the normal view so the forest reads as circles. When the player passes under a tree's canopy, make that canopy translucent and reveal the square trunk underneath. The generator should use world dimensions for placement and density calculations; rendering must convert world coordinates to screen coordinates through a camera offset. Do not mark these behaviors complete until coded and visually tested.
 
 The tower and antenna are currently visual placeholders; tower health, power, signal integrity, and pulse behavior are not implemented yet.
 
@@ -62,13 +62,11 @@ survive increasingly difficult attacks.
 ## 3. Setting and map
 
 The game world is a forest clearing in a fictional Philippine rural
-region, with dense tropical forest around the edges and some open field
-in the center. The current prototype temporarily uses the 1200 × 800
-window-sized area as its map; once a camera is added, the world/map
-bounds must be independent of the screen viewport. Tree density should be biased outward: a relatively open
-central area around the radio tower, a transition zone with scattered
-trees, and thicker bundled growth near the perimeter. Avoid an evenly
-random distribution across the entire map.
+region. The world is configured as 2400 × 1600 while the visible window is
+1200 × 800. The chosen layout is a huge, mostly open central field around
+the tower, with tree density increasing gradually toward a distant outer
+forest. A camera is required to view and navigate the larger world. Avoid
+a tight ring around the clearing or an evenly random distribution.
 
 ### Functional areas
 
@@ -79,7 +77,7 @@ random distribution across the entire map.
 -   **Forest obstacles:** circular canopies viewed from directly above, with a perfect square trunk beneath each canopy as the solid collision obstacle. Trunks are hidden in the normal view. When the player enters a canopy, that canopy becomes translucent and the square trunk is revealed, keeping the player visible and making the collision obstacle readable. Vegetation density gradually increases from the clearing toward the perimeter, with gaps that support exploration.
 -   **Outer perimeter:** enemy spawn points distributed around the map.
 
-The first map should be a compact explorable area, not a large open world. Use simple circular canopies with hidden square trunks that become visible beneath translucent leaves when the player enters a canopy, plus a few rocks, fences, and abandoned structures or loot locations. The outer forest should feel dense without blocking all travel: preserve readable routes and small gaps that let the player leave the tower's clearing, find supplies, and return. The layout should give the player several meaningful locations to explore and defend.
+The world should be compact enough to finish and test, but large enough for the player to leave the tower's broad clearing and explore toward the distant forest. Use simple circular canopies with hidden square trunks that become visible beneath translucent leaves when the player enters a canopy, plus a few rocks, fences, and abandoned structures or loot locations. The outer forest should feel dense without blocking all travel: preserve readable routes and small gaps that let the player leave the tower's clearing, find supplies, and return. The layout should give the player several meaningful locations to explore and defend.
 
 ## 4. Core gameplay loop
 
