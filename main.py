@@ -25,7 +25,7 @@ game_conf = {
 
     # Forest generation settings
     "tree count": 175,  # How many trees to try to generate
-    "tree scale": 0.7,  # 0.0 to 1.0; larger values make trees bigger
+    "tree scale": 0.9,  # 0.0 to 1.0; larger values make trees bigger
     "tree minimum distance": 10,  # Minimum distance between tree centers
     "tree center exclusion radius": 800,  # Keep this area around the map center clear
 
@@ -159,15 +159,15 @@ def main():
 
         draw_center(screen, center_screen, game_conf["tower color"], game_conf["antenna color"], game_conf["grass"])
 
-
+        player_screen_pos = camera.syncworld_to_screen(player.pos)
+        player.aimlook(pygame.mouse.get_pos(), camera)
+        player.draw(screen, player_screen_pos)
         
         for tree in trees:
             screen_pos = camera.syncworld_to_screen(tree.leaves_pos)
             tree.draw_leaves(screen, screen_pos)
 
-        player_screen_pos = camera.syncworld_to_screen(player.pos)
-        player.aimlook(pygame.mouse.get_pos(), camera)
-        player.draw(screen, player_screen_pos)
+        
         pygame.display.flip()
        
 

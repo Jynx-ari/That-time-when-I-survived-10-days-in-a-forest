@@ -2,7 +2,7 @@ import pygame
 
 default_conf = {
     "size": 10,
-    "walkspeed": 220
+    "walkspeed": 90
 }
 
 
