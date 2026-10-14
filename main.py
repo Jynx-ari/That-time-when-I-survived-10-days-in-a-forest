@@ -147,7 +147,7 @@ def main():
         
         player.move(keys, dt, (m_w, m_h))
         camera.follow(player.pos, (m_w, m_h), (w,h))
-        
+        player.aimlook(pygame.mouse.get_pos(), camera)
 
 
         # Draw the world
