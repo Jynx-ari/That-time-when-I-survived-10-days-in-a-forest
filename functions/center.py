@@ -1,21 +1,46 @@
 import pygame
 
-def draw_center(screen, wh, tower_color, antenna_color):
+def draw_center(screen, wh, tower_color, antenna_color, grass_color):
     w, h = wh
-    tower_size = 60
+    tower_size = 42
     tower_rect = pygame.Rect(
         w // 2 - tower_size // 2,
         h // 2 - tower_size // 2,
         tower_size,
         tower_size,
     )
-    antenna_size = 18
+    antenna_size = 12.60
     antenna_rect = pygame.Rect(
         tower_rect.centerx - antenna_size // 2,
         tower_rect.centery - antenna_size // 2 ,
         antenna_size,
         antenna_size,
     )
+
+    dirt_size = 800
+
+    dirt_area = pygame.Rect(
+            w // 2 - dirt_size // 2,
+            h // 2 - dirt_size // 2,
+            dirt_size,
+            dirt_size,
+        )
+
+    transition_width = 100
+    band_count = 5
+    #steps = transition_width + 1
+    band_width = transition_width // band_count
+    dirt_color = pygame.Color("#967332")
+    grass_color = pygame.Color(grass_color)
+   
+    pygame.draw.rect(screen, dirt_color, dirt_area)
+
+    for band in range(band_count):
+        amount = band / (band_count -1)
+        inset = band * band_width
+        edge_rect = dirt_area.inflate(-2*inset,-2*inset)
+        color = grass_color.lerp(dirt_color, amount)
+        pygame.draw.rect(screen, color, edge_rect, width=band_width)
 
     pygame.draw.rect(screen, tower_color, tower_rect)
     pygame.draw.rect(screen, antenna_color, antenna_rect)

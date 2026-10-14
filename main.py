@@ -4,21 +4,21 @@ from classes.tree import gen_Tree
 from functions.center import draw_center
 import random
 
-##-- GAME CONFIG --##
+##-- GAME CONFIG --##   
 w, h = 1200, 800
 
 # Map config
 m_w,m_h = 2400, 1600
 
 game_conf = {
-    "background color": "#365F1A",
+    "grass": "#365F1A",
     "exittap": 3,
     "fps": 60,
 
     # Forest generation settings
     "tree count": 175,  # How many trees to try to generate
     "tree scale": 0.7,  # 0.0 to 1.0; larger values make trees bigger
-    "tree minimum distance": 50,  # Minimum distance between tree centers
+    "tree minimum distance": 600,  # Minimum distance between tree centers
     "tree center exclusion radius": 300,  # Keep this area around the map center clear
 
     "tower color": "#96a09b",
@@ -50,13 +50,13 @@ def generate_forest(count):
         attempts += 1
         
         
-        x,y = random.randint(40, w - 40), random.randint(55, h -55)
+        x,y = random.randint(40, m_w- 40), random.randint(55, m_h -55)
 
         #calc edging distance...~ heh :>
-        edge_distance = min(x,w-x, y,h-y)
+        edge_distance = min(x,m_w-x, y,m_h-y)
         
         #edge maxxing?!?!?
-        max_edge_distance = min(w,h)/2
+        max_edge_distance = min(m_w,m_h)/2
 
         density = 0.15 + 0.85 * (
             1 - edge_distance / max_edge_distance
@@ -105,6 +105,10 @@ def main():
         pygame.quit()
         sys.exit()
 
+
+
+    
+
     ## Game loop
     while running:
         # Keybinds
@@ -119,16 +123,17 @@ def main():
                         quit()
 
         # Draw the world
-        screen.fill(game_conf["background color"])
+        screen.fill(game_conf["grass"])
 
         # for tree in trees:
         #     tree.draw_trunk(screen)
         # Since its bird's eye view, trunks werent never meant to be seen
+        draw_center(screen, (w, h), game_conf["tower color"], game_conf["antenna color"], game_conf["grass"])
+
         for tree in trees:
             tree.draw_leaves(screen)
 
-        draw_center(screen, (w, h), game_conf["tower color"], game_conf["antenna color"])
-
+        
         pygame.display.flip()
         clock.tick(game_conf["fps"])
 
