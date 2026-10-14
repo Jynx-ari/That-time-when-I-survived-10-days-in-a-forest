@@ -18,17 +18,21 @@ game_conf = {
     "exittap": 3,
     "fps": 60,
     "camera speed": 5,
+    "zoom": 1.0,
+    "min_zoom": 0.5,
+    "max_zoom": 2.0,
+    "zoom_speed": 0.1,
 
     # Forest generation settings
     "tree count": 175,  # How many trees to try to generate
     "tree scale": 0.7,  # 0.0 to 1.0; larger values make trees bigger
-    "tree minimum distance": 600,  # Minimum distance between tree centers
-    "tree center exclusion radius": 300,  # Keep this area around the map center clear
+    "tree minimum distance": 10,  # Minimum distance between tree centers
+    "tree center exclusion radius": 800,  # Keep this area around the map center clear
 
     "tower color": "#96a09b",
     "antenna color": "#d2372d",
 
-    "center clearance size": 250,
+    "center clearance size": 500,
 
 }
 
@@ -126,7 +130,12 @@ def main():
                     if exittap >= game_conf["exittap"]:
                         quit()
 
-
+            if event.type == pygame.MOUSEWHEEL:
+                game_conf["zoom"] += event.y * game_conf["zoom_speed"]
+                game_conf["zoom"] = max(
+                    game_conf["min_zoom"],
+                    min(game_conf["zoom"], game_conf["max_zoom"])
+                )
 
 
         keys = pygame.key.get_pressed()
@@ -140,11 +149,14 @@ def main():
         # Draw the world
         screen.fill(game_conf["grass"])
 
-        # for tree in trees:
-        #     tree.draw_trunk(screen)
-        # Since its bird's eye view, trunks werent never meant to be seen
-        draw_center(screen, (w, h), game_conf["tower color"], game_conf["antenna color"], game_conf["grass"])
+    
+        center_world = (m_w // 2, m_h // 2)
+        center_screen = camera.syncworld_to_screen(center_world)
 
+        draw_center(screen, center_screen, game_conf["tower color"], game_conf["antenna color"], game_conf["grass"])
+
+
+        
         for tree in trees:
             screen_pos = camera.syncworld_to_screen(tree.leaves_pos)
             tree.draw_leaves(screen, screen_pos)
