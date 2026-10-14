@@ -5,7 +5,7 @@ import random
 from classes.tree import gen_Tree
 from functions.center import draw_center
 from classes.camera import Camera
-
+from classes.player import Player
 
 ##-- GAME CONFIG --##   
 w, h = 1200, 800
@@ -108,6 +108,10 @@ def main():
 
     trees = generate_forest(game_conf["tree count"])
     camera = Camera(offset=(m_w // 2 - w // 2, m_h // 2 - h // 2))
+
+    player = Player((m_w // 2, m_h // 2 +70))
+
+
     ## Quit handler
     def quit():
         pygame.quit()
@@ -138,12 +142,12 @@ def main():
                 )
 
 
+        dt = clock.tick(game_conf["fps"]) /1000
         keys = pygame.key.get_pressed()
         
-        dxy = ((keys[pygame.K_RIGHT] - keys[pygame.K_LEFT] )* game_conf["camera speed"], (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * game_conf["camera speed"])
-        camera.move(dxy, (m_w, m_h), (w,h))
-
-
+        player.move(keys, dt, (m_w, m_h))
+        camera.follow(player.pos, (m_w, m_h), (w,h))
+        
 
 
         # Draw the world
@@ -161,9 +165,10 @@ def main():
             screen_pos = camera.syncworld_to_screen(tree.leaves_pos)
             tree.draw_leaves(screen, screen_pos)
 
-        
+        player_screen_pos = camera.syncworld_to_screen(player.pos)
+        player.draw(screen, player_screen_pos)
         pygame.display.flip()
-        clock.tick(game_conf["fps"])
+       
 
     pygame.quit()
 

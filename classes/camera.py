@@ -29,3 +29,22 @@ class Camera:
 
             ),
         )
+
+    def follow(self, target_pos, world_size, viewport_size):
+        max_x = world_size[0] - viewport_size[0]
+        max_y = world_size[1] - viewport_size[1]
+
+        self.offset=(
+            max(
+                0,
+                min(
+                    target_pos[0] - viewport_size[0] / 2, max_x
+                )
+            ),
+            max(
+                0,
+                min(
+                    target_pos[1] - viewport_size[1] / 2, max_y
+                )
+            )
+        )
