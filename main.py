@@ -17,6 +17,7 @@ game_conf = {
     "grass": "#365F1A",
     "exittap": 3,
     "fps": 60,
+    "camera speed": 5,
 
     # Forest generation settings
     "tree count": 175,  # How many trees to try to generate
@@ -124,6 +125,17 @@ def main():
                     exittap += 1
                     if exittap >= game_conf["exittap"]:
                         quit()
+
+
+
+
+        keys = pygame.key.get_pressed()
+        
+        dxy = ((keys[pygame.K_RIGHT] - keys[pygame.K_LEFT] )* game_conf["camera speed"], (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * game_conf["camera speed"])
+        camera.move(dxy, (m_w, m_h), (w,h))
+
+
+
 
         # Draw the world
         screen.fill(game_conf["grass"])

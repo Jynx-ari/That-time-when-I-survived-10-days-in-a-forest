@@ -9,3 +9,23 @@ class Camera:
             pos[0] - self.offset[0],
             pos[1] - self.offset[1],
         )
+
+    def move(self, dxy , world_size, viewport_size):
+        dx,dy = dxy
+
+        max_x = world_size[0] - viewport_size[0]
+        max_y = world_size[1] - viewport_size[1]
+
+        self.offset = (
+            max(
+                0, min(
+                    self.offset[0] + dx, max_x
+                )
+            ),
+            max(
+                0, min(
+                    self.offset[1] + dy, max_y
+                )
+
+            ),
+        )
