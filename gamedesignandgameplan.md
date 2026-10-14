@@ -24,13 +24,17 @@ This section tracks what has actually been implemented in the repository, separa
 - [x] Add a camera offset and convert the tower/clearing and tree positions from world coordinates to screen coordinates.
 - [x] Add configurable zoom limits and mouse-wheel input that updates the clamped zoom variable.
 - [ ] Render the world at the selected zoom level; the zoom variable currently does not affect drawing.
-- [ ] Add the player triangle and keyboard movement in world coordinates.
-- [ ] Make the camera follow the player while keeping the camera inside world bounds.
-- [ ] Add player collision with trees and the tower.
+- [x] Add the player triangle and keyboard movement in world coordinates (WASD and arrow keys).
+- [x] Make the camera follow the player while keeping the camera inside world bounds.
+- [x] Aim the player triangle toward the mouse cursor, converting screen coordinates to world coordinates using the camera offset.
+- [ ] Render the world at the selected zoom level; the zoom variable currently does not affect drawing.
+- [ ] Draw tree trunks in a separate pass behind the canopies, then make the canopy translucent and reveal the trunk when the player enters it.
+- [ ] Add player collision with tree trunks and the tower.
+- [ ] Tune tree spacing, the central clearing, and the gradual outward density bias.
 
-Forest generation can be tuned in the game_conf dictionary in main.py: change tree count to control how many trees are attempted, tree scale to control their size, tree minimum distance to control spacing between tree centers, and center clearance size to control the half-width and half-height of the square clearing around the map center. The generator has a limited number of placement attempts, so very high tree counts or spacing values may result in fewer trees than requested. The configured world is 2400 × 1600 and the viewport is 1200 × 800. Tree positions are generated in world coordinates, and the camera offset is now applied when drawing the tower/clearing and tree canopies. Arrow keys currently pan the camera directly; they will be reassigned to player movement when the player-follow step is implemented. Zoom settings and mouse-wheel input are present, but actual zoom rendering is not implemented yet.
+Forest generation can be tuned in the game_conf dictionary in main.py: change tree count to control how many trees are attempted, tree scale to control their size, tree minimum distance to control spacing between tree centers, and center clearance size to control the half-width and half-height of the square clearing around the map center. The generator has a limited number of placement attempts, so very high tree counts or spacing values may result in fewer trees than requested. The configured world is 2400 × 1600 and the viewport is 1200 × 800. Tree positions are generated in world coordinates, and the camera offset is applied when drawing world objects. The player moves with WASD or the arrow keys, the camera follows the player within the map bounds, and the player triangle aims toward the mouse cursor. Mouse-wheel input updates the zoom setting, but actual zoom rendering is not implemented yet.
 
-**Chosen forest layout (still requires visual tuning):** use simple circular canopies suited to a true bird's-eye view. The central area should be a huge, mostly open field around the radio tower, with a distant forest that gradually becomes denser toward the outer map edges. Avoid a tight ring of individual trees and avoid a sudden solid wall. Preserve scattered trees and traversable routes through the transition, with denser vegetation near the perimeter. Each tree should have a perfect square trunk as its solid collision obstacle, but the trunk should be hidden during the normal view so the forest reads as circles. When the player passes under a tree's canopy, make that canopy translucent and reveal the square trunk underneath. Tree positions and drawing now use world coordinates with a camera offset; density tuning, trunk rendering, and canopy transparency remain unfinished. Actual zoom rendering and player-follow camera behavior are also still pending.
+**Chosen forest layout (still requires visual tuning):** use simple circular canopies suited to a true bird's-eye view. The central area should be a huge, mostly open field around the radio tower, with a distant forest that gradually becomes denser toward the outer map edges. Avoid a tight ring of individual trees and avoid a sudden solid wall. Preserve scattered trees and traversable routes through the transition, with denser vegetation near the perimeter. Each tree should have a perfect square trunk as its solid collision obstacle, but the trunk should be hidden during the normal view so the forest reads as circles. When the player passes under a tree's canopy, make that canopy translucent and reveal the square trunk underneath. Tree positions and drawing now use world coordinates with a camera offset. Player movement, camera following, and mouse aiming are implemented. Density tuning, trunk rendering, canopy transparency, collision, and actual zoom rendering remain unfinished.
 
 The tower and antenna are currently visual placeholders; tower health, power, signal integrity, and pulse behavior are not implemented yet.
 
@@ -396,12 +400,15 @@ Build and test each milestone before moving on.
 
 -   Keep the map (2400 × 1600) and viewport (1200 × 800) as separate coordinate spaces.
 -   Draw world objects through the camera's world-to-screen conversion.
--   Add the player triangle and keyboard movement using world coordinates.
--   Make the camera follow the player and clamp to the map boundaries.
--   Implement zoom rendering after camera-follow works; keep zoom configurable and clamped.
--   Add collision with the tower and tree trunks after basic movement works.
--   Tune tree spacing, the central clearing, and the gradual outward density.
--   **Done when:** the player moves around the world, the camera follows smoothly without leaving the map, zoom visibly changes magnification within its limits, and the player cannot walk through solid obstacles.
+-   [x] Add the player triangle and keyboard movement using world coordinates.
+-   [x] Make the camera follow the player and clamp to the map boundaries.
+-   [x] Aim the player triangle toward the mouse cursor.
+-   [ ] Implement zoom rendering; keep zoom configurable and clamped, and ensure mouse aiming remains correct at every zoom level.
+-   [ ] Draw tree trunks in a separate pass behind canopies; when the player enters a canopy, make it translucent and reveal its square trunk.
+-   [ ] Add collision with the tower and tree trunks after their world-space hitboxes are defined.
+-   [ ] Tune tree spacing, the central clearing, and the gradual outward density.
+-   **Recommended next coding session:** implement visible zoom rendering first, then tree/trunk layering and collision. Keep each change small and test it before moving on.
+-   **Done when:** the player moves around the world, aims toward the mouse, the camera follows without leaving the map, zoom visibly changes magnification within its limits, and the player cannot walk through solid obstacles.
 
 ### Milestone 2 --- One enemy
 
@@ -495,6 +502,7 @@ scenes, and extra enemy types until the core loop is enjoyable.
 ## 15. First playable prototype acceptance checklist
 
 -   [ ] Player moves and collides with obstacles.
+-   [x] Player triangle aims toward the mouse cursor, including while the camera follows the player.
 -   [x] A configurable forest of randomly generated tree canopies is drawn.
 -   [ ] Tree trunks are rendered behind canopies and revealed with canopy transparency when the player enters a canopy.
 -   [x] A square radio tower and square antenna are drawn as visual placeholders.
