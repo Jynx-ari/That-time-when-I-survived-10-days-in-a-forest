@@ -1,4 +1,4 @@
-import pygame
+#import pygame
 
 class Camera:
     def __init__(self, offset=(0,0)):
