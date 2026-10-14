@@ -1,7 +1,7 @@
 import pygame
 
 default_conf = {
-    "size": 14,
+    "size": 10,
     "walkspeed": 220
 }
 
@@ -77,7 +77,7 @@ class Player:
         ]
 
         rotated_points = [
-            point.rotate(-self.angle + 90) + (x,y)
+            point.rotate(self.angle + 90) + (x,y)
             for point in points
         ]
         pygame.draw.polygon(screen, "#F4E8C1", rotated_points)
