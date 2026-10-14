@@ -80,5 +80,5 @@ class Player:
             point.rotate(-self.angle + 90) + (x,y)
             for point in points
         ]
-        pygame.draw.polygon(screen, "#F4E8C1", points)
-        pygame.draw.polygon(screen, "#282820", points, width=3)
+        pygame.draw.polygon(screen, "#F4E8C1", rotated_points)
+        pygame.draw.polygon(screen, "#282820", rotated_points, width=3)
