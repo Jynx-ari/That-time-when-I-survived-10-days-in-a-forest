@@ -57,7 +57,9 @@ class gen_Tree:
         (*self.trunk_pos, *self.trunk_size)
         )
     
-    def draw_leaves(self, screen):
+    def draw_leaves(self, screen, screen_pos=None):
+        if screen_pos is None:
+            screen_pos = self.leaves_pos
         pygame.draw.circle(
             screen,
             self.leaves_color,
