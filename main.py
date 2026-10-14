@@ -41,7 +41,7 @@ def generate_forest(count):
     max_attempts = count * 50
     attempts = 0
 
-    center_x, center_y = w // 2, h // 2
+    center_x, center_y = m_w // 2, m_h // 2
     center_exclusion_radius_squared = center_exclusion_radius ** 2
     min_distance_squared = min_distance ** 2
     clearance_size = game_conf["center clearance size"]
