@@ -4,8 +4,8 @@ def draw_center(screen, center_pos, tower_color, antenna_color, grass_color):
     center_x, center_y = center_pos
     tower_size = 42
     tower_rect = pygame.Rect(
-        center_x // 2 - tower_size // 2,
-        center_y // 2 - tower_size // 2,
+        center_x - 2 - tower_size // 2,
+        center_y - 2 - tower_size // 2,
         tower_size,
         tower_size,
     )
@@ -20,8 +20,8 @@ def draw_center(screen, center_pos, tower_color, antenna_color, grass_color):
     dirt_size = 800
 
     dirt_area = pygame.Rect(
-            center_x // 2 - dirt_size // 2,
-            center_y // 2 - dirt_size // 2,
+            center_x - 2 - dirt_size // 2,
+            center_y - 2 - dirt_size // 2,
             dirt_size,
             dirt_size,
         )
