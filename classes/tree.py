@@ -50,11 +50,13 @@ class gen_Tree:
     #         self.leaves_pos,
     #         self.leaves_size,
     #     )
-    def draw_trunk(self, screen):
-        
+    def draw_trunk(self, screen, screen_pos=None):
+        if screen_pos is None:
+            screen_pos = self.trunk_pos
+
         pygame.draw.rect(screen, 
         self.trunk_color, 
-        (*self.trunk_pos, *self.trunk_size)
+        (*screen_pos, *self.trunk_size)
         )
     
     def draw_leaves(self, screen, screen_pos=None):
@@ -63,6 +65,6 @@ class gen_Tree:
         pygame.draw.circle(
             screen,
             self.leaves_color,
-            self.leaves_pos,
+            screen_pos,
             self.leaves_size,
         )
