@@ -1,8 +1,11 @@
 import pygame
 import sys
+import random
+
 from classes.tree import gen_Tree
 from functions.center import draw_center
-import random
+from classes.camera import Camera
+
 
 ##-- GAME CONFIG --##   
 w, h = 1200, 800
@@ -99,7 +102,7 @@ def main():
     running = True
 
     trees = generate_forest(game_conf["tree count"])
-
+    camera = Camera(offset=(m_w // 2 - w // 2, m_h // 2 - h // 2))
     ## Quit handler
     def quit():
         pygame.quit()
@@ -131,7 +134,8 @@ def main():
         draw_center(screen, (w, h), game_conf["tower color"], game_conf["antenna color"], game_conf["grass"])
 
         for tree in trees:
-            tree.draw_leaves(screen)
+            screen_pos = camera.syncworld_to_screen(tree.leaves_pos)
+            tree.draw_leaves(screen, screen_pos)
 
         
         pygame.display.flip()
