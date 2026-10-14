@@ -17,16 +17,20 @@ This section tracks what has actually been implemented in the repository, separa
 - [x] Minimum spacing check between generated trees (`tree minimum distance`).
 - [x] Configurable tree scale, clamped to the range 0.0–1.0 (`tree scale`).
 - [x] Configurable square central clearance around the radio tower (`center clearance size`); the square check is in place, with visual tuning still possible.
-- [ ] Tune the existing outward density bias into a gradual increase toward the distant map edges; the chosen design is a huge, mostly open central field with a forest that thickens outward.
-- [x] Separate trunk and leaves drawing passes, so trunks are drawn behind all canopies.
+- [ ] Tune the outward density bias into a gradual increase toward the distant map edges; the chosen design is a mostly open central field with forest that thickens outward.
+- [ ] Draw tree trunks in a separate pass behind the canopies; the trunk-drawing call is currently disabled in main.py.
 - [ ] Give each tree a square trunk hidden in the normal overhead view; when the player enters its canopy, make the canopy translucent and reveal the trunk so the player can see their position and collision obstacle.
 - [x] Draw a square radio tower and a smaller square antenna above it.
-- [ ] Add the player triangle and keyboard movement.
+- [x] Add a camera offset and convert the tower/clearing and tree positions from world coordinates to screen coordinates.
+- [x] Add configurable zoom limits and mouse-wheel input that updates the clamped zoom variable.
+- [ ] Render the world at the selected zoom level; the zoom variable currently does not affect drawing.
+- [ ] Add the player triangle and keyboard movement in world coordinates.
+- [ ] Make the camera follow the player while keeping the camera inside world bounds.
 - [ ] Add player collision with trees and the tower.
 
-Forest generation can be tuned in the `game_conf` dictionary in `main.py`: change `tree count` to control how many trees are attempted, `tree scale` to control their size, `tree minimum distance` to control spacing between tree centers, and `center clearance size` to control the half-width and half-height of the square clearing around the map center. The generator has a limited number of placement attempts, so very high tree counts or spacing values may result in fewer trees than requested. The configured world is 2400 × 1600 and the viewport is 1200 × 800. The latest code now samples tree positions and calculates edge distance using the world dimensions, but the clearing center is still calculated from the viewport dimensions and trees are drawn directly in world coordinates with no camera offset. The world-coordinate transition is therefore incomplete; fix the center calculation and introduce a camera before treating large-world rendering as working.
+Forest generation can be tuned in the game_conf dictionary in main.py: change tree count to control how many trees are attempted, tree scale to control their size, tree minimum distance to control spacing between tree centers, and center clearance size to control the half-width and half-height of the square clearing around the map center. The generator has a limited number of placement attempts, so very high tree counts or spacing values may result in fewer trees than requested. The configured world is 2400 × 1600 and the viewport is 1200 × 800. Tree positions are generated in world coordinates, and the camera offset is now applied when drawing the tower/clearing and tree canopies. Arrow keys currently pan the camera directly; they will be reassigned to player movement when the player-follow step is implemented. Zoom settings and mouse-wheel input are present, but actual zoom rendering is not implemented yet.
 
-**Chosen forest layout (not implemented/visually verified yet):** use simple circular canopies suited to a true bird's-eye view. The central area should be a huge, mostly open field around the radio tower, with a distant forest that gradually becomes denser toward the outer map edges. Avoid a tight ring of individual trees and avoid a sudden solid wall. Preserve scattered trees and traversable routes through the transition, with denser vegetation near the perimeter. Each tree should have a perfect square trunk as its solid collision obstacle, but the trunk should be hidden during the normal view so the forest reads as circles. When the player passes under a tree's canopy, make that canopy translucent and reveal the square trunk underneath. The generator should use world dimensions for placement and density calculations; rendering must convert world coordinates to screen coordinates through a camera offset. Do not mark these behaviors complete until coded and visually tested.
+**Chosen forest layout (still requires visual tuning):** use simple circular canopies suited to a true bird's-eye view. The central area should be a huge, mostly open field around the radio tower, with a distant forest that gradually becomes denser toward the outer map edges. Avoid a tight ring of individual trees and avoid a sudden solid wall. Preserve scattered trees and traversable routes through the transition, with denser vegetation near the perimeter. Each tree should have a perfect square trunk as its solid collision obstacle, but the trunk should be hidden during the normal view so the forest reads as circles. When the player passes under a tree's canopy, make that canopy translucent and reveal the square trunk underneath. Tree positions and drawing now use world coordinates with a camera offset; density tuning, trunk rendering, and canopy transparency remain unfinished. Actual zoom rendering and player-follow camera behavior are also still pending.
 
 The tower and antenna are currently visual placeholders; tower health, power, signal integrity, and pulse behavior are not implemented yet.
 
@@ -388,14 +392,16 @@ practical.
 
 Build and test each milestone before moving on.
 
-### Milestone 1 --- Playable arena
+### Milestone 1 --- World, camera, and playable arena
 
--   Create the Pygame window and game loop.
--   Draw a grassy clearing with simple forest obstacles.
--   Add player movement and collision.
--   Draw the radio tower in the center.
--   **Done when:** the player can move around the map without walking
-    through solid objects.
+-   Keep the map (2400 × 1600) and viewport (1200 × 800) as separate coordinate spaces.
+-   Draw world objects through the camera's world-to-screen conversion.
+-   Add the player triangle and keyboard movement using world coordinates.
+-   Make the camera follow the player and clamp to the map boundaries.
+-   Implement zoom rendering after camera-follow works; keep zoom configurable and clamped.
+-   Add collision with the tower and tree trunks after basic movement works.
+-   Tune tree spacing, the central clearing, and the gradual outward density.
+-   **Done when:** the player moves around the world, the camera follows smoothly without leaving the map, zoom visibly changes magnification within its limits, and the player cannot walk through solid obstacles.
 
 ### Milestone 2 --- One enemy
 
@@ -489,8 +495,12 @@ scenes, and extra enemy types until the core loop is enjoyable.
 ## 15. First playable prototype acceptance checklist
 
 -   [ ] Player moves and collides with obstacles.
--   [x] A configurable forest of randomly generated trees is drawn with spacing, a clear central area, and separate trunk/canopy layers.
+-   [x] A configurable forest of randomly generated tree canopies is drawn.
+-   [ ] Tree trunks are rendered behind canopies and revealed with canopy transparency when the player enters a canopy.
 -   [x] A square radio tower and square antenna are drawn as visual placeholders.
+-   [x] The camera offset is applied to world positions for the tree canopies and tower/clearing.
+-   [ ] The camera follows the player and respects map boundaries.
+-   [ ] Zoom visibly scales the world; only the zoom variable and mouse-wheel input are implemented so far.
 -   [ ] One enemy can navigate toward the tower.
 -   [ ] Player can damage and defeat the enemy.
 -   [ ] Enemy can damage the tower.
