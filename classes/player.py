@@ -50,7 +50,7 @@ class Player:
             )
         )
     
-    def aimlook(self, mouse_pos, camera):
+    def aimlook(self, mouse_pos, camera, zoom=1.0):
         # Disney land??
         mouse_world = pygame.Vector2(
             mouse_pos[0] + camera.offset[0],

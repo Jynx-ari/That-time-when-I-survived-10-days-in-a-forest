@@ -4,10 +4,10 @@ class Camera:
     def __init__(self, offset=(0,0)):
         self.offset = offset
 
-    def syncworld_to_screen(self, pos):
+    def syncworld_to_screen(self, pos, zoom=1.0):
         return (
-            pos[0] - self.offset[0],
-            pos[1] - self.offset[1],
+            (pos[0] - self.offset[0]) * zoom,
+            (pos[1] - self.offset[1]) * zoom,
         )
 
     def move(self, dxy , world_size, viewport_size):

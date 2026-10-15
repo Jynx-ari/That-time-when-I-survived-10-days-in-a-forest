@@ -22,6 +22,7 @@ game_conf = {
     "min_zoom": 0.5,
     "max_zoom": 2.0,
     "zoom_speed": 0.1,
+   
 
     # Forest generation settings
     "tree count": 3500,  # How many trees to try to generate
@@ -33,6 +34,7 @@ game_conf = {
     "antenna color": "#d2372d",
 
     "center clearance size": 500,
+
 
 }
 
@@ -109,7 +111,7 @@ def main():
     trees = generate_forest(game_conf["tree count"])
     camera = Camera(offset=(m_w // 2 - w // 2, m_h // 2 - h // 2))
 
-    player = Player((m_w // 2, m_h // 2 +70))
+    player = Player((m_w // 2, m_h // 2 +70), 200)
 
 
     ## Quit handler
@@ -146,7 +148,8 @@ def main():
         keys = pygame.key.get_pressed()
         
         player.move(keys, dt, (m_w, m_h))
-        camera.follow(player.pos, (m_w, m_h), (w,h))
+        zoom = game_conf["zoom"]
+        camera.follow(player.pos, (m_w, m_h), (w / zoom, h / zoom) )
         
 
 
@@ -155,16 +158,17 @@ def main():
 
     
         center_world = (m_w // 2, m_h // 2)
-        center_screen = camera.syncworld_to_screen(center_world)
+        center_screen = camera.syncworld_to_screen(center_world, zoom)
+        
 
         draw_center(screen, center_screen, game_conf["tower color"], game_conf["antenna color"], game_conf["grass"])
 
-        player_screen_pos = camera.syncworld_to_screen(player.pos)
-        player.aimlook(pygame.mouse.get_pos(), camera)
+        player_screen_pos = camera.syncworld_to_screen(player.pos,zoom)
+        player.aimlook(pygame.mouse.get_pos(), camera, zoom)
         player.draw(screen, player_screen_pos)
         
         for tree in trees:
-            screen_pos = camera.syncworld_to_screen(tree.leaves_pos)
+            screen_pos = camera.syncworld_to_screen(tree.leaves_pos,zoom)
             tree.draw_leaves(screen, screen_pos)
 
         
