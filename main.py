@@ -137,10 +137,22 @@ def main():
                         quit()
 
             if event.type == pygame.MOUSEWHEEL:
-                game_conf["zoom"] += event.y * game_conf["zoom_speed"]
-                game_conf["zoom"] = max(
-                    game_conf["min_zoom"],
-                    min(game_conf["zoom"], game_conf["max_zoom"])
+                zoom = game_conf["zoom"] + event.y * game_conf["zoom_speed"]
+                zoom = max(game_conf["min_zoom"], min(zoom, game_conf["max_zoom"]))
+                game_conf["zoom"] = zoom
+
+                camera.offset = (
+                    max(0,
+                    min(
+                        player.pos.x - w / (2 * zoom), m_w - w / zoom, m_w - w/zoom
+                    )
+                    ),
+                    max(0,
+                    min(
+                        player.pos.y - h / (2 *zoom), m_h - h / zoom
+                    )
+                    
+                    )
                 )
 
 
@@ -149,7 +161,7 @@ def main():
         
         player.move(keys, dt, (m_w, m_h))
         zoom = game_conf["zoom"]
-        camera.follow(player.pos, (m_w, m_h), (w / zoom, h / zoom) )
+        camera.follow(player.pos, (m_w, m_h), (w / zoom, h / zoom), dt )
         
 
 
