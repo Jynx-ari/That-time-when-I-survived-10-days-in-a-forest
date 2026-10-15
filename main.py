@@ -11,7 +11,7 @@ from classes.player import Player
 w, h = 1200, 800
 
 # Map config
-m_w,m_h = 2400, 1600
+m_w,m_h = 4800 * 2, 3200 * 2
 
 game_conf = {
     "grass": "#365F1A",
@@ -24,9 +24,9 @@ game_conf = {
     "zoom_speed": 0.1,
 
     # Forest generation settings
-    "tree count": 175,  # How many trees to try to generate
+    "tree count": 3500,  # How many trees to try to generate
     "tree scale": 0.9,  # 0.0 to 1.0; larger values make trees bigger
-    "tree minimum distance": 10,  # Minimum distance between tree centers
+    "tree minimum distance": 15,  # Minimum distance between tree centers
     "tree center exclusion radius": 800,  # Keep this area around the map center clear
 
     "tower color": "#96a09b",
