@@ -50,8 +50,17 @@ exittap: int = 0
 
 
 def generate_forest(count):
+
+    #Pre-optimization
+
     trees = []
     min_distance = game_conf["tree minimum distance"]
+
+    cell_size = min_distance
+    spatial_grid = {}
+
+
+
     center_exclusion_radius = game_conf["tree center exclusion radius"]
     max_attempts = count * 50
     attempts = 0
@@ -80,24 +89,56 @@ def generate_forest(count):
         if random.random() > density:
             continue
         
+
+
         if (
             abs(x-center_x) < clearance_size
             and abs(y-center_y) < clearance_size
         ):
             continue
 
-        too_close = any(
-            (x - tree.leaves_pos[0]) ** 2 + (y-tree.leaves_pos[1]) ** 2
-            < min_distance_squared
-            for tree in trees
-        )
+        cell_x = int(x//cell_size)
+        cell_y = int(y //cell_size)
+
+
+        too_close = False
+
+        for offset_x in (-1, 0, 1):
+            for offset_y in (-1,0,1):
+                neighbor_key = (
+                    cell_x + offset_y,
+                    cell_y + offset_y,
+
+                )
+
+                for tree in spatial_grid.get(neighbor_key, []):
+                    dx = x - tree.leaves_pos[0]
+                    dy = y - tree.leaves_pos[1]
+
+                    if dx * dx + dy *dy < min_distance_squared:
+                        too_close = True
+                        break
+                
+                if too_close:
+                    break
+            if too_close:
+                break
+
 
         if not too_close:
-            trees.append(
-                gen_Tree((x,y),
-                tree_scale=game_conf["tree scale"]
-                )
+            tree=gen_Tree(
+                (x, y),
+                tree_scale = game_conf["tree scale"]
             )
+
+            trees.append(tree)
+
+            cell_key = (cell_x, cell_y)
+
+            if cell_key not in spatial_grid:
+                spatial_grid[cell_key] = []
+
+            spatial_grid[cell_key].append(tree)
 
     return trees
 
@@ -105,6 +146,7 @@ def generate_forest(count):
 
 
 def main():
+
     pygame.init()
 
     screen = pygame.display.set_mode((w, h))
