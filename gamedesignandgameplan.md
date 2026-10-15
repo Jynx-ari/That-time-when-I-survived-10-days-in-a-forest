@@ -36,6 +36,18 @@ Forest generation can be tuned in the game_conf dictionary in main.py: change tr
 
 The tower and antenna are currently visual placeholders; tower health, power, signal integrity, and pulse behavior are not implemented yet. The next gameplay system is the day/round state machine, which must be implemented and tested before starting enemy behavior. The developer will create the new module files locally; after that, review the current files and integrate the system into `main.py`.
 
+### Performance baseline
+
+**Initial startup benchmark (reported from a local run, before optimization):**
+
+| Measurement | Result |
+|---|---:|
+| Forest generation | 2.77 seconds |
+| Trees generated | 5,000 |
+| Obstacle creation | 0.01 seconds |
+
+This is the baseline for later performance work. Forest generation is currently the main measured startup cost; obstacle creation is negligible by comparison. Re-run the same measurements after optimizing tree placement and record the results here so we can compare them. These figures are from one run and may vary by machine or run.
+
 ## 1. High concept
 
 **Genre:** Bird's-eye-view 2D action-survival with light tower-defense and
