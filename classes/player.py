@@ -53,8 +53,8 @@ class Player:
     def aimlook(self, mouse_pos, camera, zoom=1.0):
         # Disney land??
         mouse_world = pygame.Vector2(
-            mouse_pos[0] + camera.offset[0],
-            mouse_pos[1] + camera.offset[1]
+            mouse_pos[0] / zoom + camera.offset[0],
+            mouse_pos[1] / zoom+ camera.offset[1]
         )
 
         dir = mouse_world - self.pos
@@ -63,10 +63,10 @@ class Player:
             self.angle = dir.as_polar()[1]
 
 
-    def draw(self, screen, screen_pos):
+    def draw(self, screen, screen_pos, zoom=1.0):
         x,y = round(screen_pos[0]), round(screen_pos[1])
         
-        size = self.size
+        size = self.size * zoom
 
         points = [
             pygame.Vector2(0, -size),
@@ -81,4 +81,8 @@ class Player:
             for point in points
         ]
         pygame.draw.polygon(screen, "#F4E8C1", rotated_points)
-        pygame.draw.polygon(screen, "#282820", rotated_points, width=3)
+        pygame.draw.polygon(
+            screen, 
+            "#282820", 
+            rotated_points,
+              width=max(1, round(3*zoom)))

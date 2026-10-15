@@ -111,7 +111,7 @@ def main():
     trees = generate_forest(game_conf["tree count"])
     camera = Camera(offset=(m_w // 2 - w // 2, m_h // 2 - h // 2))
 
-    player = Player((m_w // 2, m_h // 2 +70), 200)
+    player = Player((m_w // 2, m_h // 2 +70), )
 
 
     ## Quit handler
@@ -165,7 +165,7 @@ def main():
 
         player_screen_pos = camera.syncworld_to_screen(player.pos,zoom)
         player.aimlook(pygame.mouse.get_pos(), camera, zoom)
-        player.draw(screen, player_screen_pos)
+        player.draw(screen, player_screen_pos, zoom)
         
         for tree in trees:
             screen_pos = camera.syncworld_to_screen(tree.leaves_pos,zoom)
