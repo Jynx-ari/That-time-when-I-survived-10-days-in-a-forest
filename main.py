@@ -161,7 +161,7 @@ def main():
         center_screen = camera.syncworld_to_screen(center_world, zoom)
         
 
-        draw_center(screen, center_screen, game_conf["tower color"], game_conf["antenna color"], game_conf["grass"])
+        draw_center(screen, center_screen, game_conf["tower color"], game_conf["antenna color"], game_conf["grass"], zoom)
 
         player_screen_pos = camera.syncworld_to_screen(player.pos,zoom)
         player.aimlook(pygame.mouse.get_pos(), camera, zoom)
@@ -169,7 +169,7 @@ def main():
         
         for tree in trees:
             screen_pos = camera.syncworld_to_screen(tree.leaves_pos,zoom)
-            tree.draw_leaves(screen, screen_pos)
+            tree.draw_leaves(screen, screen_pos, zoom)
 
         
         pygame.display.flip()

@@ -1,15 +1,17 @@
 import pygame
 
-def draw_center(screen, center_pos, tower_color, antenna_color, grass_color):
+def draw_center(screen, center_pos, tower_color, antenna_color, grass_color,zoom=1.0):
+
     center_x, center_y = center_pos
-    tower_size = 42
+    tower_size = max(1, round(42 * zoom))
     tower_rect = pygame.Rect(
         center_x - 2 - tower_size // 2,
         center_y - 2 - tower_size // 2,
         tower_size,
         tower_size,
     )
-    antenna_size = 12.60
+    antenna_size = max(1, round(12.60 * zoom))
+
     antenna_rect = pygame.Rect(
         tower_rect.centerx - antenna_size // 2,
         tower_rect.centery - antenna_size // 2 ,
@@ -17,7 +19,7 @@ def draw_center(screen, center_pos, tower_color, antenna_color, grass_color):
         antenna_size,
     )
 
-    dirt_size = 800
+    dirt_size = max(1, round(800 * zoom))
 
     dirt_area = pygame.Rect(
             center_x - 2 - dirt_size // 2,
@@ -26,7 +28,7 @@ def draw_center(screen, center_pos, tower_color, antenna_color, grass_color):
             dirt_size,
         )
 
-    transition_width = 100
+    transition_width = max(5, round(100 * zoom))
     band_count = 5
     #steps = transition_width + 1
     band_width = transition_width // band_count
