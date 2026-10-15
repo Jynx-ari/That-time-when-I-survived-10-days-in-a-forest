@@ -1,5 +1,5 @@
 import pygame
-
+from classes.obstacle import Obstacle
 default_conf = {
     "size": 10,
     "walkspeed": 90
@@ -13,7 +13,7 @@ class Player:
         self.size = size
         self.angle = 90
 
-    def move(self, keys, dt, world_size):
+    def move(self, keys, dt, world_size, obstacles=None):
         dir = pygame.Vector2(0,0)
 
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
@@ -28,27 +28,67 @@ class Player:
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
             dir.y+=1
         
+        
         #HAHA NO SOURCE MOVEMENT!!
         if dir.length_squared() > 0:
             dir = dir.normalize()
 
-        self.pos += dir * self.speed * dt
+        #obviously...
+        if obstacles is None:
+            obstacles=[]
+
+        movement = dir * self.speed * dt
+        #lets try horizontal movement first!1
+        next_x = self.pos.x + movement.x
+
+        player_rect = pygame.Rect(
+            round(next_x - self.size),
+            round(self.pos.y - self.size),
+            self.size * 2, self.size * 2,
+        )
+        blocked = any(
+            obstacle.blocks_movement
+            and player_rect.colliderect(obstacle.rect)
+            for obstacle in obstacles
+        )
+
+        if not blocked:
+            self.pos.x = next_x
+        
+        #then we go for y axis noww
+
+        next_y = self.pos.y + movement.y
+
+        player_rect = pygame.Rect(
+
+            round(self.pos.x - self.size),
+            round(next_y - self.size),
+            self.size * 2, 
+            self.size * 2,
+
+        )
+
+        blocked = any(
+            obstacle.blocks_movement
+            and player_rect.colliderect(obstacle.rect)
+            for obstacle in obstacles
+        )
+
+        if not blocked:
+            self.pos.y = next_y
 
         self.pos.x = max(
             self.size,
-            min(
-                self.pos.x,
+            min(self.pos.x,
                 world_size[0] - self.size
             )
         )
 
         self.pos.y = max(
             self.size,
-            min(
-                self.pos.y,
-                world_size[1] - self.size
-            )
+            min(self.pos.y, world_size[1] - self.size)
         )
+
     
     def aimlook(self, mouse_pos, camera, zoom=1.0):
         # Disney land??

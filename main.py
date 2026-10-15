@@ -6,6 +6,10 @@ from classes.tree import gen_Tree
 from functions.center import draw_center
 from classes.camera import Camera
 from classes.player import Player
+from classes.obstacle import Obstacle
+
+
+
 
 ##-- GAME CONFIG --##   
 w, h = 1200, 800
@@ -111,6 +115,34 @@ def main():
     trees = generate_forest(game_conf["tree count"])
     camera = Camera(offset=(m_w // 2 - w // 2, m_h // 2 - h // 2))
 
+    #SOLID IDOL!! pinoy humor
+    solid_obs = []
+
+    for tree in trees:
+        tree_rect = pygame.Rect(
+            round(tree.trunk_pos[0]),
+            round(tree.trunk_pos[1]),
+            tree.trunk_size[0],
+            tree.trunk_size[1]
+        )
+        solid_obs.append(
+            Obstacle(tree_rect, name="tree trunk")
+        )
+
+    tower_x, tower_y = m_w // 2, m_h // 2
+
+    tower_rect = pygame.Rect(
+        tower_x - 21,
+        tower_y - 21,
+        42,
+        42,
+    )
+
+    solid_obs.append(
+        Obstacle(tower_rect, name="radio tower")
+    )
+
+    
     player = Player((m_w // 2, m_h // 2 +70), )
 
 
@@ -159,7 +191,7 @@ def main():
         dt = clock.tick(game_conf["fps"]) /1000
         keys = pygame.key.get_pressed()
         
-        player.move(keys, dt, (m_w, m_h))
+        player.move(keys, dt, (m_w, m_h), solid_obs)
         zoom = game_conf["zoom"]
         camera.follow(player.pos, (m_w, m_h), (w / zoom, h / zoom), dt )
         
