@@ -3,7 +3,7 @@ import pygame
 
 default_trunk = [
     10,                 # Width
-    50,                 # Height
+    10,                 # Height
     "#7B381A",       # Color
 ]
 
@@ -19,7 +19,6 @@ class gen_Tree:
 
         scale = max(0.0, min(1.0, tree_scale))
         size_multiplier = 1.0 + scale * 0.5
-        self.trunk_pos = (position[0] - 5, position[1] + 12)
         self.leaves_pos = position
 
         if treeconfig is not None:
@@ -35,6 +34,10 @@ class gen_Tree:
             self.leaves_size = default_leaves[1]
 
         self.trunk_size = round(self.trunk_size[0] * size_multiplier), round(self.trunk_size[1] * size_multiplier)
+        self.trunk_pos = (
+            position[0] - self.trunk_size[0] /2,
+            position[1] - self.trunk_size[1]/2
+        )
         self.leaves_size = round(self.leaves_size * size_multiplier)
 
     # def draw(self, screen):

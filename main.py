@@ -25,7 +25,7 @@ game_conf = {
    
 
     # Forest generation settings
-    "tree count": 3500,  # How many trees to try to generate
+    "tree count": 5000,  # How many trees to try to generate
     "tree scale": 0.9,  # 0.0 to 1.0; larger values make trees bigger
     "tree minimum distance": 15,  # Minimum distance between tree centers
     "tree center exclusion radius": 800,  # Keep this area around the map center clear
