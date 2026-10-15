@@ -175,14 +175,39 @@ def main():
 
         draw_center(screen, center_screen, game_conf["tower color"], game_conf["antenna color"], game_conf["grass"], zoom)
 
+        
+        
+        for tree in trees:
+            trunk_screen_pos = camera.syncworld_to_screen(
+                tree.trunk_pos,
+                zoom,
+            )
+            tree.draw_trunk(
+                screen,
+                trunk_screen_pos,
+                zoom
+            )
+
         player_screen_pos = camera.syncworld_to_screen(player.pos,zoom)
         player.aimlook(pygame.mouse.get_pos(), camera, zoom)
         player.draw(screen, player_screen_pos, zoom)
-        
-        for tree in trees:
-            screen_pos = camera.syncworld_to_screen(tree.leaves_pos,zoom)
-            tree.draw_leaves(screen, screen_pos, zoom)
 
+        for tree in trees:
+            screen_pos = camera.syncworld_to_screen(
+                tree.leaves_pos,zoom
+            )
+
+            distance_squared = player.pos.distance_squared_to(
+                pygame.Vector2(tree.leaves_pos)
+            )
+            canopy_radius = tree.leaves_size + player.size
+            player_under_canopy = distance_squared <= canopy_radius ** 2
+            tree.draw_leaves(
+                screen,
+                screen_pos,
+                zoom,
+                transparent=player_under_canopy
+            )
         
         pygame.display.flip()
        

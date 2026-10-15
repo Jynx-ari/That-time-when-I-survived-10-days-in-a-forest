@@ -69,10 +69,10 @@ class Player:
         size = self.size * zoom
 
         points = [
-            pygame.Vector2(0, -size),
-            pygame.Vector2(-size,size),
-            pygame.Vector2(size,size)
-
+            pygame.Vector2(0, -size * 1.6), #pointy thingy!
+            pygame.Vector2(-size * 0.8,size * 0.75), # left rer
+            pygame.Vector2(size * 0.8,size*0.75) # right rearrrr
+ 
 
         ]
 

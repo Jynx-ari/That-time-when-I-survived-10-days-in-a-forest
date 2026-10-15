@@ -50,25 +50,60 @@ class gen_Tree:
     #         self.leaves_pos,
     #         self.leaves_size,
     #     )
-    def draw_trunk(self, screen, screen_pos=None):
+    def draw_trunk(self, screen, screen_pos=None, zoom=1.0):
         if screen_pos is None:
             screen_pos = self.trunk_pos
 
-        pygame.draw.rect(screen, 
-        self.trunk_color, 
-        (*screen_pos, *self.trunk_size)
+        x,y = screen_pos
+        w, h = self.trunk_size
+
+        trunk_rect = pygame.Rect(
+            round(x),
+            round(y),
+            max(1,
+                round(w * zoom)
+                ),
+            max(1,
+                round(h * zoom)
+            )
+        )
+
+        pygame.draw.rect(
+            screen, 
+            self.trunk_color,
+            trunk_rect,
         )
     
-    def draw_leaves(self, screen, screen_pos=None, zoom=1.0):
+    def draw_leaves(self, screen, screen_pos=None, zoom=1.0, transparent=False):
         if screen_pos is None:
             screen_pos = self.leaves_pos
+        
+        x,y = round(screen_pos[0]), round(screen_pos[1])
+        radius = max(1, round(self.leaves_size *zoom))
 
-        screen_pos=(round(screen_pos[0]), round(screen_pos[1]))
-        radius = max(1, round(self.leaves_size * zoom))
+        if transparent:
+            canopy = pygame.Surface(
+                (radius * 2 + 2, radius * 2+ 2),
+                pygame.SRCALPHA
+            )
+            color = pygame.Color(self.leaves_color)
+            leaf_color = (color.r, color.g, color.b, 100)
 
-        pygame.draw.circle(
-            screen,
-            self.leaves_color,
-            screen_pos,
-            radius,
-        )
+            pygame.draw.circle(
+                canopy,
+                leaf_color,
+                (radius + 1, radius + 1),
+                radius,
+            )
+            screen.blit(
+                canopy, 
+                (x-radius-1, y-radius-1)
+            )
+        else:
+            pygame.draw.circle(
+                screen,
+                self.leaves_color,
+                (x,y),
+                radius,
+
+            )
