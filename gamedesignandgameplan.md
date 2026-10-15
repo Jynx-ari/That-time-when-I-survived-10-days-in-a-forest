@@ -26,14 +26,15 @@ This section tracks what has actually been implemented in the repository, separa
 - [x] Aim the player triangle toward the mouse cursor, converting screen coordinates to world coordinates using the camera offset.
 - [x] Apply the selected zoom level to world-to-screen positions and the sizes of the player, tree canopies, tower, antenna, and central clearing.
 - [ ] Draw tree trunks in a separate pass behind the canopies, then make the canopy translucent and reveal the trunk when the player enters it.
-- [ ] Add player collision with tree trunks and the tower.
+- [x] Add player collision with tree trunks and the tower (verified in-game).
 - [ ] Tune tree spacing, the central clearing, and the gradual outward density bias.
+- [ ] Implement the day/round state machine before creating any enemies: preparation, active wave, wave cleared, next day, victory after Day 10, and defeat states.
 
 Forest generation can be tuned in the game_conf dictionary in main.py: change tree count to control how many trees are attempted, tree scale to control their size, tree minimum distance to control spacing between tree centers, and center clearance size to control the half-width and half-height of the square clearing around the map center. The generator has a limited number of placement attempts, so very high tree counts or spacing values may result in fewer trees than requested. The configured world is 9600 × 6400 (`m_w, m_h = 4800 * 2, 3200 * 2`) and the viewport is 1200 × 800. Tree positions are generated in world coordinates. The camera offset and zoom are applied when converting world positions to screen positions, and zoom also scales the player, tree canopies, tower, antenna, and central clearing. Mouse-wheel input adjusts the clamped zoom setting. Smooth camera movement is implemented using delta-time-based exponential easing, but its feel and edge behavior still need in-game verification. The player's triangular front can be made more pointed as a small visual-polish task.
 
-**Chosen forest layout (still requires visual tuning):** use simple circular canopies suited to a true bird's-eye view. The central area should be a huge, mostly open field around the radio tower, with a distant forest that gradually becomes denser toward the outer map edges. Avoid a tight ring of individual trees and avoid a sudden solid wall. Preserve scattered trees and traversable routes through the transition, with denser vegetation near the perimeter. Each tree should have a perfect square trunk as its solid collision obstacle, but the trunk should be hidden during the normal view so the forest reads as circles. When the player passes under a tree's canopy, make that canopy translucent and reveal the square trunk underneath. Tree positions and drawing use world coordinates with camera offset and zoom. Player movement, zoom-scaled object drawing, camera following, and mouse aiming with zoom conversion are implemented. Smooth camera movement, density tuning, trunk rendering, canopy transparency, and collision remain unfinished.
+**Chosen forest layout (still requires visual tuning):** use simple circular canopies suited to a true bird's-eye view. The central area should be a huge, mostly open field around the radio tower, with a distant forest that gradually becomes denser toward the outer map edges. Avoid a tight ring of individual trees and avoid a sudden solid wall. Preserve scattered trees and traversable routes through the transition, with denser vegetation near the perimeter. Each tree should have a perfect square trunk as its solid collision obstacle, but the trunk should be hidden during the normal view so the forest reads as circles. When the player passes under a tree's canopy, make that canopy translucent and reveal the square trunk underneath. Tree positions and drawing use world coordinates with camera offset and zoom. Player movement, zoom-scaled object drawing, camera following, and mouse aiming with zoom conversion are implemented. Smooth camera movement, density tuning, trunk rendering, and canopy transparency remain unverified or unfinished. Player collision with tree trunks and the tower has been implemented and verified in-game.
 
-The tower and antenna are currently visual placeholders; tower health, power, signal integrity, and pulse behavior are not implemented yet.
+The tower and antenna are currently visual placeholders; tower health, power, signal integrity, and pulse behavior are not implemented yet. The next gameplay system is the day/round state machine, which must be implemented and tested before starting enemy behavior. The developer will create the new module files locally; after that, review the current files and integrate the system into `main.py`.
 
 ## 1. High concept
 
@@ -383,7 +384,7 @@ wilderness_survival/
 -   **Economy:** scrap checks and transaction logic.
 -   **Placement validation:** check location and resources before
     creating a structure.
--   **Game states:** menu, preparation, active wave, defeat, victory.
+-   **Game states:** preparation, active wave, wave cleared/transition, defeat, victory. Keep the round/day transition rules in `classes/round_manager.py`; the main loop should read the manager's state rather than duplicating transition logic in `main.py`.
 
 Use delta time (`dt`) for movement and cooldowns so behavior does not
 depend on frame rate. Keep gameplay rules separate from drawing where
@@ -403,10 +404,23 @@ Build and test each milestone before moving on.
 -   [x] Implement zoom-scaled world positions and object sizes; keep zoom configurable and clamped, and convert mouse aiming correctly at every zoom level.
 -   [ ] Verify smooth camera follow in-game, including direction changes, zoom while moving, and map edges; tune easing if needed. The delta-time-based easing implementation is present.
 -   [ ] Draw tree trunks in a separate pass behind canopies; when the player enters a canopy, make it translucent and reveal its square trunk.
--   [ ] Add collision with the tower and tree trunks after their world-space hitboxes are defined.
+-   [x] Add collision with the tower and tree trunks using world-space hitboxes (implemented and verified in-game).
 -   [ ] Tune tree spacing, the central clearing, and the gradual outward density.
--   **Recommended next two-hour coding session:** first test the smooth camera and make the player's triangle front more pointed as a quick visual addon. Then prioritize tree/trunk layering and basic collision if time allows. After the arena is readable and obstacles are solid, start Milestone 2 with one Shambler moving toward the tower, followed by tower health and enemy attacks. Keep each change small and test it before moving on.
+-   **Recommended next session:** verify tree/trunk layering and canopy transparency in-game. Then build and test the day/round state machine before any enemy code. The developer will create the planned new module files locally; review their contents before integrating them into `main.py`. Only after the day/round transitions work should Milestone 2 begin with one Shambler moving toward the tower. Keep each change small and test it before moving on.
 -   **Done when:** the player moves around the world, aims toward the mouse, the camera follows without leaving the map, zoom visibly changes magnification within its limits, and the player cannot walk through solid obstacles.
+
+### Before Milestone 2 --- Day/round system foundation
+
+Implement this before adding any enemies, so enemy spawning can later plug into an existing wave lifecycle.
+
+-   Create `classes/round_manager.py` to track the current day and phase, start a wave, record a cleared wave exactly once, and advance to the next preparation phase.
+-   Use explicit phases: `PREPARATION`, `ACTIVE_WAVE`, and `WAVE_CLEARED`; represent `DEFEAT` and `VICTORY` as run-ending states (either in the manager or in a separate `classes/game_state.py` if that separation makes the code clearer).
+-   Let the player start a wave deliberately from preparation; do not force a countdown yet.
+-   Since enemies do not exist yet, use a temporary debug input to simulate clearing a wave and test the transitions. Clearly label it as temporary and remove it once real enemy tracking is connected.
+-   Award a wave-clear reward only once, and reach victory only after Day 10 has been cleared.
+-   Add a minimal HUD display for the day and current phase so the state can be verified in-game.
+-   Test starting a wave, rejecting invalid transitions, clearing it once, advancing days, and reaching Day 10 victory before beginning enemy work.
+-   **Done when:** the player can move around during preparation, start a wave, use the temporary test action to clear it, advance through the day sequence, and reach victory after Day 10 without duplicate rewards or broken state transitions.
 
 ### Milestone 2 --- One enemy
 
@@ -499,7 +513,7 @@ scenes, and extra enemy types until the core loop is enjoyable.
 
 ## 15. First playable prototype acceptance checklist
 
--   [ ] Player moves and collides with obstacles.
+-   [x] Player moves and collides with tree trunks and the radio tower (verified in-game).
 -   [x] Player triangle aims toward the mouse cursor, including while the camera follows the player.
 -   [x] A configurable forest of randomly generated tree canopies is drawn.
 -   [ ] Tree trunks are rendered behind canopies and revealed with canopy transparency when the player enters a canopy.
