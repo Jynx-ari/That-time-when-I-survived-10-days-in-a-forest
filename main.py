@@ -1,3 +1,4 @@
+import time
 import pygame
 import sys
 import random
@@ -112,11 +113,28 @@ def main():
     clock = pygame.time.Clock()
     running = True
 
+    #the tree algo seems to slow down the start of the game
+
+
+    tree_start = time.perf_counter()
+
     trees = generate_forest(game_conf["tree count"])
+
+    tree_end = time.perf_counter()
+    
+    print(f"Forest generation:  {tree_end - tree_start:.2f} seconds")
+    print(f"Trees generated: {len(trees)}")
     camera = Camera(offset=(m_w // 2 - w // 2, m_h // 2 - h // 2))
+
+    #This also holds it up since the tree trunks collides
+
 
     #SOLID IDOL!! pinoy humor
     solid_obs = []
+
+
+    obstacle_start = time.perf_counter()
+
 
     for tree in trees:
         tree_rect = pygame.Rect(
@@ -128,6 +146,15 @@ def main():
         solid_obs.append(
             Obstacle(tree_rect, name="tree trunk")
         )
+
+
+
+    obstacle_end = time.perf_counter()
+
+    print(f"Obstacle making: {obstacle_end - obstacle_start:.2f} seconds")
+
+
+
 
     tower_x, tower_y = m_w // 2, m_h // 2
 
