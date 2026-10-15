@@ -395,7 +395,7 @@ Build and test each milestone before moving on.
 
 ### Milestone 1 --- World, camera, and playable arena
 
--   Keep the map (2400 × 1600) and viewport (1200 × 800) as separate coordinate spaces.
+-   Keep the map (currently 9600 × 6400) and viewport (1200 × 800) as separate coordinate spaces.
 -   Draw world objects through the camera's world-to-screen conversion.
 -   [x] Add the player triangle and keyboard movement using world coordinates.
 -   [x] Make the camera follow the player and clamp to the map boundaries.
