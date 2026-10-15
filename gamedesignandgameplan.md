@@ -46,7 +46,17 @@ The tower and antenna are currently visual placeholders; tower health, power, si
 | Trees generated | 5,000 |
 | Obstacle creation | 0.01 seconds |
 
-This is the baseline for later performance work. Forest generation is currently the main measured startup cost; obstacle creation is negligible by comparison. Re-run the same measurements after optimizing tree placement and record the results here so we can compare them. These figures are from one run and may vary by machine or run.
+**After spatial-grid optimization (reported from a local run):**
+
+| Measurement | Result |
+|---|---:|
+| Forest generation | 0.09 seconds |
+| Trees generated | 5,000 |
+| Obstacle creation | 0.03 seconds |
+
+The forest generator now uses a spatial grid keyed by cell coordinates. Each candidate checks only its own cell and the eight neighboring cells for trees that violate the minimum-spacing rule, rather than scanning every previously accepted tree. With the reported measurements, forest generation fell from 2.77 seconds to 0.09 seconds (about 30.8× faster, or 96.8% less time), while still generating all 5,000 trees. Obstacle creation increased from 0.01 to 0.03 seconds in these individual runs; this small difference may be normal run-to-run variation and should be remeasured if it becomes important.
+
+These are single-run measurements and may vary by machine or run. Use the same measurement method for future comparisons.
 
 ## 1. High concept
 
