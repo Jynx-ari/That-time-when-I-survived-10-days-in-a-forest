@@ -18,7 +18,7 @@ class TestRoundManager(unittest.TestCase):
         self.assertEqual(rounds.clear_wave(), True)
         self.assertEqual(rounds.phase, RoundPhase.WAVE_CLEARED)
 
-        self.assertEqual(rounds.clear_wave(), True)
+        self.assertFalse(rounds.clear_wave())
 
 
     def test_cannot_advance_before_wave_is_cleared(self):
@@ -60,10 +60,10 @@ class TestGameState(unittest.TestCase):
         game = GameState()
 
         self.assertTrue(game.defeat("Test Defeat"))
-        self.assertEqual(game.state, RoundPhase.DEFEAT)
+        self.assertEqual(game.state, game.DEFEAT)
         
         self.assertFalse(game.win())
-        self.assertEqual(game.state, RoundPhase.DEFEAT)
+        self.assertEqual(game.state, game.DEFEAT)
 
 
 if __name__ == "__main__":
