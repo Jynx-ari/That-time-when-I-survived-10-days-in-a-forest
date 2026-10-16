@@ -290,19 +290,7 @@ def main():
         # Draw the world
         screen.fill(game_conf["grass"])
 
-        day_text = font.render(
-            f"Day: {rounds.day}",
-            True,
-            (255, 255, 255)
-        )
-
-        phase_text = font.render(
-            f"Phase: {rounds.phase.name}",
-            True,
-            (255, 255, 255)
-        )
-        screen.blit(day_text, (10,10))
-        screen.blit(phase_text, (10, 50))
+        
         center_world = (m_w // 2, m_h // 2)
         center_screen = camera.syncworld_to_screen(center_world, zoom)
         
@@ -343,6 +331,24 @@ def main():
                 transparent=player_under_canopy
             )
         
+
+        day_text = font.render(
+            f"Day: {rounds.day}",
+            True,
+            (255, 255, 255)
+        )
+
+        phase_text = font.render(
+            f"Phase: {rounds.phase.name}",
+            True,
+            (255, 255, 255)
+        )
+        screen.blit(day_text, (10,10))
+        screen.blit(phase_text, (10, 50))
+
+
+
+
         pygame.display.flip()
        
 

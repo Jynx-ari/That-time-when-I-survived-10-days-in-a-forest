@@ -66,7 +66,7 @@ These are single-run measurements and may vary by machine or run. Use the same m
 **Genre:** Bird's-eye-view 2D action-survival with light tower-defense and
 scavenging\
 **Setting:** A fictional wilderness somewhere inspired by the forested
-rural areas around Rizal and Laguna, Philippines. The exact location is
+rural areas around Rizal or Laguna, Philippines. The exact location is
 deliberately fictional.\
 **Campaign:** 10 days / 10 waves\
 **Primary objective:** Keep a radio tower operational long enough for
