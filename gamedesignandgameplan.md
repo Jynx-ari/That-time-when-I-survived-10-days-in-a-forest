@@ -31,13 +31,17 @@ This section tracks what has actually been implemented in the repository, separa
 - [x] Create `classes/round_manager.py` with preparation, active-wave, wave-cleared, Day 10 victory, and defeat transitions (unit tests reported passing).
 - [x] Create `classes/game_state.py` to represent defeat/victory and prevent changing an already-ended run (unit tests reported passing).
 - [x] Correct the in-game round-control guards: `C` now calls `clear_wave()` during `ACTIVE_WAVE`, and `N` calls `advance_day()` during `WAVE_CLEARED`.
-- [ ] Verify the full day/round sequence in-game, including the temporary debug clear action and Day 10 victory, before connecting enemy spawning or behavior.
+- [ ] Verify the full day/round sequence in-game, including the temporary debug clear action and Day 10 victory.
+- [x] Add a Shambler subclass and shared Zombie base class with vector position, health, speed, and damage stats.
+- [x] Add a Shambler spawner integrated with SPACE wave start; it attempts to spawn a day-scaled group around the tower while checking world bounds and solid obstacles.
+- [ ] Change enemy movement to target the radio tower and only update during an active wave.
+- [ ] Implement the 90-second night timer, daylight cleanup, tower/player combat, and run-ending conditions.
 
 Forest generation can be tuned in the game_conf dictionary in main.py: change tree count to control how many trees are attempted, tree scale to control their size, tree minimum distance to control spacing between tree centers, and center clearance size to control the half-width and half-height of the square clearing around the map center. The generator has a limited number of placement attempts, so very high tree counts or spacing values may result in fewer trees than requested. The configured world is 9600 × 6400 (`m_w, m_h = 4800 * 2, 3200 * 2`) and the viewport is 1200 × 800. Tree positions are generated in world coordinates. The camera offset and zoom are applied when converting world positions to screen positions, and zoom also scales the player, tree canopies, tower, antenna, and central clearing. Mouse-wheel input adjusts the clamped zoom setting. Smooth camera movement is implemented using delta-time-based exponential easing, but its feel and edge behavior still need in-game verification. The player's triangular front can be made more pointed as a small visual-polish task.
 
 **Chosen forest layout (still requires visual tuning):** use simple circular canopies suited to a true bird's-eye view. The central area should be a huge, mostly open field around the radio tower, with a distant forest that gradually becomes denser toward the outer map edges. Avoid a tight ring of individual trees and avoid a sudden solid wall. Preserve scattered trees and traversable routes through the transition, with denser vegetation near the perimeter. Each tree should have a perfect square trunk as its solid collision obstacle, but the trunk should be hidden during the normal view so the forest reads as circles. When the player passes under a tree's canopy, make that canopy translucent and reveal the square trunk underneath. Tree positions and drawing use world coordinates with camera offset and zoom. Player movement, zoom-scaled object drawing, camera following, and mouse aiming with zoom conversion are implemented. Smooth camera movement, density tuning, trunk rendering, and canopy transparency remain unverified or unfinished. Player collision with tree trunks and the tower has been implemented and verified in-game.
 
-The tower and antenna are currently visual placeholders; tower health, power, signal integrity, and pulse behavior are not implemented yet. The round-manager and game-state modules exist, and the user reported that their five tests pass. The current `main.py` now has the intended guards for `C` during `ACTIVE_WAVE` and `N` during `WAVE_CLEARED`, but the full sequence still needs in-game verification. Enemy scaffolding has moved to `classes/zom/zombie.py` and `classes/zom/shambler.py`. `Shambler` now inherits from `Zombie` and calls `super().__init__()`, but the base class currently has errors/incomplete behavior: it uses `pygame.Vector2` without importing Pygame, accepts `deltatime` but multiplies by undefined `dt`, stores `pos` without converting it to a vector, and does not yet store the damage values passed to the constructor. Enemy spawning and movement are not integrated into the game loop.
+The tower and antenna are currently visual placeholders; tower health, power, signal integrity, pulse behavior, player health, and player shooting are not implemented yet. The round manager and game-state modules exist, and the user reported that their five tests pass; the full in-game sequence still needs verification. Enemy scaffolding is now integrated: `classes/zom/zombie.py` imports Pygame, stores position as a `pygame.Vector2`, stores health/speed/damage stats, and moves using the supplied delta time. `Shambler` passes its configured stats to the base class. `functions/zombie_spawner.py` creates day-scaled Shambler groups around the tower, checks world bounds and obstacle overlap, and is called when SPACE starts a wave. Current limitation: `main.py` updates zombies toward `player.pos` every frame, even outside `ACTIVE_WAVE`; tower-targeting behavior and phase-gated movement are not implemented. The current `C` key remains a debug way to clear a wave, and the 90-second night/daylight lifecycle is planned but not implemented.
 
 ### Performance baseline
 
@@ -114,10 +118,14 @@ The world should be compact enough to finish and test, but large enough for the 
 
 1.  **Preparation phase:** search nearby loot spots, collect supplies,
     reload, repair, buy or place defenses.
-2.  **Wave phase:** enemies enter from the forest and attempt to reach
-    the radio tower. The player fights and reacts to breaches.
-3.  **Resolution:** if the player and tower survive, the wave ends and
-    rewards are granted.
+2.  **Night / active wave:** enemies spawn from the forest and attack
+    the player and/or radio tower. The player fights and reacts to
+    breaches while trying to survive for 90 seconds of real time.
+3.  **Daylight / resolution:** if the player and tower survive until the
+    90-second night timer expires, the wave is considered survived and
+    every remaining zombie dies immediately. Killing every enemy is
+    not required to finish a wave; survival until daylight is the
+    win condition. Wave-clear rewards can be granted here later.
 4.  **Next day:** start the next preparation phase and increase the
     challenge.
 5.  Repeat through Day 10. Survive the final assault to complete the
@@ -306,9 +314,15 @@ defense after Wave 1 without being able to buy everything.
 
 ## 10. Campaign structure: 10 days
 
-Each day is one wave and one preparation period. Difficulty should rise
-through combinations of enemy count, spawn directions, enemy speed/type,
-and pressure on defenses---not only by inflating health.
+Each day is one 90-second night wave and one preparation period.
+The 90 seconds are real-world playing time, measured with frame delta
+time (`dt`) rather than frame counts. When the timer expires, daylight
+arrives: if the player and tower are still alive, the wave is survived
+and all remaining zombies are removed. Killing all enemies early does
+not finish the wave. Player death or tower destruction ends the run
+immediately, even if the night timer has not expired. Difficulty should
+rise through combinations of enemy count, spawn directions, enemy
+speed/type, and pressure on defenses---not only by inflating health.
 
   -----------------------------------------------------------------------
                                        Day Purpose / planned introduction
@@ -404,8 +418,10 @@ wilderness_survival/
 -   **Combat:** weapon cooldowns, projectiles or hitscan-style shots,
     health, damage, and defeat/removal.
 -   **Tower pulse:** timer, radius check, and one effect.
--   **Wave manager:** track enemies spawned and alive; start and finish
-    waves; issue rewards.
+-   **Wave manager:** track the day, phase, and 90-second night timer;
+    start waves and transition to daylight when time expires. The main
+    loop removes remaining zombies on a successful daylight transition.
+    Enemy count reaching zero does not end the wave.
 -   **Economy:** scrap checks and transaction logic.
 -   **Placement validation:** check location and resources before
     creating a structure.
@@ -431,7 +447,7 @@ Build and test each milestone before moving on.
 -   [ ] Draw tree trunks in a separate pass behind canopies; when the player enters a canopy, make it translucent and reveal its square trunk.
 -   [x] Add collision with the tower and tree trunks using world-space hitboxes (implemented and verified in-game).
 -   [ ] Tune tree spacing, the central clearing, and the gradual outward density.
--   **Recommended next session:** verify the now-correct `C`/`N` round-control guards in-game and test the full sequence through Day 10. Then finish the enemy-class foundation in `classes/zom/zombie.py`: import Pygame if using `pygame.Vector2`, normalize/store the starting position as a vector, store shared stats including damage, and use the `deltatime` parameter consistently in `update()`. After that, check that `Shambler` passes its own configured stats into the parent constructor rather than hardcoding duplicates. Do not connect spawning, pathfinding, or attacks until the class foundation works. Tree/trunk layering and canopy transparency are implemented in the current draw flow but still need a visual verification pass.
+-   **Recommended next session:** implement the 90-second night timer in `classes/round_manager.py`, decrement it with `dt` only during `ACTIVE_WAVE`, and transition to `WAVE_CLEARED` once it expires. Connect that transition in `main.py` to remove remaining zombies at daylight. Keep the round manager responsible for timing/state and let `main.py` manage the zombie list. Temporarily test with a 5-second duration, then restore 90 seconds. After the timer lifecycle works, change Shambler movement to target the tower and run only during an active wave; then add tower health and timed enemy attacks. Tree/trunk layering and canopy transparency still need visual verification.
 -   **Done when:** the player moves around the world, aims toward the mouse, the camera follows without leaving the map, zoom visibly changes magnification within its limits, and the player cannot walk through solid obstacles.
 
 ### Before Milestone 2 --- Day/round system foundation
@@ -439,6 +455,8 @@ Build and test each milestone before moving on.
 Implement this before adding any enemies, so enemy spawning can later plug into an existing wave lifecycle.
 
 -   [x] Create `classes/round_manager.py` to track the current day and phase, start a wave, record a cleared wave exactly once, and advance to the next preparation phase.
+-   [ ] Add a 90-second night timer that transitions to `WAVE_CLEARED` at daylight; successful survival, not killing all enemies, completes the wave.
+-   [ ] Remove all surviving zombies when daylight clears the wave; player death or tower destruction must override the timer and end the run.
 -   [x] Use explicit phases in `classes/round_manager.py`: `PREP`, `ACTIVE_WAVE`, and `WAVE_CLEARED`, with `DEFEAT` and `VICTORY` states. `classes/game_state.py` separately represents the run-ending result.
 -   [x] Let the player start a wave deliberately from preparation; no countdown is required yet. The SPACE key is wired in `main.py`.
 -   [x] Wire a temporary debug input to clear a wave while in `ACTIVE_WAVE` (`C` key guard is now correct in `main.py`).
@@ -447,14 +465,16 @@ Implement this before adding any enemies, so enemy spawning can later plug into 
 -   [x] Add tests for valid/invalid transitions, clearing a wave once, advancing days, and reaching Day 10 victory; the user reported five tests passing. [ ] Verify the transitions through the actual game controls before connecting enemy behavior.
 -   **Done when:** the player can move around during preparation, start a wave, clear it through the temporary test action, advance through the day sequence, and reach victory after Day 10 without duplicate rewards or broken state transitions. This milestone is not fully complete until the in-game key guards are corrected and the sequence is verified.
 
-### Milestone 2 --- One enemy
+### Milestone 2 --- One enemy and the night/day lifecycle
 
--   Spawn one Shambler.
--   Move it toward the tower.
--   Add collision and tower attack behavior.
--   Add tower health and defeat state.
--   **Done when:** the enemy can reach and damage the tower, and tower
-    destruction ends the run.
+-   [x] Create the shared `Zombie` base class with vector position, health, speed, and damage values.
+-   [x] Create `Shambler` using its own configured stats.
+-   [x] Spawn a day-scaled group of Shamblers when SPACE starts a wave; avoid world bounds and existing solid obstacles.
+-   [ ] Implement a 90-second night timer, with `dt`-based timing.
+-   [ ] At daylight, clear every remaining zombie and set `WAVE_CLEARED`; do not require all enemies to be killed.
+-   [ ] Make Shamblers move toward the tower only during `ACTIVE_WAVE`.
+-   [ ] Add tower health, proximity-based enemy attacks, attack cooldowns, and defeat when tower health reaches zero.
+-   **Done when:** a night starts, lasts 90 seconds, and ends at daylight if the player and tower survive; zombies damage the tower if they reach it, and tower destruction ends the run.
 
 ### Milestone 3 --- Player combat
 
@@ -471,13 +491,13 @@ Implement this before adding any enemies, so enemy spawning can later plug into 
 -   **Done when:** the tower helps in combat without defeating every
     enemy by itself.
 
-### Milestone 5 --- Wave manager
+### Milestone 5 --- Wave progression and rewards
 
--   Add preparation and active-wave states.
--   Spawn a small fixed Wave 1.
--   Detect when the wave is cleared.
--   Give the clear reward and allow the next wave to begin.
--   **Done when:** a full wave can start, end, and restart reliably.
+-   Use the existing preparation and active-wave states.
+-   Use the 90-second timer to end a wave at daylight.
+-   Remove remaining enemies at daylight; enemy count reaching zero is not a win condition.
+-   Give the clear reward and allow the next preparation phase to begin.
+-   **Done when:** a full night can start, end at daylight, and progress to the next day reliably.
 
 ### Milestone 6 --- Scrap and scavenging
 
@@ -547,11 +567,13 @@ scenes, and extra enemy types until the core loop is enjoyable.
 -   [ ] The camera follows the player smoothly and respects map boundaries (implementation is present; in-game verification is still needed).
 -   [x] Zoom visibly scales world positions and the sizes of the player, tree canopies, tower, antenna, and clearing.
 -   [ ] Camera follow eases smoothly toward the player instead of snapping (implementation is present; in-game behavior still needs verification).
--   [ ] One enemy can navigate toward the tower.
--   [ ] Player can damage and defeat the enemy.
--   [ ] Enemy can damage the tower.
+-   [ ] Enemies move toward the tower during the active wave.
+-   [ ] Player can damage and defeat enemies.
+-   [ ] Enemies can damage the tower.
 -   [ ] Tower pulse has a cooldown and limited range.
 -   [ ] Player death and tower destruction both end the run.
+-   [ ] A night lasts 90 seconds and ends at daylight if the player and tower survive.
+-   [ ] All surviving zombies disappear at daylight; killing every zombie is not required to clear a wave.
 -   [ ] A wave starts and ends correctly.
 -   [ ] The player can receive and spend scrap.
 -   [ ] A barricade can be placed at a valid location.
@@ -569,6 +591,7 @@ These can remain undecided while the prototype is built:
 -   Final costs, loot quantities, enemy counts, and tower stats.
 -   Whether scavenging sites ever restock.
 -   Final asset resolution and sound design. Current visual direction: bird's-eye view with circular canopies and no visible trunks in the normal view; each tree has a square trunk that is revealed when its canopy becomes translucent around the player.
+-   Night duration is set to 90 seconds of real-world time for the prototype. The wave ends when daylight arrives if the player and tower survive; all remaining zombies die at daylight. Killing all enemies is not required. This timing and cleanup behavior are design decisions and are not yet implemented.
 -   Airdrop frequency, warning/landing presentation, contents, and whether drops arrive on fixed days or as random events.
 
 ## 17. Reference and inspiration
