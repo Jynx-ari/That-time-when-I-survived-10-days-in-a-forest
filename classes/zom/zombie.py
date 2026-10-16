@@ -10,7 +10,7 @@ class Zombie():
 
     
     def update(self, target, deltatime):
-        dir = pygame.Vector2(target) - self.pos
+        dir_ = pygame.Vector2(target) - self.pos
 
-        if dir.length_squared() > 0:
-            self.pos += dir.normalize() * self.speed * deltatime   
+        if dir_.length_squared() > 0:
+            self.pos += dir_.normalize() * self.speed * deltatime   

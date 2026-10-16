@@ -15,30 +15,30 @@ class Player:
         self.angle = 90
 
     def move(self, keys, dt, world_size, obstacles=None):
-        dir = pygame.Vector2(0,0)
+        dir_ = pygame.Vector2(0,0)
 
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            dir.x -= 1
+            dir_.x -= 1
         
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            dir.x +=1
+            dir_.x +=1
 
         if keys[pygame.K_UP] or keys[pygame.K_w]:
-            dir.y -= 1
+            dir_.y -= 1
         
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            dir.y+=1
+            dir_.y+=1
         
         
         #HAHA NO SOURCE MOVEMENT!!
-        if dir.length_squared() > 0:
-            dir = dir.normalize()
+        if dir_.length_squared() > 0:
+            dir_ = dir_.normalize()
 
         #obviously...
         if obstacles is None:
             obstacles=[]
 
-        movement = dir * self.speed * dt
+        movement = dir_ * self.speed * dt
         #lets try horizontal movement first!1
         next_x = self.pos.x + movement.x
 
@@ -98,10 +98,10 @@ class Player:
             mouse_pos[1] / zoom+ camera.offset[1]
         )
 
-        dir = mouse_world - self.pos
+        dir_ = mouse_world - self.pos
 
-        if dir.length_squared() > 0:
-            self.angle = dir.as_polar()[1]
+        if dir_.length_squared() > 0:
+            self.angle = dir_.as_polar()[1]
 
 
     def draw(self, screen, screen_pos, zoom=1.0):
