@@ -243,16 +243,13 @@ def main():
                     if exittap >= game_conf["exittap"]:
                         quit()
                 
-                if event.key == pygame.K_SPACE:
-                    if rounds.phase == RoundPhase.PREP:
-                        rounds.start_wave()
-                if event.key == pygame.K_c:
-                    if rounds.phase == RoundPhase.WAVE_CLEARED:
-                        rounds.clear_wave()
+                if event.key == pygame.K_SPACE and rounds.phase==RoundPhase.PREP:
+                    rounds.start_wave()
+                if event.key == pygame.K_c and rounds.phase == RoundPhase.ACTIVE_WAVE:
+                    rounds.clear_wave()
                 
-                if event.key == pygame.K_n:
-                    if rounds.phase == RoundPhase.ACTIVE_WAVE:
-                        rounds.advance_day()
+                if event.key == pygame.K_n and rounds.phase == RoundPhase.WAVE_CLEARED:
+                    rounds.advance_day()
 
 
 
