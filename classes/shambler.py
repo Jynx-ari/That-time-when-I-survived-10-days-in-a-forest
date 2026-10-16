@@ -7,7 +7,7 @@ default_config = {
     "damage_to_player": 0.4,
 }
 
-class Shamble(Zombie):
+class Shambler(Zombie):
     def __init__(self):
         super().__init__()
         
