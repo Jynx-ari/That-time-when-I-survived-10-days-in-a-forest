@@ -14,3 +14,13 @@ class Zombie():
 
         if dir_.length_squared() > 0:
             self.pos += dir_.normalize() * self.speed * deltatime   
+
+    def draw(self, screen, camera, zoom):
+        screen_pos = camera.syncworld_to_screen(self.pos, zoom)
+
+        pygame.draw.circle(
+            screen,
+            "#7f9f45",
+            (round(screen_pos[0]), round(screen_pos[1])),
+            max(5, round(15 * zoom))
+        )

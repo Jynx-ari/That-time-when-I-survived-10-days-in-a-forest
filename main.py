@@ -3,13 +3,18 @@ import pygame
 import sys
 import random
 
+
+#CLASSES
 from classes.tree import gen_Tree
-from functions.center import draw_center
 from classes.aboutplayer.camera import Camera
 from classes.aboutplayer.player import Player
 from classes.obstacle import Obstacle
 from classes.round_manager import RoundManager, RoundPhase
 from classes.zom.shambler import Shambler
+
+#FUNCTIONS
+from functions.center import draw_center
+from functions.zombie_spawner import spawn_shamblers
 
 
 ##-- GAME CONFIG --##   
@@ -246,8 +251,15 @@ def main():
                 if event.key == pygame.K_SPACE and rounds.phase==RoundPhase.PREP:
                     rounds.start_wave()
 
-                    zom = []
-                    
+                    center = pygame.Vector2(m_w // 2, m_h // 2)
+                    zoms = spawn_shamblers(
+                        amount=5 + rounds.day * 2,
+                        center=center,
+                        min_radius=900,
+                        max_radius=1400,
+                        world_size=(m_w, m_h),
+                        obstacles=solid_obs
+                    )
 
 
                 if event.key == pygame.K_c and rounds.phase == RoundPhase.ACTIVE_WAVE:
@@ -313,6 +325,13 @@ def main():
         player_screen_pos = camera.syncworld_to_screen(player.pos,zoom)
         player.aimlook(pygame.mouse.get_pos(), camera, zoom)
         player.draw(screen, player_screen_pos, zoom)
+
+
+        for zombie in zoms:
+            zombie.update(player.pos, dt)
+
+        for zombie in zoms:
+            zombie.draw(screen, camera,zoom)
 
         for tree in trees:
             screen_pos = camera.syncworld_to_screen(
