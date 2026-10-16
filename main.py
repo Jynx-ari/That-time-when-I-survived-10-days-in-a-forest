@@ -148,9 +148,12 @@ def generate_forest(count):
 def main():
 
     pygame.init()
-
+    pygame.font.init()
     screen = pygame.display.set_mode((w, h))
     pygame.display.set_caption("10 Days in a forest")
+
+    font = pygame.font.Font(None, 36)
+
 
     clock = pygame.time.Clock()
     running = True
@@ -211,6 +214,8 @@ def main():
     solid_obs.append(
         Obstacle(tower_rect, name="radio tower")
     )
+
+    
 
     
     player = Player((m_w // 2, m_h // 2 +70), )
@@ -283,7 +288,19 @@ def main():
         # Draw the world
         screen.fill(game_conf["grass"])
 
-    
+        day_text = font.render(
+            f"Day: {rounds.day}",
+            True,
+            (255, 255, 255)
+        )
+
+        phase_text = font.render(
+            f"Phase: {rounds.phase.name}",
+            True,
+            (255, 255, 255)
+        )
+        screen.blit(day_text, (10,10))
+        screen.blit(phase_text, (10, 50))
         center_world = (m_w // 2, m_h // 2)
         center_screen = camera.syncworld_to_screen(center_world, zoom)
         
