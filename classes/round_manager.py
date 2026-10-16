@@ -27,7 +27,7 @@ class RoundManager:
             return False
         
         self.phase = RoundPhase.ACTIVE_WAVE
-        self.reward_claimed = False
+        
         return True
     
     def clear_wave(self):
@@ -46,9 +46,10 @@ class RoundManager:
             return False
         
         if self.day >= self.total_days:
-            return False
+            self.phase = RoundPhase.VICTORY
+            return True
         
         self.day +=1
         self.phase = RoundPhase.PREP
-        self.reward_claimed = False
+        
         return True
