@@ -28,13 +28,16 @@ This section tracks what has actually been implemented in the repository, separa
 - [ ] Draw tree trunks in a separate pass behind the canopies, then make the canopy translucent and reveal the trunk when the player enters it.
 - [x] Add player collision with tree trunks and the tower (verified in-game).
 - [ ] Tune tree spacing, the central clearing, and the gradual outward density bias.
-- [ ] Implement the day/round state machine before creating any enemies: preparation, active wave, wave cleared, next day, victory after Day 10, and defeat states.
+- [x] Create `classes/round_manager.py` with preparation, active-wave, wave-cleared, Day 10 victory, and defeat transitions (unit tests reported passing).
+- [x] Create `classes/game_state.py` to represent defeat/victory and prevent changing an already-ended run (unit tests reported passing).
+- [ ] Finish and verify the in-game round controls: the current `main.py` key guards call `clear_wave()` while already in `WAVE_CLEARED`, and `advance_day()` while still in `ACTIVE_WAVE`, so those actions do not match the manager's transition rules.
+- [ ] Verify the full day/round sequence in-game, including the temporary debug clear action and Day 10 victory, before adding enemy behavior.
 
 Forest generation can be tuned in the game_conf dictionary in main.py: change tree count to control how many trees are attempted, tree scale to control their size, tree minimum distance to control spacing between tree centers, and center clearance size to control the half-width and half-height of the square clearing around the map center. The generator has a limited number of placement attempts, so very high tree counts or spacing values may result in fewer trees than requested. The configured world is 9600 × 6400 (`m_w, m_h = 4800 * 2, 3200 * 2`) and the viewport is 1200 × 800. Tree positions are generated in world coordinates. The camera offset and zoom are applied when converting world positions to screen positions, and zoom also scales the player, tree canopies, tower, antenna, and central clearing. Mouse-wheel input adjusts the clamped zoom setting. Smooth camera movement is implemented using delta-time-based exponential easing, but its feel and edge behavior still need in-game verification. The player's triangular front can be made more pointed as a small visual-polish task.
 
 **Chosen forest layout (still requires visual tuning):** use simple circular canopies suited to a true bird's-eye view. The central area should be a huge, mostly open field around the radio tower, with a distant forest that gradually becomes denser toward the outer map edges. Avoid a tight ring of individual trees and avoid a sudden solid wall. Preserve scattered trees and traversable routes through the transition, with denser vegetation near the perimeter. Each tree should have a perfect square trunk as its solid collision obstacle, but the trunk should be hidden during the normal view so the forest reads as circles. When the player passes under a tree's canopy, make that canopy translucent and reveal the square trunk underneath. Tree positions and drawing use world coordinates with camera offset and zoom. Player movement, zoom-scaled object drawing, camera following, and mouse aiming with zoom conversion are implemented. Smooth camera movement, density tuning, trunk rendering, and canopy transparency remain unverified or unfinished. Player collision with tree trunks and the tower has been implemented and verified in-game.
 
-The tower and antenna are currently visual placeholders; tower health, power, signal integrity, and pulse behavior are not implemented yet. The next gameplay system is the day/round state machine, which must be implemented and tested before starting enemy behavior. The developer will create the new module files locally; after that, review the current files and integrate the system into `main.py`.
+The tower and antenna are currently visual placeholders; tower health, power, signal integrity, and pulse behavior are not implemented yet. The round-manager and game-state modules now exist, and the user reported that their five tests pass. However, the current `main.py` key guards do not correctly trigger the clear-wave and advance-day transitions, so the in-game lifecycle still needs integration fixes and verification before enemies are added. `classes/zombie.py` is still an empty base-class skeleton, while `classes/shambler.py` has initial subclass scaffolding but is not yet functional.
 
 ### Performance baseline
 
@@ -428,21 +431,21 @@ Build and test each milestone before moving on.
 -   [ ] Draw tree trunks in a separate pass behind canopies; when the player enters a canopy, make it translucent and reveal its square trunk.
 -   [x] Add collision with the tower and tree trunks using world-space hitboxes (implemented and verified in-game).
 -   [ ] Tune tree spacing, the central clearing, and the gradual outward density.
--   **Recommended next session:** verify tree/trunk layering and canopy transparency in-game. Then build and test the day/round state machine before any enemy code. The developer will create the planned new module files locally; review their contents before integrating them into `main.py`. Only after the day/round transitions work should Milestone 2 begin with one Shambler moving toward the tower. Keep each change small and test it before moving on.
+-   **Recommended next session:** first fix the `main.py` round-control guards so the clear-wave action is allowed during `ACTIVE_WAVE` and advancing the day is allowed during `WAVE_CLEARED`; then verify the whole sequence in-game, including Day 10 victory. After that, continue with the enemy-class foundation: give `Zombie` shared data such as position, speed, health, and size, then have the Shambler subclass pass its starting position and stats to the parent constructor. Do not add movement, pathfinding, attacking, or spawning until the class relationship is clear and the state transitions work. Tree/trunk layering and canopy transparency still need a visual verification pass.
 -   **Done when:** the player moves around the world, aims toward the mouse, the camera follows without leaving the map, zoom visibly changes magnification within its limits, and the player cannot walk through solid obstacles.
 
 ### Before Milestone 2 --- Day/round system foundation
 
 Implement this before adding any enemies, so enemy spawning can later plug into an existing wave lifecycle.
 
--   Create `classes/round_manager.py` to track the current day and phase, start a wave, record a cleared wave exactly once, and advance to the next preparation phase.
--   Use explicit phases: `PREPARATION`, `ACTIVE_WAVE`, and `WAVE_CLEARED`; represent `DEFEAT` and `VICTORY` as run-ending states (either in the manager or in a separate `classes/game_state.py` if that separation makes the code clearer).
--   Let the player start a wave deliberately from preparation; do not force a countdown yet.
--   Since enemies do not exist yet, use a temporary debug input to simulate clearing a wave and test the transitions. Clearly label it as temporary and remove it once real enemy tracking is connected.
--   Award a wave-clear reward only once, and reach victory only after Day 10 has been cleared.
--   Add a minimal HUD display for the day and current phase so the state can be verified in-game.
--   Test starting a wave, rejecting invalid transitions, clearing it once, advancing days, and reaching Day 10 victory before beginning enemy work.
--   **Done when:** the player can move around during preparation, start a wave, use the temporary test action to clear it, advance through the day sequence, and reach victory after Day 10 without duplicate rewards or broken state transitions.
+-   [x] Create `classes/round_manager.py` to track the current day and phase, start a wave, record a cleared wave exactly once, and advance to the next preparation phase.
+-   [x] Use explicit phases in `classes/round_manager.py`: `PREP`, `ACTIVE_WAVE`, and `WAVE_CLEARED`, with `DEFEAT` and `VICTORY` states. `classes/game_state.py` separately represents the run-ending result.
+-   [x] Let the player start a wave deliberately from preparation; no countdown is required yet. The SPACE key is wired in `main.py`.
+-   [ ] Wire a temporary debug input to clear a wave while in `ACTIVE_WAVE`; the current `main.py` C-key guard checks `WAVE_CLEARED` instead, so it does not currently trigger `clear_wave()`.
+-   [ ] Connect wave-clear rewards later, and verify victory only after Day 10 has been cleared. The manager's transition tests reportedly pass, but the in-game key flow still needs fixing and verification.
+-   [x] Add a minimal HUD display for the day and current phase. In-game transitions still need verification.
+-   [x] Add tests for valid/invalid transitions, clearing a wave once, advancing days, and reaching Day 10 victory; the user reported five tests passing. [ ] Verify the transitions through the actual game controls before beginning enemy behavior.
+-   **Done when:** the player can move around during preparation, start a wave, clear it through the temporary test action, advance through the day sequence, and reach victory after Day 10 without duplicate rewards or broken state transitions. This milestone is not fully complete until the in-game key guards are corrected and the sequence is verified.
 
 ### Milestone 2 --- One enemy
 
