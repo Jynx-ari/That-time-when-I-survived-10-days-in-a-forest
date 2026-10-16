@@ -34,15 +34,10 @@ class RoundManager:
         #Cleaning up!!
 
         if self.phase != RoundPhase.ACTIVE_WAVE:
-            return 0
+            return False
         
         self.phase = RoundPhase.WAVE_CLEARED
-
-        if self.reward_claimed:
-            return 0
-        
-        self.reward_claimed = True
-        return self.clear_reward
+        return True
     
     def advance_day(self):
         #New Day basicalyl
