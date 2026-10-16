@@ -53,3 +53,13 @@ class RoundManager:
         self.phase = RoundPhase.PREP
         
         return True
+
+    def end_game(self):
+        #Yu lost :)
+
+        if self.phase in (RoundPhase.DEFEAT, RoundPhase.VICTORY):
+            return False
+        
+        self.phase = RoundPhase.DEFEAT
+        return True
+        
