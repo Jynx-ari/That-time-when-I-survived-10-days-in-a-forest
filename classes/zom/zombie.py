@@ -1,3 +1,5 @@
+import pygame
+
 class Zombie():
     def __init__(self, pos, health=100, speed=0, damage_to_towers=0, damage_to_player=0):
         self.pos = pos
