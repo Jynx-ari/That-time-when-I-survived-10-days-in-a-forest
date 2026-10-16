@@ -1,5 +1,6 @@
 import pygame
-from classes.obstacle import Obstacle
+from ..obstacle import Obstacle
+
 default_conf = {
     "size": 10,
     "walkspeed": 90

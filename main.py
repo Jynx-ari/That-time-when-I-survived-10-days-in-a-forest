@@ -5,11 +5,11 @@ import random
 
 from classes.tree import gen_Tree
 from functions.center import draw_center
-from classes.camera import Camera
-from classes.player import Player
+from classes.aboutplayer.camera import Camera
+from classes.aboutplayer.player import Player
 from classes.obstacle import Obstacle
 from classes.round_manager import RoundManager, RoundPhase
-
+from classes.zom.shambler import Shambler
 
 
 ##-- GAME CONFIG --##   
@@ -159,7 +159,7 @@ def main():
     running = True
     
     rounds = RoundManager(total_days=10)
-    
+    zoms = []
 
     #the tree algo seems to slow down the start of the game
     tree_start = time.perf_counter()
@@ -245,6 +245,11 @@ def main():
                 
                 if event.key == pygame.K_SPACE and rounds.phase==RoundPhase.PREP:
                     rounds.start_wave()
+
+                    zom = []
+                    
+
+
                 if event.key == pygame.K_c and rounds.phase == RoundPhase.ACTIVE_WAVE:
                     rounds.clear_wave()
                 
