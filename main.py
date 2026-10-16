@@ -106,7 +106,7 @@ def generate_forest(count):
         for offset_x in (-1, 0, 1):
             for offset_y in (-1,0,1):
                 neighbor_key = (
-                    cell_x + offset_y,
+                    cell_x + offset_x,
                     cell_y + offset_y,
 
                 )
