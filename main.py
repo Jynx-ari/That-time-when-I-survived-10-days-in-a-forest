@@ -76,7 +76,7 @@ def generate_forest(count):
         
         x,y = random.randint(40, m_w- 40), random.randint(55, m_h -55)
 
-        #calc edging distance...~ heh :>
+        #calc edging distance...    
         edge_distance = min(x,m_w-x, y,m_h-y)
         
         #edge maxxing?!?!?
@@ -247,11 +247,11 @@ def main():
                     if rounds.phase == RoundPhase.PREP:
                         rounds.start_wave()
                 if event.key == pygame.K_c:
-                    if rounds.phase == RoundPhase.ACTIVE_WAVE:
+                    if rounds.phase == RoundPhase.WAVE_CLEARED:
                         rounds.clear_wave()
                 
                 if event.key == pygame.K_n:
-                    if rounds.phase == RoundPhase.WAVE_CLEARED:
+                    if rounds.phase == RoundPhase.ACTIVE_WAVE:
                         rounds.advance_day()
 
 
