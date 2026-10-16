@@ -8,7 +8,7 @@ from functions.center import draw_center
 from classes.camera import Camera
 from classes.player import Player
 from classes.obstacle import Obstacle
-
+from classes.round_manager import RoundManager, RoundPhase
 
 
 
@@ -154,10 +154,11 @@ def main():
 
     clock = pygame.time.Clock()
     running = True
+    
+    rounds = RoundManager(total_days=10)
+    
 
     #the tree algo seems to slow down the start of the game
-
-
     tree_start = time.perf_counter()
 
     trees = generate_forest(game_conf["tree count"])
@@ -236,6 +237,19 @@ def main():
                     exittap += 1
                     if exittap >= game_conf["exittap"]:
                         quit()
+                
+                if event.key == pygame.K_SPACE:
+                    if rounds.phase == RoundPhase.PREP:
+                        rounds.start_wave()
+                if event.key == pygame.K_c:
+                    if rounds.phase == RoundPhase.ACTIVE_WAVE:
+                        rounds.clear_wave()
+                
+                if event.key == pygame.K_n:
+                    if rounds.phase == RoundPhase.WAVE_CLEARED:
+                        rounds.advance_day()
+
+
 
             if event.type == pygame.MOUSEWHEEL:
                 zoom = game_conf["zoom"] + event.y * game_conf["zoom_speed"]
