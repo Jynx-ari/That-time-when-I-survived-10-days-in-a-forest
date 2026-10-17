@@ -1,5 +1,10 @@
 import pygame
 
+default_config = {
+    "zombie size": 15
+}
+
+
 class Zombie():
     def __init__(self, pos, health=100, speed=0, damage_to_tower=0.0, damage_to_player=0.0):
         self.pos = pygame.Vector2(pos)
@@ -8,12 +13,70 @@ class Zombie():
         self.damage_to_tower = damage_to_tower
         self.damage_to_player = damage_to_player
 
-    
-    def update(self, target, deltatime):
+
+
+    def is_blocked(self, pos, obstacles):
+        zombie_size = default_config["zombie size"]
+        zomb_rect = pygame.Rect(
+            round(pos.x - zombie_size),
+            round(pos.y - zombie_size),
+            zombie_size * 2,
+            zombie_size * 2
+        )
+
+        return any(
+            obstacle.blocks_movement
+            and zomb_rect.colliderect(obstacle.rect)
+            for obstacle in obstacles
+        )
+
+
+
+
+
+    def update(self, target, deltatime, obstacles=None):
+
+        if obstacles is None:
+            obstacles = []
+        
+        target = pygame.Vector2(target)
         dir_ = pygame.Vector2(target) - self.pos
 
-        if dir_.length_squared() > 0:
-            self.pos += dir_.normalize() * self.speed * deltatime   
+        if dir_.length_squared() == 0:
+            return
+        
+        dir_ = dir_.normalize()
+        movement = dir_*self.speed*deltatime
+
+        #movement stuffiess!!
+        candidates = [
+
+            movement,
+            pygame.Vector2(-movement.y, movement.x),
+            pygame.Vector2(movement.y, -movement.x),
+
+        ]
+
+        best_move = None
+        best_distance = float("inf")
+
+        for candidate in candidates:
+            next_pos = self.pos + candidate
+
+            if self.is_blocked(next_pos, obstacles):
+                continue
+                
+            distance = next_pos.distance_squared_to(target)
+
+            if distance < best_distance:
+                best_distance = distance
+                best_move = candidate
+        
+        if best_move is not None:
+            self.pos += best_move
+        
+
+
 
     def draw(self, screen, camera, zoom):
         screen_pos = camera.syncworld_to_screen(self.pos, zoom)

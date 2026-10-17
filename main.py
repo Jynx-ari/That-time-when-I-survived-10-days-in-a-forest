@@ -208,6 +208,8 @@ def main():
 
 
     tower_x, tower_y = m_w // 2, m_h // 2
+    tower_pos = pygame.Vector2(tower_x, tower_y)
+
 
     tower_rect = pygame.Rect(
         tower_x - 21,
@@ -331,7 +333,7 @@ def main():
 
         if rounds.phase == RoundPhase.ACTIVE_WAVE:
             for zombie in zoms:
-                zombie.update(player.pos, dt)
+                zombie.update(tower_pos, dt, solid_obs)
 
             for zombie in zoms:
                 zombie.draw(screen, camera,zoom)
