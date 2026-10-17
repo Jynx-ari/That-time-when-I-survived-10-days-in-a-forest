@@ -456,8 +456,9 @@ Build and test each milestone before moving on.
 Implement this before adding any enemies, so enemy spawning can later plug into an existing wave lifecycle.
 
 -   [x] Create `classes/round_manager.py` to track the current day and phase, start a wave, record a cleared wave exactly once, and advance to the next preparation phase.
--   [ ] Add a 90-second night timer that transitions to `WAVE_CLEARED` at daylight; successful survival, not killing all enemies, completes the wave.
--   [ ] Remove all surviving zombies when daylight clears the wave; player death or tower destruction must override the timer and end the run.
+-   [x] Add a 90-second night timer that transitions to `WAVE_CLEARED` at daylight; successful survival, not killing all enemies, completes the wave.
+-   [x] Remove all surviving zombies when daylight clears the wave.
+-   [ ] Make player death or tower destruction override the timer and end the run immediately.
 -   [x] Use explicit phases in `classes/round_manager.py`: `PREP`, `ACTIVE_WAVE`, and `WAVE_CLEARED`, with `DEFEAT` and `VICTORY` states. `classes/game_state.py` separately represents the run-ending result.
 -   [x] Let the player start a wave deliberately from preparation; no countdown is required yet. The SPACE key is wired in `main.py`.
 -   [x] Wire a temporary debug input to clear a wave while in `ACTIVE_WAVE` (`C` key guard is now correct in `main.py`).
