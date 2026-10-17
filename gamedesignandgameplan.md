@@ -609,3 +609,30 @@ These can remain undecided while the prototype is built:
 **Design principle:** finish a small, coherent survival loop first.
 Expand only when the current version is fun enough to justify the next
 system.
+
+## 18. Planned mechanic: tower-powered player recovery
+
+**Status: design agreed; not implemented.** This section describes the intended behavior only. Do not mark recovery as implemented until the player/tower health, death handling, timer, bunker respawn, and visual feedback have each been coded and tested.
+
+- **Recovery location:** a small underground bunker near the radio tower, with a fixed safe respawn point inside.
+- **Fiction:** when the player dies, the radio tower transmits a recovery signal that activates the bunker's medical system. A visible tower-to-bunker beam communicates the process to the player; it is visual feedback, not a shield.
+- **Trigger:** when player health reaches zero, begin one recovery cycle if the tower is still operational. Disable player control while recovery is pending.
+- **Prototype delay:** 10 seconds, measured using elapsed game time (dt), not frame counts.
+- **Successful recovery:** return the player at the bunker respawn point with 50% health. The first prototype has no temporary invulnerability; reconsider only if playtesting shows unavoidable immediate repeat deaths.
+- **Tower destruction:** defeat is immediate, including during recovery; cancel the pending recovery.
+- **Wave/day transitions:** recovery continues during daytime and across the transition to daylight. Existing daylight cleanup still removes remaining zombies.
+- **Repeat deaths:** each later death may start a new recovery cycle if the tower remains operational.
+- **Power model:** initially assume the tower can transmit. Integrate power and signal-integrity requirements only after those systems exist.
+- **Exploit protection:** the bunker is a respawn location, not a permanent invulnerability zone.
+
+### Suggested implementation sequence
+
+1. Place and visibly draw a fixed bunker landmark in world coordinates. Verify camera and zoom behavior; do not add recovery logic yet.
+2. Implement player and tower health and test damage.
+3. Detect player death exactly once and disable player control.
+4. Add the 10-second recovery state/timer and return the player to the bunker with 50% health.
+5. Ensure tower destruction overrides and cancels recovery.
+6. Draw the signal beam and recovery countdown.
+7. Test daytime death, night-time death, tower destruction during recovery, and repeated deaths.
+
+The revival mechanic is a planned feature. Its presence in this design document does not imply that any implementation checklist item is complete.
