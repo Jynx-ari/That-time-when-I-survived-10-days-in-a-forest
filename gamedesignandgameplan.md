@@ -323,7 +323,13 @@ and all remaining zombies are removed. Killing all enemies early does
 not finish the wave. Player death or tower destruction ends the run
 immediately, even if the night timer has not expired. Difficulty should
 rise through combinations of enemy count, spawn directions, enemy
-speed/type, and pressure on defenses---not only by inflating health.
+speed/type, obstacle-aware routing, and pressure on defenses---not only
+by inflating health. Later waves should gradually introduce smarter
+behaviors: better obstacle routing and, for selected enemy types, limited
+prediction of the player's movement. The ammunition balance target is to
+make starting supplies useful through Days 1–2 but insufficient to kill
+every enemy in Day 3 and later; survival should remain possible through
+movement, shot conservation, and defenses.
 
   -----------------------------------------------------------------------
                                        Day Purpose / planned introduction
