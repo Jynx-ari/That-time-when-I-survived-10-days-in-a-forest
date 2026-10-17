@@ -1,5 +1,5 @@
 # That Time I Got Stranded in a Forest and Had to Defend a Radio Tower for Ten Nights
-
+(learning python again and trying to get gud with AI guiding me)
 A 2D top-down pew pew survival and tower defense game made with python and pygame. NOTE: (ITS STILL NOT FINISHED!!)
 
 ## Goal:
