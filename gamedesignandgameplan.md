@@ -36,7 +36,7 @@ This section tracks what has actually been implemented in the repository, separa
 - [x] Add a Shambler spawner integrated with SPACE wave start; it attempts to spawn a day-scaled group around the tower while checking world bounds and solid obstacles.
 - [ ] Change enemy movement to target the radio tower and only update during an active wave.
 - [x] Implement the 90-second night timer and clear remaining zombies at daylight when the timer expires.
-- [ ] Implement tower/player health and combat, and end the run immediately when the player dies or the tower is destroyed.
+- [ ] Implement player/tower health and combat, performance-based player revival, and immediate defeat when the tower is destroyed.
 
 Forest generation can be tuned in the game_conf dictionary in main.py: change tree count to control how many trees are attempted, tree scale to control their size, tree minimum distance to control spacing between tree centers, and center clearance size to control the half-width and half-height of the square clearing around the map center. The generator has a limited number of placement attempts, so very high tree counts or spacing values may result in fewer trees than requested. The configured world is 9600 × 6400 (`m_w, m_h = 4800 * 2, 3200 * 2`) and the viewport is 1200 × 800. Tree positions are generated in world coordinates. The camera offset and zoom are applied when converting world positions to screen positions, and zoom also scales the player, tree canopies, tower, antenna, and central clearing. Mouse-wheel input adjusts the clamped zoom setting. Smooth camera movement is implemented using delta-time-based exponential easing, but its feel and edge behavior still need in-game verification. The player's triangular front can be made more pointed as a small visual-polish task.
 
@@ -76,7 +76,7 @@ deliberately fictional.\
 **Campaign:** 10 days / 10 waves\
 **Primary objective:** Keep a radio tower operational long enough for
 the government in Malacañang to coordinate a rescue.\
-**Failure:** The player dies or the tower is destroyed.\
+**Failure:** The radio tower is destroyed. Player death temporarily removes the player from combat, but the tower can revive them at their death location after a performance-based delay.\
 **Core promise:** The player fights directly, while terrain, scavenged
 resources, placed defenses, and the tower's limited pulse help them
 survive increasingly difficult attacks.
@@ -142,11 +142,21 @@ Preparation is the main opportunity for short exploration and scavenging. Explor
 -   Collision against trees, rocks, buildings, tower, and placed
     structures.
 -   A basic firearm with aim direction and a firing cooldown.
--   Health; reaching zero ends the run.
+-   Health; reaching zero starts the tower-revival process rather than immediately ending the run.
 -   A small, simple HUD displaying player health, tower health, current
     day/wave, scrap, and ammunition.
 -   Intermission controls for starting the next wave and placing a
     structure.
+
+### Player death and tower revival — chosen design
+
+- The player remains at the exact world position where they died; there is no separate respawn station.
+- On reaching zero health, the player enters a dead/recovering state. They cannot move, aim, attack, or take further damage while waiting for revival.
+- The radio tower sends a visible energy beam to the body and restores the player after a performance-based delay. The beam is visual feedback for the revival, not a shield or a weapon.
+- Revival restores **full player health**.
+- Better performance during the current night should shorten the delay; poor performance should lengthen it. The first prototype should use a small, explainable set of signals and clamp the delay to a minimum and maximum so it never becomes instant or excessively long. Exact weights and timings remain tuning decisions.
+- The delay continues even if the night timer reaches daylight. If the tower is destroyed at any point during recovery, defeat is immediate and revival is cancelled.
+- A short post-revival grace period against damage is a possible balance safeguard, but it is not part of the confirmed rules yet.
 
 ### Keep out of the first version
 
