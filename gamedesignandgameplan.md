@@ -1,4 +1,4 @@
-# That Time I Got Reincarnated as a Signal Operator but the Entire Forest Wants Me Dead --- Game Design and Development Plan
+# That Time I Got Stranded in a Forest and Had to Defend a Radio Tower for Ten Nights --- Game Design and Development Plan
 
 > Alpha Working title. This document records the current direction and a
 > practical plan for building the first playable version. Values marked
