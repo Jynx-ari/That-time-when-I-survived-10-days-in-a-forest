@@ -15,10 +15,12 @@ class RoundManager:
 
 
 
-    def __init__(self, total_days=10):
+    def __init__(self, total_days=10, night_dur=90):
         self.total_days = total_days
         self.day = 1
         self.phase = RoundPhase.PREP
+        self.night_dur = night_dur #90s | 1min 30s default
+        self.night_elapsed = 0.0
 
     def start_wave(self):
         #gonna  start the current day's wave
@@ -27,9 +29,39 @@ class RoundManager:
             return False
         
         self.phase = RoundPhase.ACTIVE_WAVE
-        
+        self.night_elapsed = 0.0
         return True
+
+
+
+
+
+    def update(self, dt):
+        if self.phase != RoundPhase.ACTIVE_WAVE:
+            return
+        
+        self.night_elapsed += dt
+
+        if self.night_elapsed >= self.night_dur:
+            self.night_elapsed = self.night_dur
+            self.phase = RoundPhase.WAVE_CLEARED
+            return True
+        return False
+        
+
+
+
+
+    @property #teaching myself more about python classes :0
+    def night_remaining(self):
+        return max(0.0, self.night_dur - self.night_elapsed)
+
     
+    @property
+    def is_morning(self):
+        return self.phase != RoundPhase.ACTIVE_WAVE
+
+
     def clear_wave(self):
         #Cleaning up!!
 
@@ -62,4 +94,3 @@ class RoundManager:
         
         self.phase = RoundPhase.DEFEAT
         return True
-        

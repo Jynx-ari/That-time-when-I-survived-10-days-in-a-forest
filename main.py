@@ -10,7 +10,7 @@ from classes.aboutplayer.camera import Camera
 from classes.aboutplayer.player import Player
 from classes.obstacle import Obstacle
 from classes.round_manager import RoundManager, RoundPhase
-from classes.zom.shambler import Shambler
+#from classes.zom.shambler import Shambler
 
 #FUNCTIONS
 from functions.center import draw_center
@@ -291,6 +291,9 @@ def main():
 
 
         dt = clock.tick(game_conf["fps"]) /1000
+        night_finished = rounds.update(dt)
+        if night_finished:
+            zoms.clear()
         keys = pygame.key.get_pressed()
         
         player.move(keys, dt, (m_w, m_h), solid_obs)
@@ -326,12 +329,13 @@ def main():
         player.aimlook(pygame.mouse.get_pos(), camera, zoom)
         player.draw(screen, player_screen_pos, zoom)
 
+        if rounds.phase == RoundPhase.ACTIVE_WAVE:
+            for zombie in zoms:
+                zombie.update(player.pos, dt)
 
-        for zombie in zoms:
-            zombie.update(player.pos, dt)
+            for zombie in zoms:
+                zombie.draw(screen, camera,zoom)
 
-        for zombie in zoms:
-            zombie.draw(screen, camera,zoom)
 
         for tree in trees:
             screen_pos = camera.syncworld_to_screen(
@@ -364,6 +368,20 @@ def main():
         )
         screen.blit(day_text, (10,10))
         screen.blit(phase_text, (10, 50))
+
+        if rounds.is_morning:
+            time_text = "Daytime"
+        else:
+            mins = int(rounds.night_remaining) // 60
+            secs = int(rounds.night_remaining) % 60
+            time_text = f"Night: {mins:02}:{secs:02}"
+        
+        time_surface = font.render(
+            time_text,
+            True,
+            (255,255,255)
+        )
+        screen.blit(time_surface, (10, 90))
 
 
 
