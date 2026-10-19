@@ -13,3 +13,6 @@ Survive the nights and protect the radio tower until rescue arrives or smth?
 
 ## Status
 WORK IN PROGRESSS RAHH!!!!!
+
+(Prep-Week 3 DONE)
+(Week 1 ONGOING)
