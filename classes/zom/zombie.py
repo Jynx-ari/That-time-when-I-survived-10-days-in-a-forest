@@ -110,13 +110,18 @@ class Zombie():
         #movement stuffiess!!
         candidates = [
 
-            movement,
-            pygame.Vector2(-movement.y, movement.x), #slide to the one side
-            pygame.Vector2(movement.y, -movement.x), # slide to the other side just checking
-            pygame.Vector2(movement.x, 0), #try horizontal
-            pygame.Vector2(0,movement.y) #try vertical
+            # movement,
+            # pygame.Vector2(-movement.y, movement.x), #slide to the one side
+            # pygame.Vector2(movement.y, -movement.x), # slide to the other side just checking
+            # pygame.Vector2(movement.x, 0), #try horizontal
+            # pygame.Vector2(0,movement.y) #try vertical
+            
 
         ]
+
+        for angle in (0,30,-30,60,-60,90,-90,135,-135, 180):
+            candidate = movement.rotate(angle)
+            candidates.append(candidate)
 
         best_move = None
         best_distance = float("inf")
@@ -135,6 +140,8 @@ class Zombie():
         
         if best_move is not None:
             self.pos += best_move
+        else:
+            print("One of the zoms stuck at: ", round(self.pos.x), round(self.pos.y))
         
 
 
