@@ -8,16 +8,12 @@ default_conf = {
 
 
 class Player:
-    def __init__(self, pos, ws=default_conf["walkspeed"], size=default_conf["size"], Health=100):
+    def __init__(self, pos, ws=default_conf["walkspeed"], size=default_conf["size"], max_health=100):
         self.pos = pygame.Vector2(pos)
         self.speed = ws
         self.size = size
         self.angle = 90
-        self.health = 100
-    
-    def health(self):
-        pass
-
+        self.max_hp = max_health
 
 
     def move(self, keys, dt, world_size, screen, obstacles=None):
