@@ -1,4 +1,5 @@
 import pygame
+from classes.pathfinding import next_cell_toward_goal
 
 default_config = {
     "zombie size": 15
@@ -46,13 +47,45 @@ class Zombie():
 
 
 
-    def update(self, target, deltatime, obstacles=None):
+    def update(self, target, deltatime, obstacles=None, flow_field=None, cell_size=64):
+        
 
         if obstacles is None:
             obstacles = []
         
         target = pygame.Vector2(target)
-        dir_ = pygame.Vector2(target) - self.pos
+
+        if flow_field is not None:
+            cell_x = int(self.pos.x // cell_size)
+            cell_y = int(self.pos.y // cell_size)
+
+            if (
+                0<= cell_y < len(flow_field)
+                and 0 <= cell_x < len(flow_field[0])
+            ): 
+                current_distance = flow_field[cell_y][cell_x]
+
+                if current_distance == 0:
+                    return
+                
+                next_cell = next_cell_toward_goal(
+                    flow_field,
+                    (cell_x, cell_y)
+                )
+
+
+                if next_cell is not None:
+                    n_x, n_y = next_cell
+
+                    #uhhh idk
+                    target = pygame.Vector2(
+                        n_x * cell_size + cell_size / 2,
+                        n_y * cell_size + cell_size / 2,
+                    )
+
+
+
+        dir_ = target - self.pos
 
         if dir_.length_squared() == 0:
             return

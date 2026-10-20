@@ -4,7 +4,7 @@ import sys
 import random
 
 
-#CLASSES
+###   CLASSES
 from classes.tree import gen_Tree
 from classes.aboutplayer.camera import Camera
 from classes.aboutplayer.player import Player
@@ -12,8 +12,15 @@ from classes.obstacle import Obstacle
 from classes.round_manager import RoundManager, RoundPhase
 #from classes.zom.shambler import Shambler
 from classes.spatial_grid import SpatialGrid
+from classes.pathfinding import (
+    build_world_flow_field,
+    next_cell_toward_goal,
+)
 
-#FUNCTIONS
+
+
+
+###    FUNCTIONS
 from functions.center import draw_center
 from functions.zombie_spawner import spawn_shamblers
 
@@ -25,6 +32,12 @@ from functions.easing_styles import (
 from functions.tween_service import (
     TweenInfo,TweenService
 )
+
+
+
+
+
+
 
 ##-- GAME CONFIG --##   
 w, h = 1200, 800
@@ -190,6 +203,17 @@ def main():
 
     clock = pygame.time.Clock()
     running = True
+
+
+
+
+    escape_presses = 0
+    escape_sequence_start = None
+    escape_windows_ms = 1000
+
+
+
+
     
     rounds = RoundManager(total_days=10)
     zoms = []
@@ -255,6 +279,37 @@ def main():
         obstacle_grid.insert(obstacle)
     
 
+
+
+
+
+    pathfinding_start=time.perf_counter() #for logs i think
+    flowfield, goalcell = build_world_flow_field(
+        obstacle_grid=obstacle_grid,
+        world_size=(m_w,m_h),
+        target_world=tower_pos,
+        cell_size=64,
+        zombie_radius=15,
+        goal_radius=128
+    )
+
+    pathfinding_end = time.perf_counter()
+
+    reachable_cells = sum(
+        distance is not None
+        for row in flowfield
+        for distance in row
+    )
+
+
+    # for logssss!!
+    print(f"Flow-field build: {pathfinding_end - pathfinding_start:.2} seconds")
+    print(f"flowfield goal: {goalcell}")
+    print(f"Reachable cells: {reachable_cells}")
+
+
+
+
     
     player = Player((m_w // 2, m_h // 2 +70), )
 
@@ -291,9 +346,19 @@ def main():
                 quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    global exittap
-                    exittap += 1
-                    if exittap >= game_conf["exittap"]:
+
+                    now = pygame.time.get_ticks()
+
+                    if (
+                        escape_sequence_start is None
+                        or now - escape_sequence_start > escape_window_ms
+                    ):
+                        escape_presses = 1
+                        escape_sequence_start = now
+                    else: 
+                        escape_presses += 1
+
+                    if escape_presses >= game_conf["exittap"]:
                         quit()
                 
                 if event.key == pygame.K_SPACE and rounds.phase==RoundPhase.PREP:
@@ -387,7 +452,7 @@ def main():
 
         if rounds.phase == RoundPhase.ACTIVE_WAVE:
             for zombie in zoms:
-                zombie.update(tower_pos, dt, obstacle_grid)
+                zombie.update(tower_pos, dt, obstacle_grid, flow_field=flowfield, cell_size=64)
 
                 dist = zombie.pos.distance_to(player.pos)
                 contact_dist = 15 + player.size
