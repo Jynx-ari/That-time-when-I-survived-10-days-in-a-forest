@@ -15,6 +15,7 @@ class Player:
         self.angle = 90
         self.max_hp = max_health
         self.hp = self.max_hp #i forgor about this lil guy
+        self.display_hp = self.max_hp
 
     def healthui(self, screen):
         bar_width = 220
@@ -24,20 +25,33 @@ class Player:
 
         #get ratio'ed
         health_ratio = max(0, min(1, self.hp / self.max_hp))
+        display_ratio = max(0, min(1, self.display_hp / self.max_hp))
         current_width = round(bar_width * health_ratio)
+        display_width = round(bar_width * display_ratio)
 
+
+        #emptyy bar!
         pygame.draw.rect(
             screen,
             "#301515",
             (x,y,bar_width, bar_height)
         )
 
+        #delayed damage indicator or thingy
+        pygame.draw.rect(
+            screen,
+            "#f4e8c1",
+            (x,y, display_width, bar_height)
+        )
+
+        #actual health_ratio
         pygame.draw.rect(
             screen,
             "#d43f3f",
             (x,y,current_width, bar_height)
         )
-
+        
+        #white box border
         pygame.draw.rect(
             screen,
             "#f4e8c1",
@@ -45,9 +59,19 @@ class Player:
             width=2
         )
 
+    def update_healthbar(self, dt):
+        transition_speed =500
+        if self.display_hp > self.hp:
+            self.display_hp = max(
+                self.hp,
+                self.display_hp - transition_speed * dt
+            )
+        else:
+            self.display_hp = self.hp
+
 
     def take_damage(self, damage_given: int):
-        self.hp -= max(0, damage_given) #NUH UH  im not letting a god health for the player ( historically: Players that has a negative integer health is basically immortal if the code checks if its health is zero)
+        self.hp = max(0, self.hp - max(0, damage_given)) #NUH UH  im not letting a god health for the player ( historically: Players that has a negative integer health is basically immortal if the code checks if its health is zero)
     
 
 

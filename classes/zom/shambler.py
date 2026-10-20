@@ -4,7 +4,7 @@ default_config = {
     "health": 100,
     "speed": 60,
     "damage_to_tower": 10,
-    "damage_to_player": 4,
+    "damage_to_player": 25,
 }
 
 class Shambler(Zombie):

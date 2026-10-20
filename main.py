@@ -422,7 +422,11 @@ def main():
         )
         screen.blit(time_surface, (10, 90))
 
+
+        player.update_healthbar(dt)
         player.healthui(screen)
+
+
         if rounds.phase == RoundPhase.DEFEAT:
             draw_defeat(screen, font)
 
