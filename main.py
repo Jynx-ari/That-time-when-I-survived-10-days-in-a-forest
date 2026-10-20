@@ -17,6 +17,14 @@ from classes.spatial_grid import SpatialGrid
 from functions.center import draw_center
 from functions.zombie_spawner import spawn_shamblers
 
+#not really a "function" but a class but still.. i wanna put it here >:(
+from functions.easing_styles import (
+    EasingStyle, EasingDirection
+)
+
+from functions.tween_service import (
+    TweenInfo,TweenService
+)
 
 ##-- GAME CONFIG --##   
 w, h = 1200, 800
@@ -251,6 +259,15 @@ def main():
     player = Player((m_w // 2, m_h // 2 +70), )
 
 
+
+    tween_service = TweenService()
+    health_tween = None
+    health_tween_info = TweenInfo(
+        dur=0.5,
+        easing_style=EasingStyle.QUAD,
+        easing_direction=EasingDirection.OUT
+    )
+
     ## Quit handler
     def quit():
         pygame.quit()
@@ -316,6 +333,8 @@ def main():
 
 
         dt = clock.tick(game_conf["fps"]) /1000
+        tween_service.update(dt)
+
         night_finished = rounds.update(dt)
         if night_finished:
             zoms.clear()
@@ -367,6 +386,16 @@ def main():
 
                 if (dist <= contact_dist and zombie.can_attack(dt)):
                     player.take_damage(zombie.damage_to_player)
+
+                    if health_tween is not None:
+                        health_tween.cancel()
+
+                    health_tween = tween_service.create(
+                        player,
+                        health_tween_info,
+                        {"display_hp": player.hp}
+                    )
+                    health_tween.play()
             
             if player.is_dead:
                 rounds.end_game()
@@ -423,7 +452,7 @@ def main():
         screen.blit(time_surface, (10, 90))
 
 
-        player.update_healthbar(dt)
+        # Deprecated: player.update_healthbar(dt)
         player.healthui(screen)
 
 

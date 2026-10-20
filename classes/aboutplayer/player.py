@@ -16,7 +16,7 @@ class Player:
         self.max_hp = max_health
         self.hp = self.max_hp #i forgor about this lil guy
         self.display_hp = self.max_hp
-
+        
     def healthui(self, screen):
         bar_width = 220
         bar_height = 24
@@ -60,7 +60,7 @@ class Player:
         )
 
     def update_healthbar(self, dt):
-        transition_speed =500
+        transition_speed =30
         if self.display_hp > self.hp:
             self.display_hp = max(
                 self.hp,
