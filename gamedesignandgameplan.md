@@ -9,6 +9,8 @@
 
 This section tracks what has actually been implemented in the repository, separately from the full design plan.
 
+**Current player-health groundwork (verified in `classes/aboutplayer/player.py`):** the constructor accepts a configurable maximum health, stores it as `self.max_hp`, initializes current health with `self.hp = self.max_hp`, and defines `take_damage(self, damage: int)` to subtract the supplied amount. This is only the starting scaffold: damage clamping, death-state handling, control lockout, tower health, combat integration, and in-game tests are not complete. Keep the overall player/tower health milestone unchecked until the full behavior is implemented and verified.
+
 **Mandatory project workflow:** Before suggesting or changing code, check the current GitHub files. After an implementation or design item is actually completed and verified, update this status checklist in the same work session. Never tick off a feature that is only planned or has not been checked.
 
 - [x] Pygame window and main game loop.
