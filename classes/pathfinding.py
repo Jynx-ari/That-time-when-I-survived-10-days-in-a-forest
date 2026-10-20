@@ -132,7 +132,7 @@ def build_world_flow_field(
 
             nearby = obstacle_grid.query(zombie_rect)
             blocked[y][x]=any(
-                obstacles.blocks_movement
+                obstacle.blocks_movement
                 and zombie_rect.colliderect(obstacle.rect)
                 for obstacle in nearby
             )
