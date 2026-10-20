@@ -1,56 +1,77 @@
-from collections import deque #not this again.. (For lore, i made a path finding thingy with the help of AI coding as my 2nd prep week project but I got bored so i switched to making this game)
+import heapq
+import math # collections and deque is finally gone but I GOT MATH AGAIN???!?!?
 
 import pygame
 
 def build_flow_field(blocked, goal):
-    # Basically Calculate each walkable cell's distance from the goal using.... BFS..abs
-    # Well we're gonna make the map as a grid for checking stuffs
+    #ama replace everything.. AGAINN >:((
+    #MY HANDS ARE TIREDDD
+
     height = len(blocked)
     width = len(blocked[0])
 
     distances = [
-        [None for _ in range(width)]
+        [float("inf") for _ in range(width)]
         for _ in range(height)
     ]
 
-    goal_x, goal_y = goal
+    g_x, g_y = goal
 
-    if not (0<=goal_x<width and 0<=goal_y<height):
-        return distances
-    
-    if blocked[goal_y][goal_x]:
+    if not (0 <= g_x < width and 0 <= g_y < height):
         return distances
 
+    if blocked[g_y][g_x]:
+        return distances
     
-    distances[goal_y][goal_x] = 0
-
-    queue=deque([(goal_x, goal_y)])
+    distances[g_y][g_x] = 0
+    queue = [(0,g_x, g_y)]
 
     directions = (
-        (1,0),
-        (-1,0),
-        (0,1),
-        (0,-1),
+        (1,0,1.0),
+        (-1,0,1.0),
+        (0,1,1.0),
+        (0,-1,1.0),
+        (1,1,math.sqrt(2)),
+        (1,-1, math.sqrt(2)),
+        (-1,1,math.sqrt(2)),
+        (-1,-1,math.sqrt(2)),
+  
     )
 
     while queue:
-        x,y = queue.popleft()
+        current_dist, x,y = heapq.heappop(queue)
 
-        for dx,dy in directions:
+        if current_dist > distances[y][x]:
+            continue
+        
+        for dx,dy, cost in directions:
             nx=x+dx
             ny=y+dy
 
-            if not (0<=nx < width and 0<=ny<height):
-                continue
-
-            if blocked[ny][nx]:
-                continue 
-            if distances[ny][nx] is not None:
+            if not (0 <= nx < width and 0 <=ny<height):
                 continue
             
-            distances[ny][nx] = distances[y][x] + 1
-            queue.append((nx,ny))
-    return distances        
+            if blocked[ny][nx]:
+                continue
+
+            if dx != 0 and dy != 0:
+                if blocked[y][nx] or blocked[ny][x]:
+                    continue
+            
+            new_dist = current_dist + cost
+
+            if new_dist < distances[ny][nx]:
+                distances[ny][nx] = new_dist
+                heapq.heappush(queue, (new_dist, nx, ny))
+
+    for y in range(height):
+        for x in range(width):
+            if distances[y][x] == float("inf"):
+                distances[y][x] = None
+    return distances           
+
+
+
             
 def next_cell_toward_goal(distances, cell):
     # Returns the neighboring cell closer to the goal, or idk none probably
