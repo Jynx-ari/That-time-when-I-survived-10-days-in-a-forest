@@ -9,6 +9,10 @@ default_config = {
 class Zombie():
     def __init__(self, pos, health=100, speed=0, damage_to_tower=0.0, damage_to_player=0.0, attack_cd=0.0, attack_interval = 1.2):
         self.pos = pygame.Vector2(pos)
+
+        self.direction = pygame.Vector2(0,0)
+        self.turn_speed = 5.0
+
         self.health = health
         self.speed = speed
         self.damage_to_tower = damage_to_tower
@@ -55,7 +59,7 @@ class Zombie():
         
         target = pygame.Vector2(target)
 
-        if flow_field is not None:
+        if flow_field is not None and self.pos.distance_to(target) > 160:
             cell_x = int(self.pos.x // cell_size)
             cell_y = int(self.pos.y // cell_size)
 
@@ -65,8 +69,8 @@ class Zombie():
             ): 
                 current_distance = flow_field[cell_y][cell_x]
 
-                if current_distance == 0:
-                    return
+                # if current_distance == 0:
+                #     return
                 
                 next_cell = next_cell_toward_goal(
                     flow_field,
@@ -83,15 +87,25 @@ class Zombie():
                         n_y * cell_size + cell_size / 2,
                     )
 
+        # I hope yall get the reference of wish dir (Quake and Source)
+        wishdir = target - self.pos
 
-
-        dir_ = target - self.pos
-
-        if dir_.length_squared() == 0:
+        if wishdir.length_squared() == 0:
             return
+        wishdir = wishdir.normalize()
+
+        if self.direction.length_squared() == 0:
+            self.direction = wishdir
+        else:
+            turn_amount = min(1.0, self.turn_speed * deltatime)
+
+            self.direction = self.direction.lerp(
+                wishdir,
+                turn_amount
+            ).normalize()
         
-        dir_ = dir_.normalize()
-        movement = dir_*self.speed*deltatime
+        movement = self.direction * self.speed * deltatime
+        
 
         #movement stuffiess!!
         candidates = [

@@ -120,7 +120,7 @@ class Player:
             dir_.y+=1
         
         
-        #HAHA NO SOURCE MOVEMENT!!
+        #HAHA NO DIAGONAL BOOST MOVEMENT!!
         if dir_.length_squared() > 0:
             dir_ = dir_.normalize()
 
