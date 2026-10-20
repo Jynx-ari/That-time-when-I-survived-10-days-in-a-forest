@@ -6,13 +6,15 @@ default_config = {
 
 
 class Zombie():
-    def __init__(self, pos, health=100, speed=0, damage_to_tower=0.0, damage_to_player=0.0):
+    def __init__(self, pos, health=100, speed=0, damage_to_tower=0.0, damage_to_player=0, attack_cd=0.0, attack_interval = 1.2):
         self.pos = pygame.Vector2(pos)
         self.health = health
         self.speed = speed
         self.damage_to_tower = damage_to_tower
         self.damage_to_player = damage_to_player
-
+        self.attack_cooldown = attack_cd
+        self.attack_interval = attack_interval
+        
 
 
     def is_blocked(self, pos, obstacles):
@@ -30,6 +32,16 @@ class Zombie():
             for obstacle in nearby_obstacles
         )
 
+    
+
+    def can_attack(self, deltaT):
+        self.attack_cooldown = max(0, self.attack_cooldown - deltaT)
+
+        if self.attack_cooldown > 0:
+            return False
+
+        self.attack_cooldown = self.attack_interval
+        return True
 
 
 

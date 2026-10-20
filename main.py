@@ -56,6 +56,24 @@ exittap: int = 0
 
 
 
+def draw_defeat(screen, font):
+    overlay = pygame.Surface((w, h), pygame.SRCALPHA)
+    overlay.fill((0,0,0,170))
+    screen.blit(overlay, (0,0))
+    defeat_text = font.render("You ded lol", True, (255, 80, 80))
+    restart_text = font.render("Press ESC thrice to quit :D", True, (255, 255, 255))
+
+    screen.blit(
+        defeat_text,
+        defeat_text.get_rect(center=(w//2, h//2-25)
+        )
+    )
+    screen.blit(
+        restart_text,
+        restart_text.get_rect(center=(w//2, h//2 + 25))
+    )
+
+
 def generate_forest(count):
 
     #Pre-optimization
@@ -303,7 +321,11 @@ def main():
             zoms.clear()
         keys = pygame.key.get_pressed()
         
-        player.move(keys, dt, (m_w, m_h), screen, obstacle_grid)
+
+        if rounds.phase != RoundPhase.DEFEAT:
+            player.move(keys, dt, (m_w, m_h), screen, obstacle_grid)
+
+
         zoom = game_conf["zoom"]
         camera.follow(player.pos, (m_w, m_h), (w / zoom, h / zoom), dt )
         
@@ -340,9 +362,19 @@ def main():
             for zombie in zoms:
                 zombie.update(tower_pos, dt, obstacle_grid)
 
+                dist = zombie.pos.distance_to(player.pos)
+                contact_dist = 15 + player.size
+
+                if (dist <= contact_dist and zombie.can_attack(dt)):
+                    player.take_damage(zombie.damage_to_player)
+            
+            if player.is_dead:
+                rounds.end_game()
+                zoms.clear()
+
             for zombie in zoms:
                 zombie.draw(screen, camera,zoom)
-
+        
 
         for tree in trees:
             screen_pos = camera.syncworld_to_screen(
@@ -390,7 +422,9 @@ def main():
         )
         screen.blit(time_surface, (10, 90))
 
-
+        player.healthui(screen)
+        if rounds.phase == RoundPhase.DEFEAT:
+            draw_defeat(screen, font)
 
 
         pygame.display.flip()

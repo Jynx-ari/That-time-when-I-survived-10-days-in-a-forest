@@ -16,8 +16,44 @@ class Player:
         self.max_hp = max_health
         self.hp = self.max_hp #i forgor about this lil guy
 
-    def take_damage(self, damage: int):
-        self.hp -= damage
+    def healthui(self, screen):
+        bar_width = 220
+        bar_height = 24
+        x = 20
+        y = screen.get_height() - bar_height - 20
+
+        #get ratio'ed
+        health_ratio = max(0, min(1, self.hp / self.max_hp))
+        current_width = round(bar_width * health_ratio)
+
+        pygame.draw.rect(
+            screen,
+            "#301515",
+            (x,y,bar_width, bar_height)
+        )
+
+        pygame.draw.rect(
+            screen,
+            "#d43f3f",
+            (x,y,current_width, bar_height)
+        )
+
+        pygame.draw.rect(
+            screen,
+            "#f4e8c1",
+            (x,y,bar_width, bar_height),
+            width=2
+        )
+
+
+    def take_damage(self, damage_given: int):
+        self.hp -= max(0, damage_given) #NUH UH  im not letting a god health for the player ( historically: Players that has a negative integer health is basically immortal if the code checks if its health is zero)
+    
+
+
+    @property #i still dont get it how does dis decorator work
+    def is_dead(self): #yo is the player still alive??
+        return self.hp <= 0
 
     def move(self, keys, dt, world_size, screen, obstacles=None):
         dir_ = pygame.Vector2(0,0)
