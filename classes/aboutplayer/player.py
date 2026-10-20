@@ -14,7 +14,7 @@ class Player:
         self.size = size
         self.angle = 90
 
-    def move(self, keys, dt, world_size, obstacles=None):
+    def move(self, keys, dt, world_size, screen, obstacles=None):
         dir_ = pygame.Vector2(0,0)
 
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
@@ -47,10 +47,16 @@ class Player:
             round(self.pos.y - self.size),
             self.size * 2, self.size * 2,
         )
+
+        #hitbox test
+        #pygame.draw.rect(screen, "red", player_rect, 1)
+
+        nearby_obstacles = obstacles.query(player_rect)
+
         blocked = any(
             obstacle.blocks_movement
             and player_rect.colliderect(obstacle.rect)
-            for obstacle in obstacles
+            for obstacle in nearby_obstacles
         )
 
         if not blocked:
@@ -68,11 +74,11 @@ class Player:
             self.size * 2,
 
         )
-
+        nearby_obstacles = obstacles.query(player_rect)
         blocked = any(
             obstacle.blocks_movement
             and player_rect.colliderect(obstacle.rect)
-            for obstacle in obstacles
+            for obstacle in nearby_obstacles
         )
 
         if not blocked:

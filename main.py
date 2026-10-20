@@ -11,6 +11,7 @@ from classes.aboutplayer.player import Player
 from classes.obstacle import Obstacle
 from classes.round_manager import RoundManager, RoundPhase
 #from classes.zom.shambler import Shambler
+from classes.spatial_grid import SpatialGrid
 
 #FUNCTIONS
 from functions.center import draw_center
@@ -47,6 +48,7 @@ game_conf = {
 
 
 }
+
 
 
 
@@ -198,8 +200,6 @@ def main():
             Obstacle(tree_rect, name="tree trunk")
         )
 
-
-
     obstacle_end = time.perf_counter()
 
     print(f"Obstacle making: {obstacle_end - obstacle_start:.2f} seconds")
@@ -209,19 +209,24 @@ def main():
 
     tower_x, tower_y = m_w // 2, m_h // 2
     tower_pos = pygame.Vector2(tower_x, tower_y)
-
+    tower_size = 42
 
     tower_rect = pygame.Rect(
-        tower_x - 21,
-        tower_y - 21,
-        42,
-        42,
+       round(tower_x - tower_size / 2),
+       round(tower_y - tower_size / 2),
+       tower_size,
+       tower_size,
+
     )
 
     solid_obs.append(
         Obstacle(tower_rect, name="radio tower")
     )
 
+    obstacle_grid = SpatialGrid(cell_size=64)
+
+    for obstacle in solid_obs:
+        obstacle_grid.insert(obstacle)
     
 
     
@@ -255,7 +260,7 @@ def main():
 
                     center = pygame.Vector2(m_w // 2, m_h // 2)
                     zoms = spawn_shamblers(
-                        amount=5 + rounds.day * 2,
+                        amount=5 + rounds.day * 5,
                         center=center,
                         min_radius=900,
                         max_radius=1400,
@@ -298,7 +303,7 @@ def main():
             zoms.clear()
         keys = pygame.key.get_pressed()
         
-        player.move(keys, dt, (m_w, m_h), solid_obs)
+        player.move(keys, dt, (m_w, m_h), screen, obstacle_grid)
         zoom = game_conf["zoom"]
         camera.follow(player.pos, (m_w, m_h), (w / zoom, h / zoom), dt )
         
@@ -333,7 +338,7 @@ def main():
 
         if rounds.phase == RoundPhase.ACTIVE_WAVE:
             for zombie in zoms:
-                zombie.update(tower_pos, dt, solid_obs)
+                zombie.update(tower_pos, dt, obstacle_grid)
 
             for zombie in zoms:
                 zombie.draw(screen, camera,zoom)

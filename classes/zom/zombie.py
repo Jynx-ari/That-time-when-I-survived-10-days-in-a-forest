@@ -23,11 +23,11 @@ class Zombie():
             zombie_size * 2,
             zombie_size * 2
         )
-
+        nearby_obstacles = obstacles.query(zomb_rect)
         return any(
             obstacle.blocks_movement
             and zomb_rect.colliderect(obstacle.rect)
-            for obstacle in obstacles
+            for obstacle in nearby_obstacles
         )
 
 
