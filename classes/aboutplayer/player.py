@@ -8,11 +8,17 @@ default_conf = {
 
 
 class Player:
-    def __init__(self, pos, ws=default_conf["walkspeed"], size=default_conf["size"]):
+    def __init__(self, pos, ws=default_conf["walkspeed"], size=default_conf["size"], Health=100):
         self.pos = pygame.Vector2(pos)
         self.speed = ws
         self.size = size
         self.angle = 90
+        self.health = 100
+    
+    def health(self):
+        pass
+
+
 
     def move(self, keys, dt, world_size, screen, obstacles=None):
         dir_ = pygame.Vector2(0,0)
@@ -133,3 +139,5 @@ class Player:
             "#282820", 
             rotated_points,
               width=max(1, round(3*zoom)))
+
+
