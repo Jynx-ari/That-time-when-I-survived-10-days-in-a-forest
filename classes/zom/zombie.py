@@ -64,8 +64,10 @@ class Zombie():
         candidates = [
 
             movement,
-            pygame.Vector2(-movement.y, movement.x),
-            pygame.Vector2(movement.y, -movement.x),
+            pygame.Vector2(-movement.y, movement.x), #slide to the one side
+            pygame.Vector2(movement.y, -movement.x), # slide to the other side just checking
+            pygame.Vector2(movement.x, 0), #try horizontal
+            pygame.Vector2(0,movement.y) #try vertical
 
         ]
 
