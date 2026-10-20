@@ -194,6 +194,7 @@ def generate_forest(count):
 def main():
 
     pygame.init()
+    pygame.mixer.init()
     pygame.font.init()
     screen = pygame.display.set_mode((w, h))
     pygame.display.set_caption("10 Days in a forest")
@@ -204,6 +205,8 @@ def main():
     clock = pygame.time.Clock()
     running = True
 
+
+    hit_sound = pygame.mixer.Sound("Assets/Audio/Woof(1).wav")
 
 
 
@@ -468,7 +471,7 @@ def main():
                     health_lost = player.take_damage(zombie.damage_to_player)
 
                     if health_lost > 0:
-
+                        hit_sound.play()
                         if health_tween is not None:
                             health_tween.cancel()
                         
