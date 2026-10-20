@@ -15,6 +15,8 @@ class Player:
         self.angle = 90
         self.max_hp = max_health
 
+    def take_damage(self):
+        pass
 
     def move(self, keys, dt, world_size, screen, obstacles=None):
         dir_ = pygame.Vector2(0,0)
