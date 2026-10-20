@@ -73,6 +73,10 @@ def next_cell_toward_goal(distances, cell):
         (-1,0),
         (0,1),
         (0,-1),
+        (1,1),
+        (1,-1),
+        (-1,1),
+        (-1,-1),
     )
 
     for_distance = []

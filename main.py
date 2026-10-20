@@ -305,6 +305,13 @@ def main():
     # for logssss!!
     print(f"Flow-field build: {pathfinding_end - pathfinding_start:.2} seconds")
     print(f"flowfield goal: {goalcell}")
+    goal_center = pygame.Vector2(
+        goalcell[0] * 64 + 32,
+        goalcell[1] * 64 + 32
+    )
+    print(f"Tower position: {tower_pos}")
+    print(f"goal center: {goal_center}")
+    print(f"goal to tower distance: {goal_center.distance_to(tower_pos):.1f}")
     print(f"Reachable cells: {reachable_cells}")
 
 
