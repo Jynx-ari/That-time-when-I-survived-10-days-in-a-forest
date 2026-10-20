@@ -6,7 +6,7 @@ default_config = {
 
 
 class Zombie():
-    def __init__(self, pos, health=100, speed=0, damage_to_tower=0.0, damage_to_player=0, attack_cd=0.0, attack_interval = 1.2):
+    def __init__(self, pos, health=100, speed=0, damage_to_tower=0.0, damage_to_player=0.0, attack_cd=0.0, attack_interval = 1.2):
         self.pos = pygame.Vector2(pos)
         self.health = health
         self.speed = speed

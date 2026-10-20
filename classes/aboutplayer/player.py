@@ -1,9 +1,11 @@
 import pygame
 from ..obstacle import Obstacle
 
+import math #math..
+
 default_conf = {
     "size": 10,
-    "walkspeed": 90
+    "walkspeed": 90 #base 90
 }
 
 
@@ -16,12 +18,30 @@ class Player:
         self.max_hp = max_health
         self.hp = self.max_hp #i forgor about this lil guy
         self.display_hp = self.max_hp
-        
+        self.health_shake = 0.0
+        self.shake_time = 0.0
+        self.shake_frequency = 45.0 #uh oh..
+    
+
+    def update_health_bar_shake(self, dt):
+        self.shake_time += dt
+
     def healthui(self, screen):
         bar_width = 220
         bar_height = 24
-        x = 20
-        y = screen.get_height() - bar_height - 20
+
+        shake_x = math.sin( #sin... horrors of math..
+            self.shake_time * self.shake_frequency
+        ) * self.health_shake
+
+        shake_y = math.cos(
+            self.shake_time * self.shake_frequency * 1.3            
+        ) * self.health_shake * 0.35
+
+        x = round(20 + shake_x)
+        y = round(
+            screen.get_height() - bar_height - 20 + shake_y
+        )
 
         #get ratio'ed
         health_ratio = max(0, min(1, self.hp / self.max_hp))
@@ -71,9 +91,14 @@ class Player:
 
 
     def take_damage(self, damage_given: int):
-        self.hp = max(0, self.hp - max(0, damage_given)) #NUH UH  im not letting a god health for the player ( historically: Players that has a negative integer health is basically immortal if the code checks if its health is zero)
-    
 
+        old_hp = self.hp
+
+        self.hp = max(0, self.hp - max(0, damage_given)) #NUH UH  im not letting a god health for the player ( historically: Players that has a negative integer health is basically immortal if the code checks if its health is zero)
+
+        delta_health = old_hp - self.hp
+        return delta_health
+      
 
     @property #i still dont get it how does dis decorator work
     def is_dead(self): #yo is the player still alive??

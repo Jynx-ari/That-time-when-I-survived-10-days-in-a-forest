@@ -262,8 +262,14 @@ def main():
 
     tween_service = TweenService()
     health_tween = None
+    health_shake_tween = None
     health_tween_info = TweenInfo(
         dur=0.5,
+        easing_style=EasingStyle.QUAD,
+        easing_direction=EasingDirection.OUT
+    )
+    health_shake_info = TweenInfo(
+        dur=0.35,
         easing_style=EasingStyle.QUAD,
         easing_direction=EasingDirection.OUT
     )
@@ -334,6 +340,8 @@ def main():
 
         dt = clock.tick(game_conf["fps"]) /1000
         tween_service.update(dt)
+        player.update_health_bar_shake(dt)
+
 
         night_finished = rounds.update(dt)
         if night_finished:
@@ -385,17 +393,41 @@ def main():
                 contact_dist = 15 + player.size
 
                 if (dist <= contact_dist and zombie.can_attack(dt)):
-                    player.take_damage(zombie.damage_to_player)
+                    health_lost = player.take_damage(zombie.damage_to_player)
 
-                    if health_tween is not None:
-                        health_tween.cancel()
+                    if health_lost > 0:
 
-                    health_tween = tween_service.create(
-                        player,
-                        health_tween_info,
-                        {"display_hp": player.hp}
-                    )
-                    health_tween.play()
+                        if health_tween is not None:
+                            health_tween.cancel()
+                        
+                        health_tween = tween_service.create(
+                            player,
+                            health_tween_info,
+                            {"display_hp": player.hp}
+
+                        )
+
+                        health_tween.play()
+
+                        if health_shake_tween is not None:
+                            health_shake_tween.cancel()
+                        
+                        player.health_shake = min(
+                            14.0,
+                            max(
+                                player.health_shake,
+                                health_lost * 1.5
+                            )
+                        )
+
+                        player.shake_time = 0.0
+                        health_shake_tween = tween_service.create(
+                            player,
+                            health_shake_info,
+                            {"health_shake":0.0}
+                        )
+
+                        health_shake_tween.play()
             
             if player.is_dead:
                 rounds.end_game()
@@ -454,6 +486,7 @@ def main():
 
         # Deprecated: player.update_healthbar(dt)
         player.healthui(screen)
+
 
 
         if rounds.phase == RoundPhase.DEFEAT:
