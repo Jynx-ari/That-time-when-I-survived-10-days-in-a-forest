@@ -307,6 +307,8 @@ def main():
 
     # for logssss!!
     print(f"Flow-field build: {pathfinding_end - pathfinding_start:.2} seconds")
+    if goalcell is None:
+        raise RuntimeError("Note to dev: Could not find a valid goal cell near the tower for some reason")
     print(f"flowfield goal: {goalcell}")
     goal_center = pygame.Vector2(
         goalcell[0] * 64 + 32,
@@ -361,7 +363,7 @@ def main():
 
                     if (
                         escape_sequence_start is None
-                        or now - escape_sequence_start > escape_window_ms
+                        or now - escape_sequence_start > escape_windows_ms
                     ):
                         escape_presses = 1
                         escape_sequence_start = now
