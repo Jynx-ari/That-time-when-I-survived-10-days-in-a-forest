@@ -15,10 +15,10 @@ class Tower:
     #Its this decorator again :0
     @property
     def is_ded_or_destroyed(self):
-        return self.hp <= 0
+        return self.curr_hp <= 0
     
     def take_damage(self, damage):
-        old_hp = self.max_hp
+        old_hp = self.curr_hp
         self.curr_hp = max(
             0,
             self.curr_hp - max(0, damage)

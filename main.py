@@ -16,7 +16,7 @@ from classes.pathfinding import (
     build_world_flow_field,
     next_cell_toward_goal,
 )
-
+from classes.tower import Tower
 
 
 
@@ -259,17 +259,16 @@ def main():
 
 
 
+    tower = Tower((m_w//2, m_h //2))
 
-    tower_x, tower_y = m_w // 2, m_h // 2
-    tower_pos = pygame.Vector2(tower_x, tower_y)
-    tower_size = 42
+    tower_pos = tower.pos
+    tower_size = tower.size
 
     tower_rect = pygame.Rect(
-       round(tower_x - tower_size / 2),
-       round(tower_y - tower_size / 2),
-       tower_size,
-       tower_size,
-
+        round(tower_pos.x - tower_size / 2),
+        round(tower_pos.y - tower_size /2),
+        tower_size,
+        tower_size,
     )
 
     solid_obs.append(
