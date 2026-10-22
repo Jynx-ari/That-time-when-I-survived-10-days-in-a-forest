@@ -486,7 +486,7 @@ def main():
                         print(f"owch -{health_lost}")
 
 
-            if player.is_dead:
+            if player.is_dead or tower.is_ded_or_destroyed:
                 rounds.end_game()
                 zoms.clear()
 
@@ -543,6 +543,7 @@ def main():
 
         # Deprecated: player.update_healthbar(dt)
         player.healthui(screen)
+        tower.healthui(screen, font)
 
 
 

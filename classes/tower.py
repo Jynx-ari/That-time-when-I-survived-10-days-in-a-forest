@@ -27,7 +27,7 @@ class Tower:
         return old_hp - self.curr_hp
 
     def update_health_bar(self, deltatime):
-        transition_speed = 30
+        transition_speed = 80
 
         if self.display_hp > self.curr_hp:
             self.display_hp = max(
@@ -36,3 +36,49 @@ class Tower:
             )
         else:
             self.display_hp = self.curr_hp
+
+    def healthui(self, screen, font):
+        bar_w = 300
+        bar_h = 24
+        x,y = (screen.get_width() - bar_w) // 2, 20
+
+        health_ratio = max(0, min(1, self.curr_hp / self.max_hp))
+        display_ratio = max(0, min(1, self.display_hp / self.max_hp))
+
+        pygame.draw.rect(
+            screen,
+            "#301515",
+            (x,y,bar_w,bar_h)
+        )
+
+        pygame.draw.rect(
+            screen,
+            "#f4e8c1",
+            (x,y,round(bar_w * display_ratio), bar_h)
+        )
+
+        pygame.draw.rect(
+            screen,
+            "#77ec55",
+            (x,y,round(bar_w * health_ratio), bar_h)
+        )
+
+        pygame.draw.rect(
+            screen,
+            "#f4e8c1",
+            (x,y,bar_w,bar_h),
+            width=2
+        )
+        health_font = pygame.font.Font(None, 20)
+        health_text = health_font.render(
+            f"{int(self.curr_hp)} / {int(self.max_hp)}",
+            True,
+            "#000000"
+        )
+
+        screen.blit(
+            health_text,
+            health_text.get_rect(
+                center=(screen.get_width() // 2, y + bar_h // 2)
+            )
+        )
