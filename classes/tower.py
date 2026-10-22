@@ -25,3 +25,14 @@ class Tower:
         )
 
         return old_hp - self.curr_hp
+
+    def update_health_bar(self, deltatime):
+        transition_speed = 30
+
+        if self.display_hp > self.curr_hp:
+            self.display_hp = max(
+                self.curr_hp,
+                self.display_hp - transition_speed * deltatime
+            )
+        else:
+            self.display_hp = self.curr_hp

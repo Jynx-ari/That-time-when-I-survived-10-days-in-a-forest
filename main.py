@@ -327,19 +327,8 @@ def main():
 
 
     tween_service = TweenService()
-    health_tween = None
-    health_shake_tween = None
-    health_tween_info = TweenInfo(
-        dur=0.5,
-        easing_style=EasingStyle.QUAD,
-        easing_direction=EasingDirection.OUT
-    )
-    health_shake_info = TweenInfo(
-        dur=0.35,
-        easing_style=EasingStyle.QUAD,
-        easing_direction=EasingDirection.OUT
-    )
-
+    
+    
     ## Quit handler
     def quit():
         pygame.quit()
@@ -415,8 +404,8 @@ def main():
 
 
         dt = clock.tick(game_conf["fps"]) /1000
-        tween_service.update(dt)
-        player.update_health_bar_shake(dt)
+        tower.update_health_bar(dt)
+        player.update(dt)
 
 
         night_finished = rounds.update(dt)
@@ -462,49 +451,41 @@ def main():
         player.draw(screen, player_screen_pos, zoom)
 
         if rounds.phase == RoundPhase.ACTIVE_WAVE:
+            
+            tower_contact_dist = tower.size / 2 + 15
+            player_contact_dist = 15+player.size    
+
             for zombie in zoms:
                 zombie.update(tower_pos, dt, obstacle_grid, flow_field=flowfield, cell_size=64)
 
-                dist = zombie.pos.distance_to(player.pos)
-                contact_dist = 15 + player.size
 
-                if (dist <= contact_dist and zombie.can_attack(dt)):
-                    health_lost = player.take_damage(zombie.damage_to_player)
+                tower_dist = zombie.pos.distance_to(tower.pos)
+                player_dist = zombie.pos.distance_to(player.pos)
 
-                    if health_lost > 0:
+                #tower attack! finally
+
+                if (
+                    tower_dist <= tower_contact_dist
+                    and zombie.can_attack(dt, "tower")
+                ):
+                    damage_dealth = tower.take_damage(
+                        zombie.damage_to_tower
+                    )
+                    print(f"Tower got attacked! -{damage_dealth}")
+                
+                #player attacked
+                if (
+                    player_dist <= player_contact_dist
+                    and zombie.can_attack(dt, "player")
+                ):
+                    health_lost = player.take_damage(
+                        zombie.damage_to_player
+                    )
+                    if health_lost >0:
                         hit_sound.play()
-                        if health_tween is not None:
-                            health_tween.cancel()
-                        
-                        health_tween = tween_service.create(
-                            player,
-                            health_tween_info,
-                            {"display_hp": player.hp}
+                        print(f"owch -{health_lost}")
 
-                        )
 
-                        health_tween.play()
-
-                        if health_shake_tween is not None:
-                            health_shake_tween.cancel()
-                        
-                        player.health_shake = min(
-                            14.0,
-                            max(
-                                player.health_shake,
-                                health_lost * 1.5
-                            )
-                        )
-
-                        player.shake_time = 0.0
-                        health_shake_tween = tween_service.create(
-                            player,
-                            health_shake_info,
-                            {"health_shake":0.0}
-                        )
-
-                        health_shake_tween.play()
-            
             if player.is_dead:
                 rounds.end_game()
                 zoms.clear()

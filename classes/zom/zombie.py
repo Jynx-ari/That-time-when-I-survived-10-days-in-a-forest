@@ -17,7 +17,10 @@ class Zombie():
         self.speed = speed
         self.damage_to_tower = damage_to_tower
         self.damage_to_player = damage_to_player
-        self.attack_cooldown = attack_cd
+        self.attack_cooldowns = {
+            "tower": attack_cd,
+            "player": attack_cd,
+        }
         self.attack_interval = attack_interval
         
 
@@ -39,15 +42,16 @@ class Zombie():
 
     
 
-    def can_attack(self, deltaT):
-        self.attack_cooldown = max(0, self.attack_cooldown - deltaT)
+    def can_attack(self, deltaT, target):
+        cd = max(0, self.attack_cooldowns[target] - deltaT)
 
-        if self.attack_cooldown > 0:
+        self.attack_cooldowns[target] = cd
+
+        if cd > 0:
             return False
-
-        self.attack_cooldown = self.attack_interval
+        
+        self.attack_cooldowns[target] = self.attack_interval
         return True
-
 
 
 

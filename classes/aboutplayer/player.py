@@ -2,6 +2,8 @@ import pygame
 from ..obstacle import Obstacle
 
 import math #math..
+from functions.easing_styles import EasingStyle, EasingDirection
+from functions.tween_service import TweenInfo, TweenService
 
 default_conf = {
     "size": 10,
@@ -21,10 +23,25 @@ class Player:
         self.health_shake = 0.0
         self.shake_time = 0.0
         self.shake_frequency = 45.0 #uh oh..
+
+        self.tween_service = TweenService()
+
+        self.health_tween_info = TweenInfo(
+            dur=0.5,
+            easing_style=EasingStyle.QUAD,
+            easing_direction=EasingDirection.OUT,
+        )
+        self.health_shake_info = TweenInfo(
+            dur=0.35,
+            easing_style=EasingStyle.QUAD,
+            easing_direction=EasingDirection.OUT
+        )
     
 
-    def update_health_bar_shake(self, dt):
+    def update(self, dt):
         self.shake_time += dt
+        self.tween_service.update(dt)
+
 
     def healthui(self, screen):
         bar_width = 220
@@ -97,6 +114,27 @@ class Player:
         self.hp = max(0, self.hp - max(0, damage_given)) #NUH UH  im not letting a god health for the player ( historically: Players that has a negative integer health is basically immortal if the code checks if its health is zero)
 
         delta_health = old_hp - self.hp
+        
+        if delta_health > 0:
+            self.tween_service.create(
+                self,
+                self.health_tween_info,
+                {"display_hp": self.hp}
+            ).play()
+
+            self.health_shake = min(
+                14.0,
+                max(self.health_shake, delta_health * 1.5)
+            )
+            self.shake_time = 0.0
+
+            self.tween_service.create(
+                self,
+                self.health_shake_info,
+                {"health_shake":0.0},
+            ).play()
+
+        
         return delta_health
       
 
