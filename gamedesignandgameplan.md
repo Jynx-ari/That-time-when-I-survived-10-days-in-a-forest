@@ -44,7 +44,7 @@ Forest generation can be tuned in the game_conf dictionary in main.py: change tr
 
 **Chosen forest layout (still requires visual tuning):** use simple circular canopies suited to a true bird's-eye view. The central area should be a huge, mostly open field around the radio tower, with a distant forest that gradually becomes denser toward the outer map edges. Avoid a tight ring of individual trees and avoid a sudden solid wall. Preserve scattered trees and traversable routes through the transition, with denser vegetation near the perimeter. Each tree should have a perfect square trunk as its solid collision obstacle, but the trunk should be hidden during the normal view so the forest reads as circles. When the player passes under a tree's canopy, make that canopy translucent and reveal the square trunk underneath. Tree positions and drawing use world coordinates with camera offset and zoom. Player movement, zoom-scaled object drawing, camera following, and mouse aiming with zoom conversion are implemented. Smooth camera movement, density tuning, trunk rendering, and canopy transparency remain unverified or unfinished. Player collision with tree trunks and the tower has been implemented and verified in-game.
 
-The tower and antenna are currently visual placeholders; tower health, power, signal integrity, pulse behavior, player health, and player shooting are not implemented yet. The round manager and game-state modules exist, and the user reported that their five tests pass; the full in-game sequence still needs verification. Enemy scaffolding is now integrated: `classes/zom/zombie.py` imports Pygame, stores position as a `pygame.Vector2`, stores health/speed/damage stats, and moves using the supplied delta time. `Shambler` passes its configured stats to the base class. `functions/zombie_spawner.py` creates day-scaled Shambler groups around the tower, checks world bounds and obstacle overlap, and is called when SPACE starts a wave. Current limitations: zombies move directly toward `player.pos` during `ACTIVE_WAVE` and do not yet collide with obstacles or intelligently route around them. Tower-targeting, predictive/intercept movement, and wave-scaled enemy intelligence are not implemented. The 90-second timer is implemented in `RoundManager`; `main.py` updates it with `dt` and clears the zombie list when daylight arrives. Player/tower defeat conditions and combat are not implemented. The `C` key remains a temporary debug action for manually clearing a wave.
+Tower health and its initial combat integration now exist in the GitHub source. `classes/tower.py` stores current, maximum, and display health; clamps incoming damage; smooths the delayed health-bar fill; and draws a top-center HUD bar with health numbers. `main.py` updates the tower health display, lets zombies damage the tower on their attack cooldown, and ends the run when the player dies or `tower.is_ded_or_destroyed` becomes true. The current code default is 1,000 HP; the agreed design prototype is now 1,500 HP, so the implementation value still needs to be aligned later. The floating tower-health indicator, scrap economy, tower upgrades, and radio pulse are not implemented. These source checks do not replace an in-game playtest. The round manager and game-state modules exist, and the user reported that their five tests pass; the full in-game sequence still needs verification. Enemy scaffolding is integrated: `classes/zom/zombie.py` stores vector position, health/speed/damage stats, and moves using delta time. `functions/zombie_spawner.py` creates day-scaled Shambler groups around the tower while checking world bounds and solid obstacles. Enemy obstacle-aware navigation and reliable routing still need further work. The 90-second timer is implemented in `RoundManager`; `main.py` updates it with `dt` and clears the zombie list when daylight arrives. The `C` key remains a temporary debug action for manually clearing a wave.
 
 ### Performance baseline
 
@@ -172,21 +172,35 @@ These could be considered only after the core loop is fun.
 
 ## 6. Radio tower mechanics
 
-The tower is both the campaign objective and a modest defensive asset.
+The tower is the campaign objective and a modest defensive asset. Its survival is the condition for the rescue signal to remain operational.
 
-### Initial implementation: radio-powered pulse
+### Current health and combat groundwork
 
--   The tower has health.
--   At a fixed interval, it emits a pulse that affects enemies within a
-    limited radius.
--   For the first prototype, choose one simple pulse effect: deal a
-    small amount of damage **or** briefly slow enemies. Do not implement
-    both until testing shows it is needed.
--   The pulse has a visible radius or effect so players understand its
-    range and cooldown.
--   The pulse should help with small groups, not erase a whole wave.
--   Enemies that reach the tower can damage it.
--   Tower health reaching zero ends the run.
+- The tower has current health and maximum health, and its health cannot fall below zero.
+- Zombies damage the tower when they are close enough and their tower-attack cooldown allows an attack.
+- Tower health reaching zero ends the run.
+- A fixed HUD health bar is shown at the top center, separate from the player's health UI. It uses the same visual language as the player health bar, shows current/max health, and updates smoothly. The floating indicator above the tower, visible only when the player is nearby, is still planned.
+- The current code default is 1,000 HP. **Agreed prototype design value: 1,500 base HP**; update the code to match when implementing the next tower-health change. Treat this as a balance starting point, not a final value.
+
+### Tower reinforcement upgrades — agreed design, not implemented
+
+Upgrades are purchased during the preparation phase between waves, using scrap. They give the player a meaningful choice between reinforcing the campaign objective and spending resources on other supplies or defenses.
+
+- **Base health:** 1,500 HP for the prototype, with no automatic daily health increase.
+- **Upgrade effect:** each upgrade adds 250 maximum HP.
+- **Immediate repair:** each upgrade also restores 250 current HP, capped at the new maximum. This means the purchase both reinforces and repairs the tower.
+- **Purchase timing:** preparation phase only; upgrades cannot be purchased during an active wave.
+- **Currency:** scrap.
+- **Maximum level and cost:** not decided yet; keep upgrades limited and determine prices through playtesting.
+- **Balance rule:** tower upgrades must not conceal zombies attacking too frequently or dealing excessive damage. Attack intervals and damage should be balanced independently, especially when multiple zombies stack around the tower.
+
+### Future system: radio-powered pulse
+
+- At a fixed interval, the tower may emit a pulse that affects enemies within a limited radius.
+- For the first prototype, test one effect only: deal a small amount of damage **or** briefly slow enemies.
+- Show the pulse effect and its cooldown clearly.
+- The pulse should help against small groups, not erase an entire wave.
+- Pulse behavior is not implemented yet.
 
 ### Future systems, deliberately deferred
 
@@ -589,9 +603,12 @@ scenes, and extra enemy types until the core loop is enjoyable.
 -   [ ] Camera follow eases smoothly toward the player instead of snapping (implementation is present; in-game behavior still needs verification).
 -   [ ] Enemies move toward the tower during the active wave.
 -   [ ] Player can damage and defeat enemies.
--   [ ] Enemies can damage the tower.
+-   [x] Enemies can damage the tower on an attack cooldown (source implementation exists; verify the balance in-game).
+-   [ ] Tower HUD health bar matches the player-health visual style and displays current/max health (implemented in source; verify in-game).
+-   [ ] Floating tower-health indicator appears only when the player is near the tower.
+-   [ ] Tower upgrades can be purchased during preparation using scrap, adding 250 max HP and restoring 250 current HP.
 -   [ ] Tower pulse has a cooldown and limited range.
--   [ ] Player death and tower destruction both end the run.
+-   [x] Player death and tower destruction both end the run (source implementation exists; verify in-game).
 -   [x] A night lasts 90 seconds and ends at daylight if the player and tower survive (timer and zombie cleanup are connected; player/tower survival checks remain to be implemented).
 -   [x] All surviving zombies disappear at daylight; killing every zombie is not required to clear a wave.
 -   [ ] A wave starts and ends correctly.
@@ -608,10 +625,10 @@ These can remain undecided while the prototype is built:
 -   Whether pulse damages or slows enemies (test one first).
 -   Whether power and signal integrity are implemented after the first
     version.
--   Final costs, loot quantities, enemy counts, and tower stats.
+-   Final upgrade costs, maximum upgrade level, loot quantities, enemy counts, and final tower balance. The current design prototype is 1,500 base HP with upgrades adding 250 maximum HP and restoring 250 current HP; no automatic daily HP scaling.
 -   Whether scavenging sites ever restock.
 -   Final asset resolution and sound design. Current visual direction: bird's-eye view with circular canopies and no visible trunks in the normal view; each tree has a square trunk that is revealed when its canopy becomes translucent around the player.
--   Night duration is set to 90 seconds of real-world time for the prototype. The timer and daylight zombie cleanup are now connected in code; in-game testing is still needed. The wave ends when daylight arrives if the player and tower survive; all remaining zombies die at daylight. Killing all enemies is not required. Player/tower health and immediate defeat conditions are not implemented yet.
+-   Night duration is set to 90 seconds of real-world time for the prototype. The timer and daylight zombie cleanup are connected in code; in-game testing is still needed. The wave ends when daylight arrives if the player and tower survive; all remaining zombies die at daylight. Killing all enemies is not required. Tower health, HUD display, zombie tower damage, and defeat checks exist in the current source but still need in-game verification. Tower upgrades, the floating proximity indicator, and the tower pulse are not implemented.
 -   Airdrop frequency, warning/landing presentation, contents, and whether drops arrive on fixed days or as random events.
 
 ## 17. Reference and inspiration
