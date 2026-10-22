@@ -66,6 +66,7 @@ game_conf = {
     "antenna color": "#d2372d",
 
     "center clearance size": 500,
+    "debug paths": True,
 
 
 }
@@ -95,6 +96,69 @@ def draw_defeat(screen, font):
     )
 
 
+def draw_zombies_paths(
+    screen,
+    zombies,
+    camera,
+    zoom,
+    flowfield,
+    cell_size,
+    max_steps=80,
+):
+    for zombie in zombies:
+        path_points = [zombie.pos.copy()]
+        current_cell = (
+            int(zombie.pos.x // cell_size),
+            int(zombie.pos.y // cell_size),
+        )
+        for _ in range(max_steps):
+            next_cell = next_cell_toward_goal(
+                flowfield,
+                current_cell,
+            )
+            if next_cell is None:
+                break
+            
+            n_x,n_y = next_cell
+
+            next_world_pos = pygame.Vector2(
+                n_x*cell_size + cell_size /2,
+                n_y * cell_size + cell_size / 2
+            )
+
+            path_points.append(next_world_pos)
+            current_cell = next_cell
+        screen_points= [
+            camera.syncworld_to_screen(point,zoom)
+            for point in path_points
+        ]
+
+        if len(screen_points) >= 2:
+            pygame.draw.lines(
+                screen,
+                "#66ccff",
+                False,
+                [
+                    (round(x), round(y))
+                    for x, y in screen_points
+                ],
+                width=2,
+            )
+
+        # Mark the zombie's current position.
+        zombie_screen_pos = camera.syncworld_to_screen(
+            zombie.pos,
+            zoom,
+        )
+        pygame.draw.circle(
+            screen,
+            "#ffffff",
+            (
+                round(zombie_screen_pos[0]),
+                round(zombie_screen_pos[1]),
+            ),
+            3,
+        )
 def generate_forest(count):
 
     #Pre-optimization
@@ -511,6 +575,15 @@ def main():
                 transparent=player_under_canopy
             )
         
+        if game_conf["debug paths"] and rounds.phase == RoundPhase.ACTIVE_WAVE:
+            draw_zombies_paths(
+                    screen,
+                    zoms,
+                    camera,
+                    zoom,
+                    flowfield,
+                    cell_size=64,
+            )
 
         day_text = font.render(
             f"Day: {rounds.day}",
