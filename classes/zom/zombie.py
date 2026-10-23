@@ -14,17 +14,9 @@ class Zombie():
         self.turn_speed = 5.0
 
         self.health = health
-        self.max_health = health
         self.speed = speed
         self.damage_to_tower = damage_to_tower
         self.damage_to_player = damage_to_player
-
-        # Visual feedback is separate from damage logic.
-        self.hit_flash_timer = 0.0
-        self.damage_indicator_timer = 0.0
-        self.health_indicator_timer = 0.0
-        self.last_damage_taken = 0
-        self.damage_font = pygame.font.Font(None, 18)
         self.attack_cooldowns = {
             "tower": attack_cd,
             "player": attack_cd,
@@ -158,74 +150,20 @@ class Zombie():
 
 
 
-    def update_combat_feedback(self, deltaT):
-        self.hit_flash_timer = max(0.0, self.hit_flash_timer - deltaT)
-        self.damage_indicator_timer = max(
-            0.0, self.damage_indicator_timer - deltaT
-        )
-        self.health_indicator_timer = max(
-            0.0, self.health_indicator_timer - deltaT
-        )
-
     def draw(self, screen, camera, zoom):
         screen_pos = camera.syncworld_to_screen(self.pos, zoom)
-        center = (round(screen_pos[0]), round(screen_pos[1]))
-        radius = max(5, round(15 * zoom))
 
-        body_color = (
-            "#ffffff" if self.hit_flash_timer > 0 else "#7f9f45"
+        pygame.draw.circle(
+            screen,
+            "#7f9f45",
+            (round(screen_pos[0]), round(screen_pos[1])),
+            max(5, round(15 * zoom))
         )
-        pygame.draw.circle(screen, body_color, center, radius)
-
-        # Show the HP bar briefly after damage so the forest doesn't become
-        # cluttered with permanent health bars.
-        if self.health_indicator_timer > 0 and not self.dead:
-            bar_width = max(24, round(34 * zoom))
-            bar_height = max(3, round(5 * zoom))
-            bar_x = center[0] - bar_width // 2
-            bar_y = center[1] - radius - max(8, round(10 * zoom))
-            pygame.draw.rect(
-                screen, "#202020",
-                (bar_x - 1, bar_y - 1, bar_width + 2, bar_height + 2)
-            )
-            pygame.draw.rect(
-                screen, "#a83232",
-                (bar_x, bar_y, bar_width, bar_height)
-            )
-            health_fraction = self.health / self.max_health if self.max_health else 0
-            pygame.draw.rect(
-                screen, "#67d65a",
-                (bar_x, bar_y, round(bar_width * health_fraction), bar_height)
-            )
-
-        # Floating text reports both the damage dealt and the remaining HP.
-        if self.damage_indicator_timer > 0:
-            elapsed_fraction = self.damage_indicator_timer / 0.9
-            rise = round((1.0 - elapsed_fraction) * 18 * zoom)
-            label = f"-{self.last_damage_taken}  {self.health}/{self.max_health} HP"
-            text_surface = self.damage_font.render(label, True, "#ffffff")
-            text_rect = text_surface.get_rect(
-                center=(
-                    center[0],
-                    center[1] - radius - max(18, round(23 * zoom)) - rise,
-                )
-            )
-            background = text_rect.inflate(8, 4)
-            pygame.draw.rect(screen, "#202020", background, border_radius=3)
-            screen.blit(text_surface, text_rect)
-
+    
     def DIE_ZOMBIE_DIE(self, damage):
         if self.dead:
             return #really? a zombie? dead??
-
-        damage_taken = min(self.health, max(0, damage))
-        self.health = max(0, self.health - damage_taken)
-
-        if damage_taken > 0:
-            self.last_damage_taken = damage_taken
-            self.hit_flash_timer = 0.12
-            self.damage_indicator_timer = 0.9
-            self.health_indicator_timer = 2.0
+        self.health = max(0, self.health - damage)
 
         if self.health <= 0:
             self.dead = True
