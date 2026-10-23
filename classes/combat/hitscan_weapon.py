@@ -7,8 +7,8 @@ class HitscanWeapon:
     def __init__(
         self,
         damage=35, #is -35 hp too much..
-        max_range = 2500,
-        fire_interval=0.35, #cooldown?
+        max_range = 1500,
+        fire_interval=0.25, #cooldown?
         hit_radius=15
 
     ):
