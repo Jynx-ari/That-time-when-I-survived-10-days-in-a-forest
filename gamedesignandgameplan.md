@@ -510,12 +510,45 @@ Implement this before adding any enemies, so enemy spawning can later plug into 
 -   [ ] Add tower health, proximity-based enemy attacks, attack cooldowns, and defeat when tower health reaches zero.
 -   **Done when:** a night starts, lasts 90 seconds, and ends at daylight if the player and tower survive; zombies damage the tower if they reach it, and tower destruction ends the run.
 
-### Milestone 3 --- Player combat
+### Milestone 3 --- Player combat (current design)
 
--   Add the player's weapon and firing cooldown.
--   Add enemy health, damage, death, and scrap rewards.
--   Add player health and player-death defeat.
--   **Done when:** the player can defeat enemies and can also lose.
+**Chosen first weapon:** a mouse-aimed hitscan weapon. A shot resolves immediately along a line from the player's position toward the mouse cursor's world position; it is not a moving projectile. Use Pygame's existing vector math for aiming and distance checks. Do not introduce the custom matrix library into combat.
+
+**Prototype tuning values** (starting values for playtesting, not final balance):
+- Fire input: hold the left mouse button during `ACTIVE_WAVE`.
+- Fire interval: 0.35 seconds between shots (about 2.86 shots/second).
+- Damage: 35 per successful hit. A 100-HP Shambler should take three hits to defeat.
+- Maximum range: 500 world units, measured from the player's world position.
+- Hit test: find the first zombie intersected by the shot segment, using the zombie's 15-unit collision radius; if multiple zombies lie on the shot, hit only the nearest one.
+- Obstruction: tree trunks and the radio tower should block shots. Do not let a shot damage a zombie through solid geometry.
+- Feedback: show a brief, thin shot tracer from the player to the impact point (or maximum range on a miss). Add a small hit flash later if the tracer alone is insufficient.
+- Ammo and reloading: deliberately excluded from this first combat pass.
+
+**Implementation sequence — make one small change and test before moving to the next:**
+1. Add a weapon configuration and cooldown state to the player or to a small dedicated weapon class. Keep firing cooldown separate from zombie attack cooldowns.
+2. Convert the mouse cursor from screen coordinates to world coordinates using the existing camera offset and zoom, then construct a normalized aim direction. Reuse the same coordinate conversion convention as `Player.aimlook()`; avoid duplicating subtly different camera math.
+3. On a left-button press/hold during `ACTIVE_WAVE`, check the cooldown and calculate a finite shot segment ending at the 500-unit range limit.
+4. Determine which zombie is first intersected by that segment. Use segment projection / closest-point geometry rather than checking only the distance from the player to a zombie; the zombie must actually be near the aiming line.
+5. Reject a hit if a solid tree trunk or the radio tower intersects the shot segment before the zombie. Use the existing obstacle rectangles as the source of truth for solid geometry.
+6. Apply 35 damage to the selected zombie, clamp health at zero, and remove defeated zombies safely after iterating over the list (for example, build a survivor list rather than mutating the list mid-loop).
+7. Draw the tracer for a short, frame-time-based duration. Keep this visual feedback separate from damage logic so it cannot accidentally deal damage every frame.
+8. Test the weapon at different zoom levels and camera positions, with a zombie directly on the cursor line, off the line, beyond range, behind a tree, and behind the tower.
+
+**Player damage and recovery integration:**
+- Keep the existing zombie-to-player contact damage and cooldown, but clamp health to zero and ensure a dead player cannot move, aim/fire, or receive repeated damage while recovery is pending.
+- The agreed recovery design is documented in Section 18: one 10-second recovery timer, respawn at the bunker, return with 50% health if the tower remains operational, and immediate defeat if the tower is destroyed. Recovery should be triggered once per death, not restarted every frame.
+- Tower destruction must end the run even while recovery is pending. Daylight cleanup and the 90-second wave timer must continue to work.
+- For the first pass, do not add scrap rewards, weapon upgrades, ammo, or multiple weapons. Add rewards only after shooting, zombie removal, player death, and recovery behave reliably.
+
+**Current source facts:** `Player` already aims toward the mouse and has health, damage handling, and an `is_dead` property. `Zombie` / `Shambler` already have health and attack stats. The current main loop does not yet implement player firing or zombie death/removal. It currently ends the run when player health reaches zero, so that check must change when the planned recovery state is implemented. Tower health and zombie-to-tower attacks already exist in source, but still need in-game verification.
+
+-   [ ] Implement the mouse-aimed hitscan weapon and firing cooldown.
+-   [ ] Implement shot-line hit testing, range, and solid-obstacle blocking.
+-   [ ] Apply zombie damage and remove defeated zombies safely.
+-   [ ] Add a short-lived shot tracer and verify aim at different camera/zoom settings.
+-   [ ] Replace immediate player-death defeat with the planned recovery state.
+-   [ ] Verify tower destruction overrides and cancels pending recovery.
+-   **Done when:** the player can aim and shoot during a wave, hits only zombies intersected by an unobstructed shot within range, can defeat a Shambler in three prototype hits, and can recover from death if the tower survives. Tower destruction must still end the run.
 
 ### Milestone 4 --- Tower pulse
 
@@ -580,8 +613,10 @@ Implement this before adding any enemies, so enemy spawning can later plug into 
 Do **not** build the whole design at once. The first meaningful target
 is:
 
-> Move around a clearing, shoot one enemy, watch it approach and damage
-> the tower, and use the tower's pulse to help defeat it.
+> Move around a clearing, aim at a Shambler with the mouse, shoot it with
+> an immediate hitscan attack, watch other enemies approach and damage the
+> tower, and recover from player death while the tower remains operational.
+> The tower pulse comes after this basic combat loop works.
 
 Then add waves. Then scrap. Then placement. Then reliable pathfinding
 and more enemies.
@@ -602,13 +637,17 @@ scenes, and extra enemy types until the core loop is enjoyable.
 -   [x] Zoom visibly scales world positions and the sizes of the player, tree canopies, tower, antenna, and clearing.
 -   [ ] Camera follow eases smoothly toward the player instead of snapping (implementation is present; in-game behavior still needs verification).
 -   [ ] Enemies move toward the tower during the active wave.
--   [ ] Player can damage and defeat enemies.
+-   [ ] Mouse-aimed hitscan shots fire only during active waves and respect cooldown and maximum range.
+-   [ ] Hitscan shots hit only the first zombie intersected by the aim segment; tree trunks and the tower block shots.
+-   [ ] Player can damage and defeat enemies; defeated zombies are removed safely.
+-   [ ] Shot tracer gives clear, brief feedback without applying repeated damage.
 -   [x] Enemies can damage the tower on an attack cooldown (source implementation exists; verify the balance in-game).
 -   [ ] Tower HUD health bar matches the player-health visual style and displays current/max health (implemented in source; verify in-game).
 -   [ ] Floating tower-health indicator appears only when the player is near the tower.
 -   [ ] Tower upgrades can be purchased during preparation using scrap, adding 250 max HP and restoring 250 current HP.
 -   [ ] Tower pulse has a cooldown and limited range.
--   [x] Player death and tower destruction both end the run (source implementation exists; verify in-game).
+-   [ ] Player death starts one 10-second recovery timer; player respawns at the bunker with 50% health if the tower survives.
+-   [ ] Tower destruction ends the run and cancels any pending recovery.
 -   [x] A night lasts 90 seconds and ends at daylight if the player and tower survive (timer and zombie cleanup are connected; player/tower survival checks remain to be implemented).
 -   [x] All surviving zombies disappear at daylight; killing every zombie is not required to clear a wave.
 -   [ ] A wave starts and ends correctly.
@@ -621,7 +660,7 @@ scenes, and extra enemy types until the core loop is enjoyable.
 These can remain undecided while the prototype is built:
 
 -   Exact title, story details, and why the wilderness is dangerous.
--   Exact weapons, ammo capacity, reload behavior, and the final ammunition curve across the ten days.
+-   Final weapon balance and whether later weapons use ammo/reloading. The first prototype is a mouse-aimed hitscan weapon with a 500-world-unit range, 35 damage, and a 0.35-second fire interval; these values are for playtesting, not final balance.
 -   Whether pulse damages or slows enemies (test one first).
 -   Whether power and signal integrity are implemented after the first
     version.
