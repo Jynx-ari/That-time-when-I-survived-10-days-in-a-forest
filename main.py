@@ -292,8 +292,17 @@ def main():
     rounds = RoundManager(total_days=10)
     zoms = []
     weapon = HitscanWeapon()
+    
 
-    #the tree algo seems to slow down the start of the game
+    zombie_target = 0
+
+    #delay between zombies to replace them thingy
+    spawn_retry_timer = 0.0
+    SPAWN_RETRY_INTERVAL = 0.5
+
+
+
+    #the tree algo seems to slow down the start of the game BUT NOT ANYMORE!!
     tree_start = time.perf_counter()
 
     trees = generate_forest(game_conf["tree count"])
@@ -432,12 +441,13 @@ def main():
                 if event.key == pygame.K_SPACE and rounds.phase==RoundPhase.PREP:
                     rounds.start_wave()
 
-                    center = pygame.Vector2(m_w // 2, m_h // 2)
+                    
+                    rounds.start_wave()
+                    zombie_target = 5+rounds.day * 5
+                    spawn_retry_timer = 0.0
+
                     zoms = spawn_shamblers(
-                        amount=5 + rounds.day * 5,
-                        center=center,
-                        min_radius=900,
-                        max_radius=1400,
+                        amount=zombie_target,
                         world_size=(m_w, m_h),
                         obstacles=solid_obs
                     )
@@ -485,6 +495,20 @@ def main():
         if rounds.phase != RoundPhase.DEFEAT:
             player.move(keys, dt, (m_w, m_h), screen, obstacle_grid)
 
+            if pygame.mouse.get_pressed()[0] and weapon.is_bro_disabled():
+                mouse_screen = pygame.mouse.get_pos()
+                mouse_world = pygame.Vector2(
+                    mouse_screen[0] / zoom + camera.offset[0],
+                    mouse_screen[1] / zoom + camera.offset[1],
+                )
+
+                weapon.PEWPEW(
+                    player.pos,
+                    mouse_world,
+                    zoms,
+                    obstacle_grid,
+                )
+
 
         zoom = game_conf["zoom"]
         camera.follow(player.pos, (m_w, m_h), (w / zoom, h / zoom), dt )
@@ -522,27 +546,34 @@ def main():
             
             #NOTE: dis means the round is currently active :DD
 
-            if pygame.mouse.get_pressed()[0] and weapon.is_bro_disabled():
-                mouse_screen = pygame.mouse.get_pos()
-                mouse_world = pygame.Vector2(
-                    mouse_screen[0] / zoom + camera.offset[0],
-                    mouse_screen[1] / zoom + camera.offset[1],
-                )
-
-                weapon.PEWPEW(
-                    player.pos,
-                    mouse_world,
-                    zoms,
-                    obstacle_grid,
-                )
-
-
-
 
             tower_contact_dist = tower.size / 2 + 15
             player_contact_dist = 15+player.size    
             
             zoms = [zombie for zombie in zoms if not zombie.dead]
+
+
+            spawn_retry_timer += dt
+
+            if(
+                len(zoms) < zombie_target
+                and spawn_retry_timer >= SPAWN_RETRY_INTERVAL
+            ): 
+                missing_zombies = zombie_target - len(zoms)
+
+                new_zombies = spawn_shamblers(
+                    amount = missing_zombies,
+                    world_size=(m_w, m_h),
+                    obstacles=solid_obs,
+                )
+
+                zoms.extend(new_zombies)
+                spawn_retry_timer=0.0
+
+        
+
+
+
 
             for zombie in zoms: 
                 zombie.update(tower_pos, dt, obstacle_grid, flow_field=flowfield, cell_size=64)
