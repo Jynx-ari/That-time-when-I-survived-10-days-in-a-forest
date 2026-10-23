@@ -516,23 +516,23 @@ Implement this before adding any enemies, so enemy spawning can later plug into 
 
 **Prototype tuning values** (starting values for playtesting, not final balance):
 - Fire input: hold the left mouse button during `ACTIVE_WAVE`.
-- Fire interval: 0.35 seconds between shots (about 2.86 shots/second).
-- Damage: 35 per successful hit. A 100-HP Shambler should take three hits to defeat.
-- Maximum range: 500 world units, measured from the player's world position.
+- Fire interval: **0.17 seconds** between shots (about 5.88 shots/second). Keep the current implementation value for now; rebalance only after playtesting.
+- Damage: **40 per successful hit**. A 100-HP Shambler should take three hits to defeat. Keep the current implementation value for now; rebalance only after playtesting.
+- Maximum range: **1,500 world units**, measured from the player's world position. Keep the current implementation value for now; rebalance only after playtesting.
 - Hit test: find the first zombie intersected by the shot segment, using the zombie's 15-unit collision radius; if multiple zombies lie on the shot, hit only the nearest one.
 - Obstruction: tree trunks and the radio tower should block shots. Do not let a shot damage a zombie through solid geometry.
-- Feedback: show a brief, thin shot tracer from the player to the impact point (or maximum range on a miss). Add a small hit flash later if the tracer alone is insufficient.
+- Feedback: show a brief, thin shot tracer from the player to the impact point (or maximum range on a miss). Add a short, visible hit flash when a zombie is damaged; keep it brief and readable rather than adding screen shake or a large effect.
 - Ammo and reloading: deliberately excluded from this first combat pass.
 
 **Implementation sequence — make one small change and test before moving to the next:**
 1. Add a weapon configuration and cooldown state to the player or to a small dedicated weapon class. Keep firing cooldown separate from zombie attack cooldowns.
 2. Convert the mouse cursor from screen coordinates to world coordinates using the existing camera offset and zoom, then construct a normalized aim direction. Reuse the same coordinate conversion convention as `Player.aimlook()`; avoid duplicating subtly different camera math.
-3. On a left-button press/hold during `ACTIVE_WAVE`, check the cooldown and calculate a finite shot segment ending at the 500-unit range limit.
+3. On a left-button press/hold during `ACTIVE_WAVE`, check the cooldown and calculate a finite shot segment ending at the 1,500-unit range limit.
 4. Determine which zombie is first intersected by that segment. Use segment projection / closest-point geometry rather than checking only the distance from the player to a zombie; the zombie must actually be near the aiming line.
 5. Reject a hit if a solid tree trunk or the radio tower intersects the shot segment before the zombie. Use the existing obstacle rectangles as the source of truth for solid geometry.
-6. Apply 35 damage to the selected zombie, clamp health at zero, and remove defeated zombies safely after iterating over the list (for example, build a survivor list rather than mutating the list mid-loop).
-7. Draw the tracer for a short, frame-time-based duration. Keep this visual feedback separate from damage logic so it cannot accidentally deal damage every frame.
-8. Test the weapon at different zoom levels and camera positions, with a zombie directly on the cursor line, off the line, beyond range, behind a tree, and behind the tower.
+6. Apply 40 damage to the selected zombie, clamp health at zero, and remove defeated zombies safely after iterating over the list (for example, build a survivor list rather than mutating the list mid-loop).
+7. Draw the tracer for a short, frame-time-based duration, then add a short hit flash on successful damage. Keep visual feedback separate from damage logic so it cannot accidentally deal damage every frame.
+8. Test the weapon at different zoom levels and camera positions, with a zombie directly on the cursor line, off the line, beyond range, behind a tree, and behind the tower. Confirm that the tower actually blocks shots in `main.py`; the current tower obstacle is configured with `blocks_shots=False`.
 
 **Player damage and recovery integration:**
 - Keep the existing zombie-to-player contact damage and cooldown, but clamp health to zero and ensure a dead player cannot move, aim/fire, or receive repeated damage while recovery is pending.
@@ -540,12 +540,13 @@ Implement this before adding any enemies, so enemy spawning can later plug into 
 - Tower destruction must end the run even while recovery is pending. Daylight cleanup and the 90-second wave timer must continue to work.
 - For the first pass, do not add scrap rewards, weapon upgrades, ammo, or multiple weapons. Add rewards only after shooting, zombie removal, player death, and recovery behave reliably.
 
-**Current source facts:** `Player` already aims toward the mouse and has health, damage handling, and an `is_dead` property. `Zombie` / `Shambler` already have health and attack stats. The current main loop does not yet implement player firing or zombie death/removal. It currently ends the run when player health reaches zero, so that check must change when the planned recovery state is implemented. Tower health and zombie-to-tower attacks already exist in source, but still need in-game verification.
+**Current source facts (checked against GitHub):** `HitscanWeapon` and the mouse-to-world firing call are already wired into `main.py`; current values are 40 damage, 1,500 world-unit range, 0.17-second fire interval, 15-unit hit radius, and a 0.08-second tracer. The core weapon implementation is therefore present, but it is not complete or verified. The obstacle pass shortens the tracer endpoint at an obstacle, yet the later zombie-hit test resets its nearest-distance limit and does not reject zombies behind that obstacle, so obstruction can fail to prevent damage. The firing call is guarded against defeat, but not specifically against non-`ACTIVE_WAVE` phases. The tower obstacle is currently created with `blocks_shots=False`, contrary to the intended rule that it blocks shots. Zombie death/removal code exists in the weapon/zombie loop, but must be playtested. Player death still ends the run immediately in `main.py`; recovery remains unimplemented. Tower health and zombie-to-tower attacks exist in source, but still need in-game verification.
 
 -   [ ] Implement the mouse-aimed hitscan weapon and firing cooldown.
 -   [ ] Implement shot-line hit testing, range, and solid-obstacle blocking.
 -   [ ] Apply zombie damage and remove defeated zombies safely.
 -   [ ] Add a short-lived shot tracer and verify aim at different camera/zoom settings.
+-   [ ] Add a brief hit flash when a zombie takes damage and verify it clears without lingering.
 -   [ ] Replace immediate player-death defeat with the planned recovery state.
 -   [ ] Verify tower destruction overrides and cancels pending recovery.
 -   **Done when:** the player can aim and shoot during a wave, hits only zombies intersected by an unobstructed shot within range, can defeat a Shambler in three prototype hits, and can recover from death if the tower survives. Tower destruction must still end the run.
@@ -638,9 +639,10 @@ scenes, and extra enemy types until the core loop is enjoyable.
 -   [ ] Camera follow eases smoothly toward the player instead of snapping (implementation is present; in-game behavior still needs verification).
 -   [ ] Enemies move toward the tower during the active wave.
 -   [ ] Mouse-aimed hitscan shots fire only during active waves and respect cooldown and maximum range.
--   [ ] Hitscan shots hit only the first zombie intersected by the aim segment; tree trunks and the tower block shots.
+-   [ ] Hitscan shots hit only the first zombie intersected by the aim segment; tree trunks and the tower block shots (known source-level issues: obstacle distance is not used to reject zombie hits behind cover, and the tower obstacle has `blocks_shots=False`).
 -   [ ] Player can damage and defeat enemies; defeated zombies are removed safely.
 -   [ ] Shot tracer gives clear, brief feedback without applying repeated damage.
+-   [ ] A brief hit flash appears on a damaged zombie and does not linger after the hit.
 -   [x] Enemies can damage the tower on an attack cooldown (source implementation exists; verify the balance in-game).
 -   [ ] Tower HUD health bar matches the player-health visual style and displays current/max health (implemented in source; verify in-game).
 -   [ ] Floating tower-health indicator appears only when the player is near the tower.
@@ -660,7 +662,7 @@ scenes, and extra enemy types until the core loop is enjoyable.
 These can remain undecided while the prototype is built:
 
 -   Exact title, story details, and why the wilderness is dangerous.
--   Final weapon balance and whether later weapons use ammo/reloading. The first prototype is a mouse-aimed hitscan weapon with a 500-world-unit range, 35 damage, and a 0.35-second fire interval; these values are for playtesting, not final balance.
+-   Final weapon balance and whether later weapons use ammo/reloading. The current prototype values are a mouse-aimed hitscan weapon with a 1,500-world-unit range, 40 damage, a 0.17-second fire interval, a 15-unit hit radius, and a 0.08-second tracer. Keep these values for now and use playtesting—not guesswork—to decide whether they need rebalancing.
 -   Whether pulse damages or slows enemies (test one first).
 -   Whether power and signal integrity are implemented after the first
     version.
