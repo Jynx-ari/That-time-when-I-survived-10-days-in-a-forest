@@ -51,7 +51,7 @@ class HitscanWeapon:
         
         aim_dir = aim_dir.normalize()
         shot_end = origin + aim_dir * self.max_range
-        nearest_dist = self.max_range
+        obstruction_dist = self.max_range
         
 
         ray_rect = pygame.Rect(
@@ -76,8 +76,8 @@ class HitscanWeapon:
             impact_point = pygame.Vector2(clipped_line[0])
             obstacle_dist = origin.distance_to(impact_point)
 
-            if obstacle_dist < nearest_dist:
-                nearest_dist = obstacle_dist
+            if obstacle_dist < obstruction_dist:
+                obstruction_dist = obstacle_dist
                 shot_end = impact_point
 
 
@@ -88,14 +88,17 @@ class HitscanWeapon:
 
         nearest_zombie = None
         nearest_dist = self.max_range
+        nearest_dist = self.max_range
 
         for zombie in zombies:
+            if zombie.dead:
+                continue
             to_zomb = zombie.pos - origin
 
             #the distance along the shot direction to the closest point or something..
             along_shot = to_zomb.dot(aim_dir)
 
-            if not 0 <= along_shot <= self.max_range:
+            if not 0 <= along_shot <= obstruction_dist:
                 continue
         
             closest_point = origin+aim_dir*along_shot
