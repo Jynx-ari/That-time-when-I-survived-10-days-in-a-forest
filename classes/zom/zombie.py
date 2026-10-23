@@ -161,8 +161,23 @@ class Zombie():
         
         if best_move is not None:
             self.pos += best_move
+        
         # else:
         #     print("One of the zoms stuck at: ", round(self.pos.x), round(self.pos.y))
+
+        knockback_move = pygame.Vector2(
+            self.knockback_vel_x,
+            self.knockback_vel_y,
+        ) * deltatime
+
+        if knockback_move.length_squared() > 0:
+            knockback_pos = self.pos + knockback_move
+            
+            if not self.is_blocked(knockback_pos, obstacles):
+                self.pos = knockback_pos
+
+
+        
         
 
 
@@ -185,7 +200,7 @@ class Zombie():
             max(5, round(15 * zoom))
         )
     
-    def DIE_ZOMBIE_DIE(self, damage, tween_service=None):
+    def DIE_ZOMBIE_DIE(self, damage, tween_service=None,knockback_direction=None):
         if self.dead:
             return #really? a zombie? dead??
         self.health = max(0, self.health - damage)
@@ -208,6 +223,35 @@ class Zombie():
             )
 
             self.hit_flash_tween.play()
+        if tween_service is not None and knockback_direction is not None:
+            if self.hit_motion_tween is not None:
+                self.hit_motion_tween.cancel()
+            
+            knockback_direction = pygame.Vector2(knockback_direction)
+
+            if knockback_direction.length_squared() > 0:
+                knockback_direction = knockback_direction.normalize()
+
+                knockback_speed = 85.0
+                self.knockback_vel_x = knockback_direction * knockback_speed
+                self.knockback_vel_y = knockback_direction * knockback_speed
+                self.hit_speed_multiplier = 0.45
+
+                self.hit_motion_tween = tween_service.create(
+                    self,
+                    TweenInfo(0.35,
+                    EasingStyle.QUAD,
+                    EasingDirection.OUT
+                    ),
+                    {"knockback_vel_x": 0.0,
+                     "knockback_vel_y": 0.0,
+                     "hit_speed_multiplier": 1.0,
+                    }
+                )
+
+                self.hit_motion_tween.play()
+
+
 
         if self.health <= 0:
             self.dead = True
