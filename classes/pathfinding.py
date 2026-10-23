@@ -35,7 +35,7 @@ def build_flow_field(blocked, goal_cells):
         if current_dist > d[y][x]:
             continue
 
-        for dx,dy, cost in d:
+        for dx,dy, cost in dir_s:
             nx,ny = x+dx, y+dy
 
             if not(0<=nx<w and 0<=ny<h):
@@ -166,10 +166,10 @@ def build_world_flow_field(
             if center.distance_to(target) <= goal_radius:
                 goal_cells.add((x,y))
         
-        if not goal_cells:
-            return [[None]*columns for _ in range(rows)], set()
+    if not goal_cells:
+        return [[None]*columns for _ in range(rows)], set()
             
 
         
 
-        return build_flow_field(blocked, goal_cells),goal_cells    
+    return build_flow_field(blocked, goal_cells),goal_cells    
