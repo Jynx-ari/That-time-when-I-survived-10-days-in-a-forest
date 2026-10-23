@@ -117,6 +117,13 @@ def draw_zombies_paths(
                 current_cell,
             )
             if next_cell is None:
+                x,y = current_cell
+                distance = flowfield[y][x]
+
+                print(
+                    f"The path for some reason ended at cell: {current_cell}"
+                    f"its distance is: {distance}"
+                )
                 break
             
             n_x,n_y = next_cell

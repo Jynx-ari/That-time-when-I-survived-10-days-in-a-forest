@@ -4,82 +4,70 @@ import math # collections and deque is finally gone but I GOT MATH AGAIN???!?!?
 import pygame
 
 def build_flow_field(blocked, goal):
-    #ama replace everything.. AGAINN >:((
+    #ama replace everything.. AGAINN >:(( AND AGAINN
 
     height = len(blocked)
     width = len(blocked[0])
 
     distances = [
-        [float("inf") for _ in range(width)]
+        [None for _ in range(width)]
         for _ in range(height)
     ]
 
-    g_x, g_y = goal
-
-    if not (0 <= g_x < width and 0 <= g_y < height):
-        return distances
-
-    if blocked[g_y][g_x]:
-        return distances
-
-    distances[g_y][g_x] = 0
-    queue = [(0, g_x, g_y)]
+    queue = []
 
     directions = (
-        (1, 0, 1.0),
-        (-1, 0, 1.0),
-        (0, 1, 1.0),
-        (0, -1, 1.0),
-        (1, 1, math.sqrt(2)),
-        (1, -1, math.sqrt(2)),
-        (-1, 1, math.sqrt(2)),
-        (-1, -1, math.sqrt(2)),
+        (1,0,1.0),
+        (-1,0,1.0),
+        (0,1,1.0),
+        (0,-1,1.0),
+        (1,1,math.sqrt(2)),
+        (1,-1,math.sqrt(2)),
+        (-1,1,math.sqrt(2)),
+        (-1,-1,math.sqrt(2)),
     )
+    # *sighs* rewritting everything.. start the search from every valid goal cell???
+    for gx, gy in goals:
+        if not (0<=gx<width and 0<=gy < height):
+            continue
+            
+            if blocked[gy][gx]:
+                continue
+            distances[gy][gx] = 0
+            heapq.heappush(queue, (0, gx,fy))
 
     while queue:
-        current_dist, x, y = heapq.heappop(queue)
+        current_dist,x,y=heapq.heappop(queue)
 
         if current_dist > distances[y][x]:
             continue
 
-        for dx, dy, cost in directions:
-            nx = x + dx
-            ny = y + dy
+        for dx,dy, cost in directions:
+            nx = x+dx
+            ny = y+dy
 
-            if not (0 <= nx < width and 0 <= ny < height):
+            if not (0<=nx<width and 0<=ny<height):
                 continue
-
+            
             if blocked[ny][nx]:
                 continue
+            
+            #time to prevent diagonal movement through blocked obstacles or corners
 
-            # Prevent diagonal movement through blocked corners.
             if dx != 0 and dy != 0:
                 if blocked[y][nx] or blocked[ny][x]:
                     continue
-
+            
             new_dist = current_dist + cost
+            old_dist = distances[ny][nx]
 
-            if new_dist < distances[ny][nx]:
+            if old_dist is None or new_dist < old_dist:
                 distances[ny][nx] = new_dist
-                heapq.heappush(queue, (new_dist, nx, ny))
-
-    for y in range(height):
-        for x in range(width):
-            if distances[y][x] == float("inf"):
-                distances[y][x] = None
-
-    return distances
-
+                heapq.heappush(queue, (new_dist, nx,ny))
+    return distances    
 
 def next_cell_toward_goal(distances, cell):
-    """Return a neighboring cell with a lower flow-field distance.
-
-    Diagonal steps are only allowed when both adjacent cardinal cells are
-    reachable. This mirrors the corner-blocking rule in build_flow_field().
-    """
     height = len(distances)
-    if height == 0:
-        return None
     width = len(distances[0])
 
     x, y = cell
@@ -117,8 +105,7 @@ def next_cell_toward_goal(distances, cell):
         if distance is None or distance >= current_dist:
             continue
 
-        # A None distance represents a blocked or unreachable cell. If either
-        # cardinal neighbor is unavailable, don't cut diagonally across it.
+        #smol tweaks here
         if dx != 0 and dy != 0:
             if distances[y][nx] is None or distances[ny][x] is None:
                 continue
@@ -132,9 +119,9 @@ def next_cell_toward_goal(distances, cell):
 
 
 def build_world_flow_field(
-    obstacle_grid,
-    world_size,
-    target_world,
+    obstacle_grid=obsacle_grid,
+    world_size=(m_w, m_h),
+    target_world=tower_pos,
     cell_size=64,
     zombie_radius=15,
     goal_radius=80,
@@ -172,34 +159,30 @@ def build_world_flow_field(
                 for obstacle in nearby
             )
 
-    # The tower is blocked, so choose a nearby walkable goal cell.
-    target = pygame.Vector2(target_world)
-    goal_cell = None
-    best_distance = float("inf")
+    # I mean, the tower itself is blocked, so choose a nearby walkable area or something?
 
-    for y in range(rows):
+    target = pygame.Vector2(target_world)
+    goal_cells = set()
+
+    for y in range(yows):
         for x in range(columns):
             if blocked[y][x]:
                 continue
-
+            
             center = pygame.Vector2(
                 x * cell_size + cell_size / 2,
-                y * cell_size + cell_size / 2,
+                y * cell_size + cell_size / 2
             )
 
-            distance = center.distance_squared_to(target)
+            if center.distance_to(target) <= goal_radius:
+                goal_cells.add((x,y))
+        
+        if not goal_cells:
+            return (
+                [[None]*columns for _ in range(rows)],
+                set(),
+            )
 
-            if distance > goal_radius ** 2:
-                continue
+        flow_field = build_flow_field(blocked, goal_cells)
 
-            if distance < best_distance:
-                best_distance = distance
-                goal_cell = (x, y)
-
-    if goal_cell is None:
-        return (
-            [[None] * columns for _ in range(rows)],
-            None,
-        )
-
-    return build_flow_field(blocked, goal_cell), goal_cell
+        return flow_field, goal_cells    
