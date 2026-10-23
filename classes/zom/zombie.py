@@ -31,6 +31,11 @@ class Zombie():
         self.hit_flash_strength = 0.0
         self.hit_flash_tween = None
 
+        self.hit_speed_multiplier = 1.0
+        self.knockback_vel_x = 0.0
+        self.knockback_vel_y = 0.0
+        self.hit_motion_tween = None
+
 
     def is_blocked(self, pos, obstacles):
         zombie_size = default_config["zombie size"]
@@ -115,7 +120,12 @@ class Zombie():
                 turn_amount
             ).normalize()
         
-        movement = self.direction * self.speed * deltatime
+        movement = (
+            self.direction
+            * self.speed
+            * self.hit_speed_multiplier
+            * deltatime
+        )
         
 
         #movement stuffiess!!
