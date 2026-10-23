@@ -2,7 +2,7 @@ import time
 import pygame
 import sys
 import random
-
+from pathlib import Path
 
 ###   CLASSES
 from classes.tree import gen_Tree
@@ -79,6 +79,17 @@ game_conf = {
 
 
 exittap: int = 0
+
+
+
+def resource_path(relative_p):
+    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+        base_path = Path(sys._MEIPASS)
+    else:
+        base_path = Path(__file__).resolve().parent
+    
+    return base_path / relative_p
+
 
 
 
@@ -281,7 +292,11 @@ def main():
     running = True
 
 
-    hit_sound = pygame.mixer.Sound("Assets/Audio/Woof(1).wav")
+    hit_sound = pygame.mixer.Sound(
+        str(
+            resource_path("Assets/Audio/Woof(1).wav")
+        )
+    )
 
 
 
