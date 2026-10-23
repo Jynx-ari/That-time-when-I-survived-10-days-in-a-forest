@@ -159,3 +159,8 @@ class Zombie():
             (round(screen_pos[0]), round(screen_pos[1])),
             max(5, round(15 * zoom))
         )
+    
+    def DIE_ZOMBIE_DIE(self, damage):
+        pass
+
+    
