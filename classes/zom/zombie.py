@@ -63,7 +63,7 @@ class Zombie():
         
         target = pygame.Vector2(target)
 
-        if flow_field is not None and self.pos.distance_to(target) > 160:
+        if flow_field is not None:
             cell_x = int(self.pos.x // cell_size)
             cell_y = int(self.pos.y // cell_size)
 
@@ -71,7 +71,7 @@ class Zombie():
                 0<= cell_y < len(flow_field)
                 and 0 <= cell_x < len(flow_field[0])
             ): 
-                current_distance = flow_field[cell_y][cell_x]
+                # current_distance = flow_field[cell_y][cell_x]
 
                 # if current_distance == 0:
                 #     return

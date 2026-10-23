@@ -377,7 +377,7 @@ def main():
 
     # for logssss!!
     print(f"Flow-field build: {pathfinding_end - pathfinding_start:.2} seconds")
-    if goalcell is None:
+    if not goalcell:
         raise RuntimeError("Note to dev: Could not find a valid goal cell near the tower for some reason")
     print(f"flowfield goal: {goalcell}")
     goal_center = pygame.Vector2(

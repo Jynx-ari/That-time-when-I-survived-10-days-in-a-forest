@@ -3,68 +3,57 @@ import math # collections and deque is finally gone but I GOT MATH AGAIN???!?!?
 
 import pygame
 
-def build_flow_field(blocked, goal):
+def build_flow_field(blocked, goal_cells):
     #ama replace everything.. AGAINN >:(( AND AGAINN
 
-    height = len(blocked)
-    width = len(blocked[0])
+    h  = len(blocked)
+    w =  len(blocked[0])
 
-    distances = [
-        [None for _ in range(width)]
-        for _ in range(height)
-    ]
-
+    d = [[None] * w for _ in range(h)]
     queue = []
-
-    directions = (
-        (1,0,1.0),
-        (-1,0,1.0),
-        (0,1,1.0),
-        (0,-1,1.0),
-        (1,1,math.sqrt(2)),
-        (1,-1,math.sqrt(2)),
-        (-1,1,math.sqrt(2)),
-        (-1,-1,math.sqrt(2)),
+    dir_s = (
+          (1, 0, 1.0), (-1, 0, 1.0), (0, 1, 1.0), (0, -1, 1.0),
+        (1, 1, math.sqrt(2)), (1, -1, math.sqrt(2)),
+        (-1, 1, math.sqrt(2)), (-1, -1, math.sqrt(2)),
     )
-    # *sighs* rewritting everything.. start the search from every valid goal cell???
-    for gx, gy in goals:
-        if not (0<=gx<width and 0<=gy < height):
+    
+    #my arms hurt for rewriting code 
+    #seed search!!
+
+    for gx, gy in goal_cells:
+        if not(0<=gx<w and 0<=gy<h):
             continue
-            
-            if blocked[gy][gx]:
-                continue
-            distances[gy][gx] = 0
-            heapq.heappush(queue, (0, gx,gy))
+        if blocked[gy][gx]:
+            continue
+        
+        d[gy][gx] = 0
+        heapq.heappush(queue, (0,gx,gy))
 
     while queue:
-        current_dist,x,y=heapq.heappop(queue)
+        current_dist , x,y = heapq.heappop(queue)
 
-        if current_dist > distances[y][x]:
+        if current_dist > d[y][x]:
             continue
 
-        for dx,dy, cost in directions:
-            nx = x+dx
-            ny = y+dy
+        for dx,dy, cost in d:
+            nx,ny = x+dx, y+dy
 
-            if not (0<=nx<width and 0<=ny<height):
+            if not(0<=nx<w and 0<=ny<h):
                 continue
-            
             if blocked[ny][nx]:
                 continue
-            
-            #time to prevent diagonal movement through blocked obstacles or corners
-
+            # NO DIAGONAL!
             if dx != 0 and dy != 0:
                 if blocked[y][nx] or blocked[ny][x]:
                     continue
             
             new_dist = current_dist + cost
-            old_dist = distances[ny][nx]
-
-            if old_dist is None or new_dist < old_dist:
-                distances[ny][nx] = new_dist
+            old_dist = d[ny][nx]
+            if old_dist is None or new_dist<old_dist:
+                d[ny][nx] = new_dist
                 heapq.heappush(queue, (new_dist, nx,ny))
-    return distances    
+    return d
+
 
 def next_cell_toward_goal(distances, cell):
     height = len(distances)
@@ -119,9 +108,9 @@ def next_cell_toward_goal(distances, cell):
 
 
 def build_world_flow_field(
-    obstacle_grid=obsacle_grid,
-    world_size=(m_w, m_h),
-    target_world=tower_pos,
+    obstacle_grid,
+    world_size,
+    target_world,
     cell_size=64,
     zombie_radius=15,
     goal_radius=80,
@@ -178,11 +167,9 @@ def build_world_flow_field(
                 goal_cells.add((x,y))
         
         if not goal_cells:
-            return (
-                [[None]*columns for _ in range(rows)],
-                set(),
-            )
+            return [[None]*columns for _ in range(rows)], set()
+            
 
-        flow_field = build_flow_field(blocked, goal_cells)
+        
 
-        return flow_field, goal_cells    
+        return build_flow_field(blocked, goal_cells),goal_cells    
