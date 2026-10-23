@@ -57,7 +57,7 @@ class HitscanWeapon:
                 continue
         
             closest_point = origin+aim_dir*along_shot
-            dist_square = zombie.pos.distance_squared.to(
+            dist_square = zombie.pos.distance_squared_to(
                 closest_point
             )
 
