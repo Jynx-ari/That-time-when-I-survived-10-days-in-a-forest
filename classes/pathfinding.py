@@ -34,7 +34,7 @@ def build_flow_field(blocked, goal):
             if blocked[gy][gx]:
                 continue
             distances[gy][gx] = 0
-            heapq.heappush(queue, (0, gx,fy))
+            heapq.heappush(queue, (0, gx,gy))
 
     while queue:
         current_dist,x,y=heapq.heappop(queue)
@@ -164,7 +164,7 @@ def build_world_flow_field(
     target = pygame.Vector2(target_world)
     goal_cells = set()
 
-    for y in range(yows):
+    for y in range(rows):
         for x in range(columns):
             if blocked[y][x]:
                 continue
