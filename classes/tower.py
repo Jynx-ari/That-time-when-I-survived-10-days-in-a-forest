@@ -3,7 +3,7 @@ import pygame
 #im starting to have a habit to make a class just for everything at this point :/
 
 class Tower:
-    def __init__(self, pos, max_health=1500):
+    def __init__(self, pos, max_health=3500):
         self.pos = pygame.Vector2(pos)
 
         self.max_hp = max_health

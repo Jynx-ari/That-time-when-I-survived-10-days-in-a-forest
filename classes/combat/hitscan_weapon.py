@@ -7,7 +7,7 @@ class HitscanWeapon:
     def __init__(
         self,
         damage=35, #is -35 hp too much..
-        max_range = 500,
+        max_range = 2500,
         fire_interval=0.35, #cooldown?
         hit_radius=15
 
@@ -18,9 +18,22 @@ class HitscanWeapon:
         self.fire_interval = fire_interval
         self.hit_r = hit_radius
         self.cooldown = 0.0
+        self.tracer_start = None
+        self.tracer_end = None
+        self.tracer_timer = 0.0
+        self.tracer_duration = 0.08
 
     def update(self, deltaT):
         self.cooldown = max(0.0, self.cooldown - deltaT)
+
+        self.tracer_timer = max(
+            0.0,
+            self.tracer_timer - deltaT,
+        )
+
+        if self.tracer_timer <= 0.0:
+            self.tracer_start = None
+            self.tracer_end = None
     
     def is_bro_disabled(self):
         return self.cooldown <= 0.0
@@ -72,4 +85,30 @@ class HitscanWeapon:
             shot_end = origin + aim_dir *nearest_dist
             nearest_zombie.DIE_ZOMBIE_DIE(self.damage)
 
+        self.tracer_start = origin.copy()
+        self.tracer_end = shot_end.copy()
+        self.tracer_timer = self.tracer_duration
+
+
         return nearest_zombie, shot_end
+    
+    def draw(self,screen,camera,zoom):
+        if self.tracer_start is None or self.tracer_end is None:
+            return
+        start_screen = camera.syncworld_to_screen(
+            self.tracer_start,
+            zoom,
+        )
+
+        end_screen = camera.syncworld_to_screen(
+            self.tracer_end,
+            zoom,
+        )
+
+        pygame.draw.line( # LINE!!
+            screen,
+            "#FCC01E",
+            (round(start_screen[0]), round(start_screen[1])),
+            (round(end_screen[0]), round(end_screen[1])),
+            max(1, round(3 * zoom)),
+        ) 

@@ -523,17 +523,17 @@ def main():
             #NOTE: dis means the round is currently active :DD
 
             if pygame.mouse.get_pressed()[0] and weapon.is_bro_disabled():
+                mouse_screen = pygame.mouse.get_pos()
                 mouse_world = pygame.Vector2(
-                    pygame.mouse.get_pos()[0] / zoom+camera.offset[0],
-                    pygame.mouse.get_pos() / zoom+camera.offset[1],
+                    mouse_screen[0] / zoom + camera.offset[0],
+                    mouse_screen[1] / zoom + camera.offset[1],
                 )
 
-                hit_zombie, shot_end = weapon.PEWPEW(
+                weapon.PEWPEW(
                     player.pos,
                     mouse_world,
                     zoms,
                 )
-
 
 
 
@@ -569,7 +569,7 @@ def main():
                     )
                     if health_lost >0:
                         hit_sound.play()
-                        print(f"owch -{health_lost}")
+                        #print(f"owch -{health_lost}")
 
 
             if player.is_dead or tower.is_ded_or_destroyed:
@@ -606,6 +606,8 @@ def main():
                     flowfield,
                     cell_size=64,
             )
+
+        weapon.draw(screen, camera,zoom)
 
         day_text = font.render(
             f"Day: {rounds.day}",
