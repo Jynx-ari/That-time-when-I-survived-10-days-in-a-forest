@@ -298,8 +298,9 @@ def main():
 
     #delay between zombies to replace them thingy
     spawn_retry_timer = 0.0
-    SPAWN_RETRY_INTERVAL = 0.5
-
+    next_spawn_delay = random.uniform(3.0,15.0)
+    min_spawn_delay = 3.0
+    max_spawn_delay = 15.0
 
 
     #the tree algo seems to slow down the start of the game BUT NOT ANYMORE!!
@@ -440,7 +441,11 @@ def main():
                 
                 if event.key == pygame.K_SPACE and rounds.phase==RoundPhase.PREP:
                     rounds.start_wave()
+                    spawn_retry_timer = 0.0
 
+                    next_spawn_delay = random.uniform(min_spawn_delay,max_spawn_delay)
+
+                    
                     
                     rounds.start_wave()
                     zombie_target = 5+rounds.day * 5
@@ -558,7 +563,7 @@ def main():
 
             if(
                 len(zoms) < zombie_target
-                and spawn_retry_timer >= SPAWN_RETRY_INTERVAL
+                and spawn_retry_timer >= next_spawn_delay
             ): 
                 missing_zombies = zombie_target - len(zoms)
 
@@ -572,6 +577,7 @@ def main():
                 zoms.extend(new_zombies)
                 spawn_retry_timer=0.0
 
+                next_spawn_delay = random.uniform(min_spawn_delay,max_spawn_delay)
         
 
 
