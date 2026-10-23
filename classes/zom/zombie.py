@@ -22,7 +22,7 @@ class Zombie():
             "player": attack_cd,
         }
         self.attack_interval = attack_interval
-        
+        self.dead = False #how quite the irony..
 
 
     def is_blocked(self, pos, obstacles):
@@ -161,6 +161,12 @@ class Zombie():
         )
     
     def DIE_ZOMBIE_DIE(self, damage):
+        if self.dead:
+            return #really? a zombie? dead??
         self.health = max(0, self.health - damage)
+
+        if self.health <= 0:
+            self.dead = True
+            
 
     

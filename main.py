@@ -541,8 +541,10 @@ def main():
 
             tower_contact_dist = tower.size / 2 + 15
             player_contact_dist = 15+player.size    
+            
+            zoms = [zombie for zombie in zoms if not zombie.dead]
 
-            for zombie in zoms:
+            for zombie in zoms: 
                 zombie.update(tower_pos, dt, obstacle_grid, flow_field=flowfield, cell_size=64)
 
 
