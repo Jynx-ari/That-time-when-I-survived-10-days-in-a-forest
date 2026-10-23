@@ -17,7 +17,7 @@ from classes.pathfinding import (
     next_cell_toward_goal,
 )
 from classes.tower import Tower
-
+from classes.combat.hitscan_weapon import HitscanWeapon
 
 
 ###    FUNCTIONS
@@ -291,6 +291,7 @@ def main():
     
     rounds = RoundManager(total_days=10)
     zoms = []
+    weapon = HitscanWeapon()
 
     #the tree algo seems to slow down the start of the game
     tree_start = time.perf_counter()
@@ -473,7 +474,7 @@ def main():
         dt = clock.tick(game_conf["fps"]) /1000
         tower.update_health_bar(dt)
         player.update(dt)
-
+        weapon.update(dt)
 
         night_finished = rounds.update(dt)
         if night_finished:
@@ -519,6 +520,24 @@ def main():
 
         if rounds.phase == RoundPhase.ACTIVE_WAVE:
             
+            #NOTE: dis means the round is currently active :DD
+
+            if pygame.mouse.get_pressed()[0] and weapon.is_bro_disabled():
+                mouse_world = pygame.Vector2(
+                    pygame.mouse.get_pos()[0] / zoom+camera.offset[0],
+                    pygame.mouse.get_pos() / zoom+camera.offset[1],
+                )
+
+                hit_zombie, shot_end = weapon.PEWPEW(
+                    player.pos,
+                    mouse_world,
+                    zoms,
+                )
+
+
+
+
+
             tower_contact_dist = tower.size / 2 + 15
             player_contact_dist = 15+player.size    
 
