@@ -8,18 +8,41 @@ from classes.zom.shambler import Shambler
 def spawn_shamblers(
     amount,
     world_size,
-    obstacles=None
+    obstacles=None,
+    center=None,
+    min_spawn_distance=500,
+    max_spawn_distance=1800,
 ):
     #bruh.. full rewrite again!
     zombies = []
     obstacles = obstacles or []
 
+
+    if center is None:
+        center = pygame.Vector2(
+            world_size[0]/2,
+            world_size[1] /2,
+        )
+    else:
+        center=pygame.Vector2(center)
+
+
+
     for _ in range(amount):
         for attempt in range(100):
-            pos = pygame.Vector2(
-                random.uniform(40, world_size[0] -40),
-                random.uniform(40, world_size[1]- 40),
+
+            angle = random.uniform(0, math.tau)
+            distance = random.uniform(
+                min_spawn_distance,
+                max_spawn_distance
             )
+
+
+
+            pos = center + pygame.Vector2(
+                math.cos(angle),
+                math.sin(angle),
+            ) * distance
 
             zombie_rect = pygame.Rect(
                 round(pos.x - 15),

@@ -66,7 +66,7 @@ game_conf = {
     "antenna color": "#d2372d",
 
     "center clearance size": 500,
-    "debug paths": False,
+    "debug paths": True,
 
 
 }
@@ -449,7 +449,8 @@ def main():
                     zoms = spawn_shamblers(
                         amount=zombie_target,
                         world_size=(m_w, m_h),
-                        obstacles=solid_obs
+                        obstacles=solid_obs,
+                        center=tower.pos
                     )
 
 
@@ -565,6 +566,7 @@ def main():
                     amount = missing_zombies,
                     world_size=(m_w, m_h),
                     obstacles=solid_obs,
+                    center=tower.pos,
                 )
 
                 zoms.extend(new_zombies)

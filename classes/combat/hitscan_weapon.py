@@ -6,7 +6,7 @@ import pygame
 class HitscanWeapon:
     def __init__(
         self,
-        damage=35, #is -35 hp too much..
+        damage=40, #is -35 hp too much..
         max_range = 1500,
         fire_interval=0.17, #cooldown?
         hit_radius=15
