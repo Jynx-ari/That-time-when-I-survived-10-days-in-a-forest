@@ -410,6 +410,41 @@ def main():
 
     tween_service = TweenService()
     
+    shake_out_tween = None
+    shake_return_tween = None
+    shake_phase = None
+
+    def trigger_camera_shake():
+        nonlocal shake_out_tween, shake_return_tween, shake_phase ##non local?
+
+        if shake_out_tween is not None:
+            shake_out_tween.cancel()
+        
+        if shake_return_tween is not None:
+            shake_return_tween.cancel()
+        
+        camera.shake_x = 0.0
+        camera.shake_y = 0.0
+
+        shake_out_tween = tween_service.create(
+            camera,
+            TweenInfo(
+                0.06,
+                EasingStyle.QUAD,
+                EasingDirection.OUT
+            ),
+            {
+                "shake_x": random.uniform(-2,2),
+                "shake_y": random.uniform(-2,2),
+            }
+        )
+
+        shake_out_tween.play()
+        shake_return_tween = None
+        shake_phase = "out"
+
+
+
     
     ## Quit handler
     def quit():
@@ -494,10 +529,42 @@ def main():
 
 
         dt = clock.tick(game_conf["fps"]) /1000
+
         tower.update_health_bar(dt)
         player.update(dt)
         weapon.update(dt)
         tween_service.update(dt)
+
+        if (
+            shake_phase == "out"
+            and shake_out_tween is not None
+            and shake_out_tween.completed
+        ): 
+            shake_return_tween = tween_service.create(
+                camera,
+                TweenInfo(
+                    0.12,
+                    EasingStyle.QUAD,
+                    EasingDirection.OUT,
+                ),
+                {
+                    "shake_x":0.0,
+                    "shake_y":0.0,
+                },
+            )
+            shake_return_tween.play()
+            shake_phase = "return"
+        
+
+        elif (
+            shake_phase == "return"
+            and shake_return_tween is not None
+            and shake_return_tween.completed
+        ):
+            shake_phase = "None"
+
+
+
         night_finished = rounds.update(dt)
         if night_finished:
             zoms.clear()
@@ -521,6 +588,7 @@ def main():
                     obstacle_grid,
                     tween_service
                 )
+                trigger_camera_shake()
 
 
         zoom = game_conf["zoom"]

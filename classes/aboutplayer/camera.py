@@ -3,11 +3,15 @@ import math #MATHHH1?!?!?!?
 class Camera:
     def __init__(self, offset=(0,0)):
         self.offset = offset
+        
+        self.shake_x = 0.0
+        self.shake_y = 0.0
+
 
     def syncworld_to_screen(self, pos, zoom=1.0):
         return (
-            (pos[0] - self.offset[0]) * zoom,
-            (pos[1] - self.offset[1]) * zoom,
+            (pos[0] - self.offset[0]) * zoom + self.shake_x,
+            (pos[1] - self.offset[1]) * zoom + self.shake_y,
         )
 
     def move(self, dxy , world_size, viewport_size):
