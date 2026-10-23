@@ -86,38 +86,32 @@ class HitscanWeapon:
         
         self.cooldown = self.fire_interval
 
-        # Keep obstacle distance separate from zombie distance. The nearest
-        # blocking obstacle limits how far the shot can damage anything.
-        obstruction_dist = nearest_dist
         nearest_zombie = None
-        nearest_zombie_dist = self.max_range
+        nearest_dist = self.max_range
 
         for zombie in zombies:
-            if zombie.dead:
-                continue
-
             to_zomb = zombie.pos - origin
+
+            #the distance along the shot direction to the closest point or something..
             along_shot = to_zomb.dot(aim_dir)
 
             if not 0 <= along_shot <= self.max_range:
                 continue
-
-            # A zombie behind the first blocking obstacle cannot be hit.
-            if along_shot > obstruction_dist:
-                continue
-
-            closest_point = origin + aim_dir * along_shot
-            dist_square = zombie.pos.distance_squared_to(closest_point)
+        
+            closest_point = origin+aim_dir*along_shot
+            dist_square = zombie.pos.distance_squared_to(
+                closest_point
+            )
 
             if dist_square > self.hit_r ** 2:
                 continue
-
-            if along_shot < nearest_zombie_dist:
-                nearest_zombie_dist = along_shot
+                
+            if along_shot < nearest_dist:
+                nearest_dist = along_shot
                 nearest_zombie = zombie
-
+        
         if nearest_zombie is not None:
-            shot_end = origin + aim_dir * nearest_zombie_dist
+            shot_end = origin + aim_dir *nearest_dist
             nearest_zombie.DIE_ZOMBIE_DIE(self.damage)
 
         self.tracer_start = origin.copy()
