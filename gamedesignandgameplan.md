@@ -515,7 +515,7 @@ Implement this before adding any enemies, so enemy spawning can later plug into 
 **Chosen first weapon:** a mouse-aimed hitscan weapon. A shot resolves immediately along a line from the player's position toward the mouse cursor's world position; it is not a moving projectile. Use Pygame's existing vector math for aiming and distance checks. Do not introduce the custom matrix library into combat.
 
 **Prototype tuning values** (starting values for playtesting, not final balance):
-- Fire input: hold the left mouse button during `ACTIVE_WAVE`.
+- Fire input: hold the left mouse button in any phase except `DEFEAT`. Being able to shoot outside an active wave is intentional.
 - Fire interval: **0.17 seconds** between shots (about 5.88 shots/second). Keep the current implementation value for now; rebalance only after playtesting.
 - Damage: **40 per successful hit**. A 100-HP Shambler should take three hits to defeat. Keep the current implementation value for now; rebalance only after playtesting.
 - Maximum range: **1,500 world units**, measured from the player's world position. Keep the current implementation value for now; rebalance only after playtesting.
@@ -527,7 +527,7 @@ Implement this before adding any enemies, so enemy spawning can later plug into 
 **Implementation sequence — make one small change and test before moving to the next:**
 1. Add a weapon configuration and cooldown state to the player or to a small dedicated weapon class. Keep firing cooldown separate from zombie attack cooldowns.
 2. Convert the mouse cursor from screen coordinates to world coordinates using the existing camera offset and zoom, then construct a normalized aim direction. Reuse the same coordinate conversion convention as `Player.aimlook()`; avoid duplicating subtly different camera math.
-3. On a left-button press/hold during `ACTIVE_WAVE`, check the cooldown and calculate a finite shot segment ending at the 1,500-unit range limit.
+3. On a left-button press/hold in any non-`DEFEAT` phase, check the cooldown and calculate a finite shot segment ending at the 1,500-unit range limit.
 4. Determine which zombie is first intersected by that segment. Use segment projection / closest-point geometry rather than checking only the distance from the player to a zombie; the zombie must actually be near the aiming line.
 5. Reject a hit if a solid tree trunk or the radio tower intersects the shot segment before the zombie. Use the existing obstacle rectangles as the source of truth for solid geometry. The hit test must compare each zombie's along-shot distance against the nearest blocking-obstacle distance.
 6. Apply 40 damage to the selected zombie, clamp health at zero, and remove defeated zombies safely after iterating over the list (for example, build a survivor list rather than mutating the list mid-loop).
@@ -638,7 +638,7 @@ scenes, and extra enemy types until the core loop is enjoyable.
 -   [x] Zoom visibly scales world positions and the sizes of the player, tree canopies, tower, antenna, and clearing.
 -   [ ] Camera follow eases smoothly toward the player instead of snapping (implementation is present; in-game behavior still needs verification).
 -   [ ] Enemies move toward the tower during the active wave.
--   [ ] Mouse-aimed hitscan shots fire only during active waves and respect cooldown and maximum range.
+-   [ ] Mouse-aimed hitscan shots fire during any non-`DEFEAT` phase (intentional) and respect cooldown and maximum range.
 -   [ ] Hitscan shots hit only the first zombie intersected by the aim segment; tree trunks and the tower block shots (source fix is in place; verify tree/tower occlusion in-game).
 -   [ ] Player can damage and defeat enemies; defeated zombies are removed safely.
 -   [ ] Shot tracer gives clear, brief feedback without applying repeated damage.
