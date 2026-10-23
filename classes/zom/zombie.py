@@ -232,7 +232,7 @@ class Zombie():
             if knockback_direction.length_squared() > 0:
                 knockback_direction = knockback_direction.normalize()
 
-                knockback_speed = 85.0
+                knockback_speed = 220.0
                 self.knockback_vel_x = knockback_direction * knockback_speed
                 self.knockback_vel_y = knockback_direction * knockback_speed
                 self.hit_speed_multiplier = 0.45

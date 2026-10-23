@@ -115,7 +115,7 @@ class HitscanWeapon:
         
         if nearest_zombie is not None:
             shot_end = origin + aim_dir *nearest_dist
-            nearest_zombie.DIE_ZOMBIE_DIE(self.damage, tween_service)
+            nearest_zombie.DIE_ZOMBIE_DIE(self.damage, tween_service, aim_dir)
 
         self.tracer_start = origin.copy()
         self.tracer_end = shot_end.copy()
