@@ -344,7 +344,7 @@ def main():
     )
 
     solid_obs.append(
-        Obstacle(tower_rect, name="radio tower")
+        Obstacle(tower_rect, name="radio tower", blocks_shots=False)
     )
 
     obstacle_grid = SpatialGrid(cell_size=64)
@@ -533,6 +533,7 @@ def main():
                     player.pos,
                     mouse_world,
                     zoms,
+                    obstacle_grid,
                 )
 
 

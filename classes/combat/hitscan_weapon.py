@@ -8,7 +8,7 @@ class HitscanWeapon:
         self,
         damage=35, #is -35 hp too much..
         max_range = 1500,
-        fire_interval=0.25, #cooldown?
+        fire_interval=0.17, #cooldown?
         hit_radius=15
 
     ):
@@ -38,7 +38,7 @@ class HitscanWeapon:
     def is_bro_disabled(self):
         return self.cooldown <= 0.0
     
-    def PEWPEW(self, origin, target_world, zombies):
+    def PEWPEW(self, origin, target_world, zombies, obstacle_grid):
         # yes pew pew, returns: (hit_zombie, shot_end) NOTE: hit_zombie is None when the shot misses LMAOO!!
 
         origin = pygame.Vector2(origin)
@@ -51,6 +51,35 @@ class HitscanWeapon:
         
         aim_dir = aim_dir.normalize()
         shot_end = origin + aim_dir * self.max_range
+        nearest_dist = self.max_range
+        
+
+        ray_rect = pygame.Rect(
+            round(min(origin.x, shot_end.x)),
+            round(min(origin.y, shot_end.y)),
+            max(1, round(abs(shot_end.x - origin.x))),
+            max(1, round(abs(shot_end.y - origin.y))),
+        )
+
+        for obstacle in obstacle_grid.query(ray_rect):
+            if not obstacle.blocks_shots:
+                continue
+            
+            clipped_line = obstacle.rect.clipline(
+                (round(origin.x), round(origin.y)),
+                (round(shot_end.x), round(shot_end.y))
+            )
+
+            if not clipped_line:
+                continue
+
+            impact_point = pygame.Vector2(clipped_line[0])
+            obstacle_dist = origin.distance_to(impact_point)
+
+            if obstacle_dist < nearest_dist:
+                nearest_dist = obstacle_dist
+                shot_end = impact_point
+
 
         if not self.is_bro_disabled():
             return None, shot_end
