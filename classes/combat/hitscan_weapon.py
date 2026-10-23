@@ -20,7 +20,7 @@ class HitscanWeapon:
         self.cooldown = 0.0
 
     def update(self, deltaT):
-        self.cooldown = max(0.0, self.cooldown - dt)
+        self.cooldown = max(0.0, self.cooldown - deltaT)
     
     def is_bro_disabled(self):
         return self.cooldown <= 0.0
@@ -57,7 +57,7 @@ class HitscanWeapon:
                 continue
         
             closest_point = origin+aim_dir*along_shot
-            dist_square = zombie.pos.distance_square.to(
+            dist_square = zombie.pos.distance_squared.to(
                 closest_point
             )
 
@@ -67,5 +67,9 @@ class HitscanWeapon:
             if along_shot < nearest_dist:
                 nearest_dist = along_shot
                 nearest_zombie = zombie
-            
-            return nearest_zombie, shot_end
+        
+        if nearest_zombie is not None:
+            shot_end = origin + aim_dir *nearest_dist
+            nearest_zombie.DIE_ZOMBIE_DIE(self.damage)
+
+        return nearest_zombie, shot_end

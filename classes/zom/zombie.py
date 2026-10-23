@@ -161,6 +161,6 @@ class Zombie():
         )
     
     def DIE_ZOMBIE_DIE(self, damage):
-        pass
+        self.health = max(0, self.health - damage)
 
     
