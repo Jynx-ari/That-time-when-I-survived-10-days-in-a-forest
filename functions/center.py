@@ -1,6 +1,6 @@
 import pygame
 
-def draw_center(screen, center_pos, tower_color, antenna_color, grass_color,zoom=1.0):
+def draw_center(screen, center_pos, tower_color, antenna_color, grass_color,zoom=1.0, clearance_size = 700):
 
     center_x, center_y = center_pos
     tower_size = max(1, round(42 * zoom))
@@ -19,7 +19,7 @@ def draw_center(screen, center_pos, tower_color, antenna_color, grass_color,zoom
         antenna_size,
     )
 
-    dirt_size = max(1, round(800 * zoom))
+    dirt_size = max(1, round(clearance_size * zoom))
 
     dirt_area = pygame.Rect(
             center_x - dirt_size // 2,

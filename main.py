@@ -65,8 +65,12 @@ game_conf = {
     "tower color": "#96a09b",
     "antenna color": "#d2372d",
 
-    "center clearance size": 500,
+    "center clearance size": 600,
+    "dirt_size": 1200,
     "debug paths": False,
+
+    "zombie_min_spawn": 800,
+    "zombie_max_spawn": 1200,
 
 
 }
@@ -455,7 +459,9 @@ def main():
                         amount=zombie_target,
                         world_size=(m_w, m_h),
                         obstacles=solid_obs,
-                        center=tower.pos
+                        center=tower.pos,
+                        min_spawn_distance=game_conf["zombie_min_spawn"],
+                        max_spawn_distance=game_conf["zombie_max_spawn"]
                     )
 
 
@@ -530,7 +536,7 @@ def main():
         center_screen = camera.syncworld_to_screen(center_world, zoom)
         
 
-        draw_center(screen, center_screen, game_conf["tower color"], game_conf["antenna color"], game_conf["grass"], zoom)
+        draw_center(screen, center_screen, game_conf["tower color"], game_conf["antenna color"], game_conf["grass"], zoom, game_conf["dirt_size"])
 
         
         

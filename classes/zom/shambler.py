@@ -3,7 +3,7 @@ from .zombie import Zombie
 default_config = {
     "health": 100,
     "speed": 60,
-    "damage_to_tower": 8,
+    "damage_to_tower": 11,
     "damage_to_player": 2.35, #base 4
     "attack cooldown": 0,
     "attack interval": 1.2
