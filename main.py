@@ -66,7 +66,7 @@ game_conf = {
     "antenna color": "#d2372d",
 
     "center clearance size": 500,
-    "debug paths": True,
+    "debug paths": False,
 
 
 }
@@ -120,10 +120,10 @@ def draw_zombies_paths(
                 x,y = current_cell
                 distance = flowfield[y][x]
 
-                print(
-                    f"The path for some reason ended at cell: {current_cell}"
-                    f"its distance is: {distance}"
-                )
+                # print(
+                #     f"The path for some reason ended at cell: {current_cell}"
+                #     f"its distance is: {distance}"
+                # )
                 break
             
             n_x,n_y = next_cell
@@ -538,7 +538,7 @@ def main():
                     damage_dealth = tower.take_damage(
                         zombie.damage_to_tower
                     )
-                    print(f"Tower got attacked! -{damage_dealth}")
+                    #print(f"Tower got attacked! -{damage_dealth}")
                 
                 #player attacked
                 if (

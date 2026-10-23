@@ -144,8 +144,8 @@ class Zombie():
         
         if best_move is not None:
             self.pos += best_move
-        else:
-            print("One of the zoms stuck at: ", round(self.pos.x), round(self.pos.y))
+        # else:
+        #     print("One of the zoms stuck at: ", round(self.pos.x), round(self.pos.y))
         
 
 
