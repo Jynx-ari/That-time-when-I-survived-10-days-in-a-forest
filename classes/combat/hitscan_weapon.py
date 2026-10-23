@@ -38,7 +38,7 @@ class HitscanWeapon:
     def is_bro_disabled(self):
         return self.cooldown <= 0.0
     
-    def PEWPEW(self, origin, target_world, zombies, obstacle_grid):
+    def PEWPEW(self, origin, target_world, zombies, obstacle_grid, tween_service=None):
         # yes pew pew, returns: (hit_zombie, shot_end) NOTE: hit_zombie is None when the shot misses LMAOO!!
 
         origin = pygame.Vector2(origin)
@@ -115,7 +115,7 @@ class HitscanWeapon:
         
         if nearest_zombie is not None:
             shot_end = origin + aim_dir *nearest_dist
-            nearest_zombie.DIE_ZOMBIE_DIE(self.damage)
+            nearest_zombie.DIE_ZOMBIE_DIE(self.damage, tween_service)
 
         self.tracer_start = origin.copy()
         self.tracer_end = shot_end.copy()

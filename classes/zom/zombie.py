@@ -1,6 +1,9 @@
 import pygame
 from classes.pathfinding import next_cell_toward_goal
 
+from functions.tween_service import TweenInfo
+from functions.easing_styles import EasingDirection, EasingStyle
+
 default_config = {
     "zombie size": 15
 }
@@ -23,6 +26,10 @@ class Zombie():
         }
         self.attack_interval = attack_interval
         self.dead = False #how quite the irony..
+        self.hit_flash_timer = 0.0 #ka-ching!
+        self.hit_flash_duration = 0.12
+        self.hit_flash_strength = 0.0
+        self.hit_flash_tween = None
 
 
     def is_blocked(self, pos, obstacles):
@@ -153,20 +160,47 @@ class Zombie():
     def draw(self, screen, camera, zoom):
         screen_pos = camera.syncworld_to_screen(self.pos, zoom)
 
+        normal_color = pygame.Color("#7f9f45")
+        flash_color = pygame.Color("#ffffff")
+
+        color = normal_color.lerp(
+            flash_color,
+            self.hit_flash_strength,
+        )
+
         pygame.draw.circle(
             screen,
-            "#7f9f45",
+            color,
             (round(screen_pos[0]), round(screen_pos[1])),
             max(5, round(15 * zoom))
         )
     
-    def DIE_ZOMBIE_DIE(self, damage):
+    def DIE_ZOMBIE_DIE(self, damage, tween_service=None):
         if self.dead:
             return #really? a zombie? dead??
         self.health = max(0, self.health - damage)
 
+
+        if tween_service is not None:
+            if self.hit_flash_tween is not None:
+                self.hit_flash_tween.cancel()
+            
+            self.hit_flash_strength = 1.0
+
+            self.hit_flash_tween = tween_service.create(
+                self,
+                TweenInfo(
+                    self.hit_flash_duration,
+                    EasingStyle.QUAD,
+                    EasingDirection.OUT,
+                ),
+                {"hit_flash_strength": 0.0}
+            )
+
+            self.hit_flash_tween.play()
+
         if self.health <= 0:
             self.dead = True
-            
+
 
     

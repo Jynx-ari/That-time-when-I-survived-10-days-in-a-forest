@@ -66,7 +66,7 @@ game_conf = {
     "antenna color": "#d2372d",
 
     "center clearance size": 500,
-    "debug paths": True,
+    "debug paths": False,
 
 
 }
@@ -491,7 +491,7 @@ def main():
         tower.update_health_bar(dt)
         player.update(dt)
         weapon.update(dt)
-
+        tween_service.update(dt)
         night_finished = rounds.update(dt)
         if night_finished:
             zoms.clear()
@@ -513,6 +513,7 @@ def main():
                     mouse_world,
                     zoms,
                     obstacle_grid,
+                    tween_service
                 )
 
 
