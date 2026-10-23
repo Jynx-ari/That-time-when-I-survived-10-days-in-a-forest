@@ -354,7 +354,7 @@ def main():
     )
 
     solid_obs.append(
-        Obstacle(tower_rect, name="radio tower")
+        Obstacle(tower_rect, name="radio tower", blocks_shots=False)
     )
 
     obstacle_grid = SpatialGrid(cell_size=64)
@@ -491,8 +491,6 @@ def main():
         tower.update_health_bar(dt)
         player.update(dt)
         weapon.update(dt)
-        for zombie in zoms:
-            zombie.update_combat_feedback(dt)
 
         night_finished = rounds.update(dt)
         if night_finished:
