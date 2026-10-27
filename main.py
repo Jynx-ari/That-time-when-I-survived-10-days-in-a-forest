@@ -528,7 +528,7 @@ def main():
                 action = menu.handle_event(event)
 
                 if action == "start":
-                    state = ScreenState.PLAYING
+                    screen_state = ScreenState.PLAYING
                 elif action == "quit":
                     running = False
                 
@@ -673,6 +673,11 @@ def main():
         zoom = game_conf["zoom"]
         camera.follow(player.pos, (m_w, m_h), (w / zoom, h / zoom), dt )
         
+
+        if screen_state == ScreenState.MAIN_MENU:
+            menu.draw()
+            pygame.display.flip()
+            continue
 
 
         # Draw the world
