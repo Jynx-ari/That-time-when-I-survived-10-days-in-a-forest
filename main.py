@@ -18,7 +18,7 @@ from classes.pathfinding import (
 )
 from classes.tower import Tower
 from classes.combat.hitscan_weapon import HitscanWeapon
-
+from classes.proximity_prompt import ProximityPrompt
 
 ###    FUNCTIONS
 from functions.center import draw_center
@@ -71,6 +71,16 @@ game_conf = {
 
     "zombie_min_spawn": 800,
     "zombie_max_spawn": 1200,
+
+    "workbench": {
+        "width": 20,
+        "height":12,
+        "color": pygame.Color(222,184,135),
+        "pos from tower offset": (-150,-123),
+        "size": 3
+    },
+
+
 
 
 }
@@ -278,6 +288,7 @@ def generate_forest(count):
 
 
 def main():
+    
 
     pygame.init()
     pygame.mixer.init()
@@ -291,6 +302,7 @@ def main():
     clock = pygame.time.Clock()
     running = True
 
+    tween_service = TweenService()
 
     hit_sound = pygame.mixer.Sound(
         str(
@@ -363,9 +375,10 @@ def main():
     tower = Tower((m_w//2, m_h //2))
 
     tower_pos = tower.pos
+    print(f"tower position:", tower_pos)
     tower_size = tower.size
 
-    tower_rect = pygame.Rect(
+    tower_collision_rect = pygame.Rect(
         round(tower_pos.x - tower_size / 2),
         round(tower_pos.y - tower_size /2),
         tower_size,
@@ -373,7 +386,7 @@ def main():
     )
 
     solid_obs.append(
-        Obstacle(tower_rect, name="radio tower", blocks_shots=False)
+        Obstacle(tower_collision_rect, name="radio tower", blocks_shots=False)
     )
 
     obstacle_grid = SpatialGrid(cell_size=64)
@@ -382,7 +395,17 @@ def main():
         obstacle_grid.insert(obstacle)
     
 
+    workbench_world_pos = tower.pos + pygame.Vector2(
+        game_conf["workbench"]["pos from tower offset"]
+    )
 
+    workbench_prompt = ProximityPrompt(
+        target_pos=workbench_world_pos,
+        tween_service=tween_service,
+        interact_distance=60,
+        context="Workbench",
+        action="Craft"
+    )
 
 
 
@@ -423,7 +446,6 @@ def main():
 
 
 
-    tween_service = TweenService()
     
     shake_out_tween = None
     shake_return_tween = None
@@ -547,6 +569,9 @@ def main():
 
         tower.update_health_bar(dt)
         player.update(dt)
+
+        
+
         weapon.update(dt)
         tween_service.update(dt)
 
@@ -588,7 +613,7 @@ def main():
 
         if rounds.phase != RoundPhase.DEFEAT:
             player.move(keys, dt, (m_w, m_h), screen, obstacle_grid)
-
+            workbench_prompt.update(player.pos)
             if pygame.mouse.get_pressed()[0] and weapon.is_bro_disabled():
                 mouse_screen = pygame.mouse.get_pos()
                 mouse_world = pygame.Vector2(
@@ -619,7 +644,7 @@ def main():
         center_screen = camera.syncworld_to_screen(center_world, zoom)
         
 
-        draw_center(screen, center_screen, game_conf["tower color"], game_conf["antenna color"], game_conf["grass"], zoom, game_conf["dirt_size"])
+        tower_rect, wb_rect = draw_center(screen, center_screen, game_conf["tower color"], game_conf["antenna color"],game_conf["workbench"], game_conf["grass"], zoom, game_conf["dirt_size"])
 
         
         
@@ -728,6 +753,11 @@ def main():
                 zoom,
                 transparent=player_under_canopy
             )
+
+        workbench_prompt.draw_prompt(
+            screen, camera, zoom
+        )
+        
         
         if game_conf["debug paths"] and rounds.phase == RoundPhase.ACTIVE_WAVE:
             draw_zombies_paths(
