@@ -318,6 +318,7 @@ def main():
     screen = pygame.display.set_mode((w, h))
     menu = MainMenu(screen)
     screen_state = ScreenState.MAIN_MENU
+    game = None
     pygame.display.set_caption("10 Days in a forest")
 
     font = pygame.font.Font(None, 36)
@@ -331,11 +332,7 @@ def main():
     )
     tween_service = TweenService()
 
-    hit_sound = pygame.mixer.Sound(
-        str(
-            resource_path("Assets/Audio/Woof(1).wav")
-        )
-    )
+
 
 
 
@@ -361,116 +358,7 @@ def main():
     max_spawn_delay = 15.0
 
 
-    #the tree algo seems to slow down the start of the game BUT NOT ANYMORE!!
-    tree_start = time.perf_counter()
-
-    trees = generate_forest(game_conf["tree count"])
-
-    tree_end = time.perf_counter()
     
-    print(f"Forest generation:  {tree_end - tree_start:.2f} seconds")
-    print(f"Trees generated: {len(trees)}")
-    camera = Camera(offset=(m_w // 2 - w // 2, m_h // 2 - h // 2))
-
-    #This also holds it up since the tree trunks collides
-
-
-    #SOLID IDOL!! pinoy humor
-    solid_obs = []
-
-
-    obstacle_start = time.perf_counter()
-
-
-    for tree in trees:
-        tree_rect = pygame.Rect(
-            round(tree.trunk_pos[0]),
-            round(tree.trunk_pos[1]),
-            tree.trunk_size[0],
-            tree.trunk_size[1]
-        )
-        solid_obs.append(
-            Obstacle(tree_rect, name="tree trunk")
-        )
-
-    obstacle_end = time.perf_counter()
-
-    print(f"Obstacle making: {obstacle_end - obstacle_start:.2f} seconds")
-
-
-
-    tower = Tower((m_w//2, m_h //2))
-
-    tower_pos = tower.pos
-    print(f"tower position:", tower_pos)
-    tower_size = tower.size
-
-    tower_collision_rect = pygame.Rect(
-        round(tower_pos.x - tower_size / 2),
-        round(tower_pos.y - tower_size /2),
-        tower_size,
-        tower_size,
-    )
-
-    solid_obs.append(
-        Obstacle(tower_collision_rect, name="radio tower", blocks_shots=False)
-    )
-
-    obstacle_grid = SpatialGrid(cell_size=64)
-
-    for obstacle in solid_obs:
-        obstacle_grid.insert(obstacle)
-    
-
-    workbench_world_pos = tower.pos + pygame.Vector2(
-        game_conf["workbench"]["pos from tower offset"]
-    )
-
-    workbench_prompt = ProximityPrompt(
-        target_pos=workbench_world_pos,
-        tween_service=tween_service,
-        interact_distance=60,
-        context="Workbench",
-        action="Craft"
-    )
-
-
-
-    pathfinding_start=time.perf_counter() #for logs i think
-    flowfield, goalcell = build_world_flow_field(
-        obstacle_grid=obstacle_grid,
-        world_size=(m_w,m_h),
-        target_world=tower_pos,
-        cell_size=64,
-        zombie_radius=15,
-        goal_radius=128
-    )
-
-    pathfinding_end = time.perf_counter()
-
-    reachable_cells = sum(
-        distance is not None
-        for row in flowfield
-        for distance in row
-    )
-
-
-    # for logssss!!
-    print(f"Flow-field build: {pathfinding_end - pathfinding_start:.2} seconds")
-    if not goalcell:
-        raise RuntimeError("Note to dev: Could not find a valid goal cell near the tower for some reason")
-    print(f"flowfield goal: {len(goalcell)}")
-
-    print(f"Tower position: {tower_pos}")
-
-    print(f"Reachable cells: {reachable_cells}")
-
-
-
-
-    
-    player = Player((m_w // 2, m_h // 2 +70), )
-
 
 
     
@@ -516,8 +404,148 @@ def main():
         sys.exit()
 
 
+    def start_game():
 
-    
+
+        #the tree algo seems to slow down the start of the game BUT NOT ANYMORE!!
+        tree_start = time.perf_counter()
+
+        trees = generate_forest(game_conf["tree count"])
+
+        tree_end = time.perf_counter()
+        
+        print(f"Forest generation:  {tree_end - tree_start:.2f} seconds")
+        print(f"Trees generated: {len(trees)}")
+        camera = Camera(offset=(m_w // 2 - w // 2, m_h // 2 - h // 2))
+
+        #This also holds it up since the tree trunks collides
+
+
+        #SOLID IDOL!! pinoy humor
+        solid_obs = []
+
+
+        obstacle_start = time.perf_counter()
+
+
+        for tree in trees:
+            tree_rect = pygame.Rect(
+                round(tree.trunk_pos[0]),
+                round(tree.trunk_pos[1]),
+                tree.trunk_size[0],
+                tree.trunk_size[1]
+            )
+            solid_obs.append(
+                Obstacle(tree_rect, name="tree trunk")
+            )
+
+        obstacle_end = time.perf_counter()
+
+        print(f"Obstacle making: {obstacle_end - obstacle_start:.2f} seconds")
+
+
+
+        tower = Tower((m_w//2, m_h //2))
+
+        tower_pos = tower.pos
+        print(f"tower position:", tower_pos)
+        tower_size = tower.size
+
+        tower_collision_rect = pygame.Rect(
+            round(tower_pos.x - tower_size / 2),
+            round(tower_pos.y - tower_size /2),
+            tower_size,
+            tower_size,
+        )
+
+        solid_obs.append(
+            Obstacle(tower_collision_rect, name="radio tower", blocks_shots=False)
+        )
+
+        obstacle_grid = SpatialGrid(cell_size=64)
+
+        for obstacle in solid_obs:
+            obstacle_grid.insert(obstacle)
+        
+
+        workbench_world_pos = tower.pos + pygame.Vector2(
+            game_conf["workbench"]["pos from tower offset"]
+        )
+
+        workbench_prompt = ProximityPrompt(
+            target_pos=workbench_world_pos,
+            tween_service=tween_service,
+            interact_distance=60,
+            context="Workbench",
+            action="Craft"
+        )
+
+
+
+        pathfinding_start=time.perf_counter() #for logs i think
+        flowfield, goalcell = build_world_flow_field(
+            obstacle_grid=obstacle_grid,
+            world_size=(m_w,m_h),
+            target_world=tower_pos,
+            cell_size=64,
+            zombie_radius=15,
+            goal_radius=128
+        )
+
+        pathfinding_end = time.perf_counter()
+
+        reachable_cells = sum(
+            distance is not None
+            for row in flowfield
+            for distance in row
+        )
+
+
+        # for logssss!!
+        print(f"Flow-field build: {pathfinding_end - pathfinding_start:.2} seconds")
+        if not goalcell:
+            raise RuntimeError("Note to dev: Could not find a valid goal cell near the tower for some reason")
+        print(f"flowfield goal: {len(goalcell)}")
+
+        print(f"Tower position: {tower_pos}")
+
+        print(f"Reachable cells: {reachable_cells}")
+
+
+
+
+        
+        player = Player((m_w // 2, m_h // 2 +70), )
+
+
+        return{
+            "trees": trees,
+            "solid_obs": solid_obs,
+            "tower": tower,
+            "obstacle_grid": obstacle_grid,
+            "workbench_prompt": workbench_prompt,
+            "flowfield": flowfield,
+            "player": player,
+            "camera": camera,
+        }
+
+    hit_sound = pygame.mixer.Sound(
+                        str(
+                            resource_path("Assets/Audio/Woof(1).wav")
+                        )
+                    )
+    main_sound = pygame.mixer.Sound(
+        str(resource_path("Assets/Audio/main.mp3"))
+    )
+    main_sound.play(loops=-1)
+    game_sound = pygame.mixer.Sound(
+        str(resource_path("Assets/Audio/game.mp3"))
+    )
+    zap_sound = pygame.mixer.Sound(
+        str(
+            resource_path("Assets/Audio/zap.wav")
+        )
+    )
 
     ## Game loop
     while running:
@@ -528,7 +556,21 @@ def main():
                 action = menu.handle_event(event)
 
                 if action == "start":
+                    game = start_game()
+                    
+                    trees = game["trees"]
+                    solid_obs = game["solid_obs"]
+                    tower = game["tower"]
+                    obstacle_grid = game["obstacle_grid"]
+                    workbench_prompt = game["workbench_prompt"]
+                    flowfield = game["flowfield"]
+                    player = game["player"]
+                    camera = game["camera"]
+                    
+                    
                     screen_state = ScreenState.PLAYING
+                    main_sound.fadeout(1500)
+                    
                 elif action == "quit":
                     running = False
                 
@@ -605,7 +647,11 @@ def main():
 
 
         dt = clock.tick(game_conf["fps"]) /1000
-
+        if screen_state == ScreenState.MAIN_MENU:
+            #clock.tick(game_conf["fps"])
+            menu.draw()
+            pygame.display.flip()
+            continue
         tower.update_health_bar(dt)
         player.update(dt)
 
@@ -665,7 +711,8 @@ def main():
                     mouse_world,
                     zoms,
                     obstacle_grid,
-                    tween_service
+                    tween_service,
+                    zap_sound
                 )
                 trigger_camera_shake()
 
@@ -674,10 +721,7 @@ def main():
         camera.follow(player.pos, (m_w, m_h), (w / zoom, h / zoom), dt )
         
 
-        if screen_state == ScreenState.MAIN_MENU:
-            menu.draw()
-            pygame.display.flip()
-            continue
+      
 
 
         # Draw the world
@@ -743,7 +787,7 @@ def main():
 
 
             for zombie in zoms: 
-                zombie.update(tower_pos, dt, obstacle_grid, flow_field=flowfield, cell_size=64)
+                zombie.update(game["tower"].pos, dt, obstacle_grid, flow_field=flowfield, cell_size=64)
 
 
                 tower_dist = zombie.pos.distance_to(tower.pos)
