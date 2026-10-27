@@ -22,7 +22,18 @@ from classes.combat.hitscan_weapon import HitscanWeapon
 from classes.proximity_prompt import ProximityPrompt
 
 from classes.square_wipe_transition import squarewipetransition
+from classes.screen_state import ScreenState
 
+
+
+
+
+#----------------------------------------
+
+
+### SCREENS
+
+from screens.main_menu import MainMenu
 
 
 
@@ -305,6 +316,8 @@ def main():
     pygame.mixer.init()
     pygame.font.init()
     screen = pygame.display.set_mode((w, h))
+    menu = MainMenu(screen)
+    screen_state = ScreenState.MAIN_MENU
     pygame.display.set_caption("10 Days in a forest")
 
     font = pygame.font.Font(None, 36)
@@ -510,6 +523,18 @@ def main():
     while running:
         # Keybinds
         for event in pygame.event.get():
+
+            if screen_state == ScreenState.MAIN_MENU:
+                action = menu.handle_event(event)
+
+                if action == "start":
+                    state = ScreenState.PLAYING
+                elif action == "quit":
+                    running = False
+                
+                continue
+
+
             if event.type == pygame.QUIT:
                 quit()
             if event.type == pygame.KEYDOWN:
