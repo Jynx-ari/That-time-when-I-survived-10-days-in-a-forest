@@ -24,6 +24,8 @@ from classes.proximity_prompt import ProximityPrompt
 from classes.square_wipe_transition import squarewipetransition
 from classes.screen_state import ScreenState
 
+from classes.aboutplayer.inventory import Inventory, InventoryItem
+
 
 
 
@@ -406,7 +408,7 @@ def main():
 
     def start_game():
 
-
+        
         #the tree algo seems to slow down the start of the game BUT NOT ANYMORE!!
         tree_start = time.perf_counter()
 
@@ -516,7 +518,16 @@ def main():
 
         
         player = Player((m_w // 2, m_h // 2 +70), )
+        inventory = Inventory(slot_count=3)
+        inventory.set_item(
+            0,
+            InventoryItem("Medkit", amount=2, color="#d2372d")
+        )
 
+        inventory.set_item(
+            1,
+            InventoryItem("Wood", amount=12, color="#8b5a2b")
+        )
 
         return{
             "trees": trees,
@@ -527,6 +538,7 @@ def main():
             "flowfield": flowfield,
             "player": player,
             "camera": camera,
+            "plrinventory": inventory
         }
 
     hit_sound = pygame.mixer.Sound(
@@ -566,6 +578,7 @@ def main():
                     flowfield = game["flowfield"]
                     player = game["player"]
                     camera = game["camera"]
+                    inventory = game["plrinventory"]
                     
                     
                     screen_state = ScreenState.PLAYING
@@ -580,6 +593,7 @@ def main():
             if event.type == pygame.QUIT:
                 quit()
             if event.type == pygame.KEYDOWN:
+                inventory.handle_event(event)
                 if event.key == pygame.K_ESCAPE:
 
                     now = pygame.time.get_ticks()
@@ -891,7 +905,7 @@ def main():
         # Deprecated: player.update_healthbar(dt)
         player.healthui(screen)
         tower.healthui(screen, font)
-
+        game["plrinventory"].draw(screen)
 
 
         if rounds.phase == RoundPhase.DEFEAT:
