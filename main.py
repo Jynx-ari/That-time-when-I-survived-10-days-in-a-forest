@@ -5,6 +5,7 @@ import random
 from pathlib import Path
 
 ###   CLASSES
+
 from classes.tree import gen_Tree
 from classes.aboutplayer.camera import Camera
 from classes.aboutplayer.player import Player
@@ -20,7 +21,17 @@ from classes.tower import Tower
 from classes.combat.hitscan_weapon import HitscanWeapon
 from classes.proximity_prompt import ProximityPrompt
 
+from classes.square_wipe_transition import squarewipetransition
+
+
+
+
+
+#----------------------------------------------
+
+
 ###    FUNCTIONS
+
 from functions.center import draw_center
 from functions.zombie_spawner import spawn_shamblers
 
@@ -302,6 +313,9 @@ def main():
     clock = pygame.time.Clock()
     running = True
 
+    transition = squarewipetransition(
+        dur=0.8,grid=40
+    )
     tween_service = TweenService()
 
     hit_sound = pygame.mixer.Sound(
