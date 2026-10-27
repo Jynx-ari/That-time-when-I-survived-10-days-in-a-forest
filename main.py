@@ -521,12 +521,12 @@ def main():
         inventory = Inventory(slot_count=3)
         inventory.set_item(
             0,
-            InventoryItem("Medkit", amount=2, color="#d2372d")
+            InventoryItem("Pew pew", amount=1, color="#d2372d")
         )
 
         inventory.set_item(
             1,
-            InventoryItem("Wood", amount=12, color="#8b5a2b")
+            InventoryItem("Scrap", amount=12, color="#8b5a2b")
         )
 
         return{
@@ -558,7 +558,7 @@ def main():
             resource_path("Assets/Audio/zap.wav")
         )
     )
-
+    
     ## Game loop
     while running:
         # Keybinds

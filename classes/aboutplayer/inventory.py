@@ -10,6 +10,9 @@ class InventoryItem:
 
 size = 72-23
 
+#NOTE: the inventory hud is max at 3 slots but the backpack has 10 i guess? then ill make chests
+#NOTE: And make item mapping and inventory mapping
+
 class Inventory:
     def __init__(self, slot_count=3):
         self.slots = [None] * slot_count
