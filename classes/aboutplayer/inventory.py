@@ -13,6 +13,47 @@ size = 72-23
 #NOTE: the inventory hud is max at 3 slots but the backpack has 10 i guess? then ill make chests
 #NOTE: And make item mapping and inventory mapping
 
+
+STUFFS = {
+    "pistol":{
+        "name": "Glock17",
+        "color": "grey",
+        "maxstack": 1
+    },
+    "LargeMed":{
+        "name": "Medkit",
+        "color": "green",
+        "maxstack": 4
+    },
+    "MediumMed":{
+        "name": "Health Pack",
+        "color": "green",
+        "maxstack": 8
+    },
+    "SmallMed":{
+        "name": "Bandage",
+        "color": "green",
+        "maxstack": 8
+    },
+    "Metal":{
+        "name": "Matel Scraps",
+        "color": "white",
+        "maxstack": 64
+    },
+    "Wood":{
+        "name": "Wood Planks",
+        "color": "white",
+        "maxstack": 64
+    } ,
+    "Fuel":{
+        "name": "Gas Tank",
+        "color": "white",
+        "maxstack": 16
+    }
+    
+}
+
+
 class Inventory:
     def __init__(self, slot_count=3):
         self.slots = [None] * slot_count
