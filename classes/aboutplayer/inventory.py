@@ -2,57 +2,61 @@ import pygame
 
 from dataclasses import dataclass
 
-@dataclass
-class InventoryItem:
-    name:str
-    amount:int=1
-    color: str="#8f8f8f"
 
 size = 72-23
 
 #NOTE: the inventory hud is max at 3 slots but the backpack has 10 i guess? then ill make chests
 #NOTE: And make item mapping and inventory mapping
 
+@dataclass(frozen=True) #First time using dis shi, like the frozen=true
+class ItemDefinition:
+    name: str
+    category: str
+    color: str
+    max_stack: int = 1
+    heal_amount: int = 0
+    damage_amount: float = 0.0
+    ammo_type: str | None = None #Okay this is really helpful
 
-STUFFS = {
-    "pistol":{
-        "name": "Glock17",
-        "color": "grey",
-        "maxstack": 1
-    },
-    "LargeMed":{
-        "name": "Medkit",
-        "color": "green",
-        "maxstack": 4
-    },
-    "MediumMed":{
-        "name": "Health Pack",
-        "color": "green",
-        "maxstack": 8
-    },
-    "SmallMed":{
-        "name": "Bandage",
-        "color": "green",
-        "maxstack": 8
-    },
-    "Metal":{
-        "name": "Matel Scraps",
-        "color": "white",
-        "maxstack": 64
-    },
-    "Wood":{
-        "name": "Wood Planks",
-        "color": "white",
-        "maxstack": 64
-    } ,
-    "Fuel":{
-        "name": "Gas Tank",
-        "color": "white",
-        "maxstack": 16
-    }
-    
+@dataclass(frozen=True)
+class BuildingDefinition:
+    name: str
+    category: str
+    cost: dict[str, int]
+    max_health: int
+    damage: float = 0.0
+    attackc_range: float = 0.0
+
+@dataclass
+class InventoryItem:
+    item_id: str
+    amount: int = 1
+
+    @property
+    def definition(self) -> ItemDefinition: #I wonder whats this like the: "-> ItemDefinition" mean??
+        return ITEMS[self.item_id]
+
+    @property
+    def name(self) -> str:
+        return self.definition.name
+
+    @property
+    def color(self) -> str:
+        return self.definition.color
+
+    @property
+    def max_stack(self) -> int:
+        return self.definition.max_stack
+
+ITEMS = {
+    "pistol": ItemDefinition(
+        name="Glock 17",
+        category="weapon",
+        color="#d2372d",
+        max_stack=1,
+        ammo_type="9mm"
+    )
 }
-
 
 class Inventory:
     def __init__(self, slot_count=3):

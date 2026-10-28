@@ -486,3 +486,125 @@ The guiding principle is simple: finish a small, coherent survival loop first, t
 making item maps for heal items, weapons, scraps, types and sstuffs are very tedious in making it manually.
 
 And Inventory HUD is very different from Backpack
+
+
+Overall, the new system is becoming **data-driven**: you define an item or building once in a map, then create/use it by its ID.
+
+**1. `ItemDefinition` describes carried items**
+
+```python
+@dataclass(frozen=True)
+class ItemDefinition:
+    name: str
+    category: str
+    color: str
+    max_stack: int = 1
+    heal_amount: int = 0
+    damage_amount: float = 0.0
+    ammo_type: str | None = None
+```
+
+Examples:
+
+```text
+pistol       -> weapon, uses 9mm
+9mm_ammo     -> ammo
+small_med    -> heal, restores health
+wood         -> material
+metal        -> material
+```
+
+**2. `InventoryItem` is an actual stack**
+
+```python
+InventoryItem("metal", amount=12)
+```
+
+The item stores only its ID and amount. Its name, color, category, and rules come from `ITEMS`.
+
+**3. `ITEMS` is the item map**
+
+```python
+ITEMS = {
+    "pistol": ItemDefinition(...),
+    "9mm_ammo": ItemDefinition(...),
+    "wood": ItemDefinition(...),
+    "metal": ItemDefinition(...),
+}
+```
+
+This prevents repeatedly writing names, colors, stack limits, and categories.
+
+**4. `BuildingDefinition` describes constructable objects**
+
+```python
+@dataclass(frozen=True)
+class BuildingDefinition:
+    name: str
+    category: str
+    cost: dict[str, int]
+    max_health: int
+    damage: float = 0.0
+    attack_range: float = 0.0
+```
+
+Examples:
+
+```text
+barricade -> costs wood and metal, has health
+turret    -> costs wood and metal, has health, damage, and range
+```
+
+You still need a separate map:
+
+```python
+BUILDINGS = {
+    "barricade": BuildingDefinition(
+        name="Barricade",
+        category="defense",
+        cost={"wood": 10, "metal": 2},
+        max_health=300,
+    ),
+
+    "turret": BuildingDefinition(
+        name="Turret",
+        category="defense",
+        cost={"wood": 8, "metal": 20},
+        max_health=500,
+        damage=15,
+        attack_range=250,
+    ),
+}
+```
+
+**5. The backpack and HUD remain separate concepts**
+
+Your current `Inventory` still combines both:
+
+- backpack storage
+- selected slot
+- keyboard input
+- drawing the HUD
+
+Eventually:
+
+```text
+Inventory       -> stores 10 backpack slots
+InventoryHUD    -> displays 3 selected backpack slots
+BUILDINGS       -> stores buildable definitions
+ITEMS           -> stores item definitions
+```
+
+One correction in your current code:
+
+```python
+attackc_range
+```
+
+should be:
+
+```python
+attack_range
+```
+
+And `BuildingDefinition` currently exists but is not used until you create the `BUILDINGS` map and a function that checks and removes crafting materials.
