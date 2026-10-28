@@ -477,3 +477,12 @@ Source-level completion should not be treated as final until the behavior has be
 A broad inspiration is the loop of leaving a defended base to gather resources, returning to fortify it, and surviving increasingly difficult attacks. The project remains a distinct single-player bird's-eye-view wilderness survival game centered on a radio tower. Do not copy another game's assets, characters, or specific progression systems.
 
 The guiding principle is simple: finish a small, coherent survival loop first, then expand only when the current version is fun enough to justify the next system.
+
+
+
+
+
+# NOTE TO SELF:
+making item maps for heal items, weapons, scraps, types and sstuffs are very tedious in making it manually.
+
+And Inventory HUD is very different from Backpack
