@@ -17,6 +17,9 @@ class ItemDefinition:
     heal_amount: int = 0
     damage_amount: float = 0.0
     ammo_type: str | None = None #Okay this is really helpful
+    pellet_count: int=1
+    fire_interval: float =0.0
+    
 
 @dataclass(frozen=True)
 class BuildingDefinition:
@@ -25,8 +28,11 @@ class BuildingDefinition:
     cost: dict[str, int]
     max_health: int
     damage: float = 0.0
-    attackc_range: float = 0.0
+    attack_range: float = 0.0
+    fire_interval: float = 0.0
+    stun_dur: float =0.0
 
+    
 @dataclass
 class InventoryItem:
     item_id: str
@@ -55,8 +61,101 @@ ITEMS = {
         color="#d2372d",
         max_stack=1,
         ammo_type="9mm"
-    )
+    ),
+    "9mm_ammo": ItemDefinition(
+        name="9mm Ammo",
+        category="ammo",
+        color="#d2d237",
+        max_stack=16,
+        ammo_type="9mm"
+    ),
+    "12guage_ammo": ItemDefinition(
+        name="12-Guage Ammo",
+        category="ammo",
+        color="#6b3f24",
+        max_stack=20,
+        ammo_type="12guage"
+    ),
+    "wood": ItemDefinition(
+        name="Wood Scrap",
+        category="material",
+        color="#8b4513",
+        max_stack=64,
+    ),
+    "metal": ItemDefinition(
+        name="Metal Scrap",
+        category="material",
+        color="#808080",
+        max_stack=64,
+    ),
+    "large_medkit": ItemDefinition(
+        name="Large Medkit",
+        category="consumable",
+        color="#ff0000",
+        max_stack=4,
+        heal_amount=70,
+    ),
+    "medium_medkit": ItemDefinition(
+        name="Health Pack",
+        category="consumable",
+        color="#ff0000",
+        max_stack=4,
+        heal_amount=25,
+
+    ),
+    "small_medkit": ItemDefinition(
+        name="Bandage",
+        category="consumable",
+        color="#ff0000",
+        max_stack=8,
+        heal_amount=10,
+    ),
+
+    "shotgun": ItemDefinition(
+        name="Pump Shotgun",
+        category="weapon",
+        color="#6b3f24",
+        damage_amount=15.0,
+        ammo_type="12guage",
+        pellet_count=6,
+        fire_interval=135.0,
+    ),
+
+
 }
+
+
+BUILDINGS = {
+    "barricade": BuildingDefinition(
+        name="Barricade",
+        category="defense",
+        cost={"wood": 5, "metal": 2},
+        max_health=100,
+    ),
+    "turret": BuildingDefinition(
+        name="Brrt brrt sahur", #POOTIS SENTRY HERE!! -Heavy from TF2
+        category="defense",
+        cost={"metal": 10, "9mm_ammo": 5, "wood":3 },
+        max_health=200,
+        damage=6.5,
+        attack_range=250.0,
+        fire_interval=0.1,
+    ),
+    "bear_trap": BuildingDefinition(
+        name="Bear Trap",
+        category="defense",
+        cost={"metal":2},
+        max_health=1, #One time use
+        damage=20.0,        
+        stun_dur=3.0,
+
+    ),
+}
+
+
+
+
+
 
 class Inventory:
     def __init__(self, slot_count=3):
