@@ -38,6 +38,14 @@ class InventoryItem:
     item_id: str
     amount: int = 1
 
+    def __post_init__(self):
+        if self.item_id not in ITEMS:
+            raise ValueError(f"Unkown item ID: {self.item_id}")
+        if self.amount < 1:
+            raise ValueError("The item must be atleast 1 or more")
+        if self.amount > self.max_stack:
+            raise ValueError(f"{self.item_id} can only stack up to {self.max_stack}!!")
+
     @property
     def definition(self) -> ItemDefinition: #I wonder whats this like the: "-> ItemDefinition" mean??
         return ITEMS[self.item_id]
@@ -69,12 +77,12 @@ ITEMS = {
         max_stack=16,
         ammo_type="9mm"
     ),
-    "12guage_ammo": ItemDefinition(
-        name="12-Guage Ammo",
+    "12gauge_ammo": ItemDefinition(
+        name="12-Gauge Ammo",
         category="ammo",
         color="#6b3f24",
         max_stack=20,
-        ammo_type="12guage"
+        ammo_type="12gauge"
     ),
     "wood": ItemDefinition(
         name="Wood Scrap",
@@ -116,12 +124,17 @@ ITEMS = {
         category="weapon",
         color="#6b3f24",
         damage_amount=15.0,
-        ammo_type="12guage",
+        ammo_type="12gauge",
         pellet_count=6,
-        fire_interval=135.0,
+        fire_interval=0.135,
     ),
 
-
+    "helmet": ItemDefinition(
+        name="Hard Hat",
+        category="helmet",
+        color="#556b2f",
+        max_stack=1
+    )
 }
 
 
@@ -154,7 +167,18 @@ BUILDINGS = {
 
 
 
-
+class InventorySlot:
+    def __init__(self,rect,container,index,slot_type="item"):
+        self.rect = pygame.Rect(rect)
+        self.container = container
+        self.index = index
+        self.slot_type = slot_type
+    
+    def get_item(self):
+        if isinstance(self.container, Inventory):
+            return self.container.get(self.index)
+        
+        return self.container[self.index]
 
 
 class Inventory:
@@ -171,7 +195,24 @@ class Inventory:
         self.selected_color = "#f4e8c1"
         self.text_color = "#111111"
 
+
+    def get(self, index):
+        return self.slots[index]
     
+    def set(self, index, item):
+        self.slots[index] = item
+    
+    def swap(self, first_index, second_index):
+        self.slots[first_index], self.slots[second_index] = (
+            self.slots[second_index],
+            self.slots[first_index],
+        )
+
+
+    def selected_is_weapon(self):
+        item = self.get_selected_item()
+        return (item is not None and item.definition.category == "weapon")
+
     def set_item(self, index, item):
         if 0<= index<len(self.slots):
             self.slots[index] = item
@@ -266,8 +307,8 @@ class Inventory:
             screen.blit(number_text, number_rect)
             
             if item is not None:
-                item_font = pygame.font.Font(None, 11)
-                item_text = font.render(
+                item_font = pygame.font.Font(None, 12)
+                item_text = item_font.render(
                     item.name,
                     True,
                     self.text_color

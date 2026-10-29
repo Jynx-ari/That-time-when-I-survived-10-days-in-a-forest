@@ -464,6 +464,31 @@ def main():
             Obstacle(tower_collision_rect, name="radio tower", blocks_shots=False)
         )
 
+
+        workbench_world_pos = tower.pos + pygame.Vector2(
+            game_conf["workbench"]["pos from tower offset"]
+        )
+
+        workbench_w, workbench_h = (game_conf["workbench"]["width"] * game_conf["workbench"]["size"]), (game_conf["workbench"]["height"] * game_conf["workbench"]["size"])
+
+        workbench_collision_rect = pygame.Rect(
+            round(workbench_world_pos.x - workbench_w/2),
+            round(workbench_world_pos.y - workbench_h / 2),
+            workbench_w,
+            workbench_h,
+        )
+
+        solid_obs.append(
+            Obstacle(
+                workbench_collision_rect,
+                name="workbench",
+                blocks_movement=True,
+                blocks_shots=False #by design
+
+            )
+        )
+
+
         obstacle_grid = SpatialGrid(cell_size=64)
 
         for obstacle in solid_obs:
@@ -518,16 +543,24 @@ def main():
 
         
         player = Player((m_w // 2, m_h // 2 +70), )
-        inventory = Inventory(slot_count=3)
-        inventory.set_item(
+        hotbar = Inventory(slot_count=3)
+        hotbar.set_item(
             0,
-            InventoryItem("Pew pew", amount=1, color="#d2372d")
+            InventoryItem("pistol", amount=1)
         )
 
-        inventory.set_item(
+        hotbar.set_item(
             1,
-            InventoryItem("Scrap", amount=12, color="#8b5a2b")
+            InventoryItem("wood", amount=12)
         )
+
+        backpack = Inventory(slot_count=3*9)
+        equipment = {
+            "helmet": None,
+            "armor": None,
+            "accessory": None,
+        }
+
 
         return{
             "trees": trees,
@@ -538,7 +571,7 @@ def main():
             "flowfield": flowfield,
             "player": player,
             "camera": camera,
-            "plrinventory": inventory
+            "plrinventory_hotbar": hotbar
         }
 
     hit_sound = pygame.mixer.Sound(
@@ -578,7 +611,7 @@ def main():
                     flowfield = game["flowfield"]
                     player = game["player"]
                     camera = game["camera"]
-                    inventory = game["plrinventory"]
+                    hotbar = game["plrinventory_hotbar"]
                     
                     
                     screen_state = ScreenState.PLAYING
@@ -593,7 +626,7 @@ def main():
             if event.type == pygame.QUIT:
                 quit()
             if event.type == pygame.KEYDOWN:
-                inventory.handle_event(event)
+                hotbar.handle_event(event)
                 if event.key == pygame.K_ESCAPE:
 
                     now = pygame.time.get_ticks()
@@ -713,7 +746,7 @@ def main():
         if rounds.phase != RoundPhase.DEFEAT:
             player.move(keys, dt, (m_w, m_h), screen, obstacle_grid)
             workbench_prompt.update(player.pos)
-            if pygame.mouse.get_pressed()[0] and weapon.is_bro_disabled():
+            if hotbar.selected_is_weapon() and pygame.mouse.get_pressed()[0] and weapon.is_bro_disabled():
                 mouse_screen = pygame.mouse.get_pos()
                 mouse_world = pygame.Vector2(
                     mouse_screen[0] / zoom + camera.offset[0],
@@ -905,7 +938,7 @@ def main():
         # Deprecated: player.update_healthbar(dt)
         player.healthui(screen)
         tower.healthui(screen, font)
-        game["plrinventory"].draw(screen)
+        game["plrinventory_hotbar"].draw(screen)
 
 
         if rounds.phase == RoundPhase.DEFEAT:
