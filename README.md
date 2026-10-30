@@ -63,10 +63,14 @@ python main.py
 | `1 – 3` | Select Hotbar Slot |
 | `B` | Toggle Backpack |
 | `Mouse Wheel` | Zoom In / Out |
-| `SPACE` | Start Night Wave |
+| `ESC` (3 times quickly) | Quit Game |
+### Debug controls
+| Key / Input | Action |
+|---|---|
+| `SPACE` | Start Night Wave | 
 | `C` | Clear Active Wave |
 | `N` | Advance to Next Day |
-| `ESC` (3 times quickly) | Quit Game |
+
 
 ### Backpack
 | Input | Action |
