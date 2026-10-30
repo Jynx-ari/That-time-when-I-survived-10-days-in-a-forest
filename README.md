@@ -88,8 +88,9 @@ python main.py
 ## Status
 WORK IN PROGRESSS RAHH!!!!!
 
-(Prep-Week 3 SHIP APPROVED)
-(Week 1 SHIPPED! In review [this is the latest])
-(Week 2 None)
-(Week 3 None)
-(Week 4 None)
+ - (Prep-Week 3 SHIP APPROVED)
+ - (Week 1 SHIPPED! In review [this is the latest])
+ - (Week 2 None)
+ - (Week 3 None)
+ - (Week 4 None)
+ - And so on...
