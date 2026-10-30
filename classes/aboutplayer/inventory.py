@@ -179,12 +179,18 @@ class InventorySlot:
             return self.container.get(self.index)
         
         return self.container[self.index]
+    
+    def set_item(self, item):
+        if isinstance(self.container, Inventory):
+            self.container.set(self.index, item)
+        else:
+            self.container[self.index] = item
 
 
 class Inventory:
     def __init__(self, slot_count=3):
         self.slots = [None] * slot_count
-        self.selected_index = 0
+        self.selected_index = None
 
         self.slot_size = (size, size)
         self.slot_gap = 5
@@ -194,7 +200,7 @@ class Inventory:
         self.slot_color = "#909090"
         self.selected_color = "#f4e8c1"
         self.text_color = "#111111"
-
+    
 
     def get(self, index):
         return self.slots[index]
@@ -214,12 +220,15 @@ class Inventory:
         return (item is not None and item.definition.category == "weapon")
 
     def set_item(self, index, item):
-        if 0<= index<len(self.slots):
+        if 0<=index<len(self.slots):
             self.slots[index] = item
     
     def select(self, index):
         if 0 <= index < len(self.slots):
-            self.selected_index = index
+            if self.selected_index == index:
+                self.selected_index = None
+            else:
+                self.selected_index = index
 
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
@@ -239,6 +248,8 @@ class Inventory:
         #     )
     
     def get_selected_item(self):
+        if self.selected_index is None:
+            return None
         return self.slots[self.selected_index]
 
     def draw(self, screen): ## the only thing i hate when making UI and if i dont know how to draw is i have to DEAL WITH MATH

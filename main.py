@@ -25,7 +25,7 @@ from classes.square_wipe_transition import squarewipetransition
 from classes.screen_state import ScreenState
 
 from classes.aboutplayer.inventory import Inventory, InventoryItem
-
+from classes.aboutplayer.backpack import BackpackUI
 
 
 
@@ -561,6 +561,14 @@ def main():
             "accessory": None,
         }
 
+        backpack_ui = BackpackUI(hotbar, backpack, equipment)
+        backpack_ui.build_slots(screen)
+
+        #Test items :>
+        backpack.set_item(0, InventoryItem("helmet"))
+        backpack.set_item(1, InventoryItem("shotgun"))
+        backpack.set_item(2, InventoryItem("9mm_ammo", amount=10))
+        backpack.set_item(3, InventoryItem("9mm_ammo",amount=10) )
 
         return{
             "trees": trees,
@@ -571,7 +579,8 @@ def main():
             "flowfield": flowfield,
             "player": player,
             "camera": camera,
-            "plrinventory_hotbar": hotbar
+            "plrinventory_hotbar": hotbar,
+            "backpack_ui": backpack_ui,
         }
 
     hit_sound = pygame.mixer.Sound(
@@ -612,6 +621,7 @@ def main():
                     player = game["player"]
                     camera = game["camera"]
                     hotbar = game["plrinventory_hotbar"]
+                    backpack_ui = game["backpack_ui"]
                     
                     
                     screen_state = ScreenState.PLAYING
@@ -625,6 +635,10 @@ def main():
 
             if event.type == pygame.QUIT:
                 quit()
+            
+            if backpack_ui.handle_event(event):
+                continue
+
             if event.type == pygame.KEYDOWN:
                 hotbar.handle_event(event)
                 if event.key == pygame.K_ESCAPE:
@@ -746,7 +760,7 @@ def main():
         if rounds.phase != RoundPhase.DEFEAT:
             player.move(keys, dt, (m_w, m_h), screen, obstacle_grid)
             workbench_prompt.update(player.pos)
-            if hotbar.selected_is_weapon() and pygame.mouse.get_pressed()[0] and weapon.is_bro_disabled():
+            if hotbar.selected_is_weapon() and not backpack_ui.is_open and pygame.mouse.get_pressed()[0] and weapon.is_bro_disabled():
                 mouse_screen = pygame.mouse.get_pos()
                 mouse_world = pygame.Vector2(
                     mouse_screen[0] / zoom + camera.offset[0],
@@ -938,8 +952,9 @@ def main():
         # Deprecated: player.update_healthbar(dt)
         player.healthui(screen)
         tower.healthui(screen, font)
-        game["plrinventory_hotbar"].draw(screen)
-
+        if not backpack_ui.is_open:
+            game["plrinventory_hotbar"].draw(screen)
+        game["backpack_ui"].draw(screen)
 
         if rounds.phase == RoundPhase.DEFEAT:
             draw_defeat(screen, font)
