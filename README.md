@@ -45,18 +45,52 @@ python -m pip install pygame
 python main.py
 ```
 
+## Controls
 
-## Controls:
- - (for now)
- - WASD -- Move
- - Mouse Cursor -- Aim
- - MB1 -- Shoot (not implemented yet lmao)
+### Main Menu
+| Key | Action |
+|---|---|
+| `ENTER` | Start Game |
+| `ESC` | Quit Game |
+
+### Gameplay
+| Key / Input | Action |
+|---|---|
+| `W A S D` | Move |
+| `Arrow Keys` | Move |
+| `Mouse Movement` | Aim |
+| `Left Mouse Button` | Shoot |
+| `1 – 3` | Select Hotbar Slot |
+| `B` | Toggle Backpack |
+| `Mouse Wheel` | Zoom In / Out |
+| `ESC` (3 times quickly) | Quit Game |
+### Debug controls (cuz its still not finished :< )
+| Key / Input | Action |
+|---|---|
+| `SPACE` | Start Night Wave | 
+| `C` | Clear Active Wave |
+| `N` | Advance to Next Day |
+
+
+### Backpack
+| Input | Action |
+|---|---|
+| `B` | Open / Close Backpack |
+| `Left Mouse Button` | Pick Up / Move Items in Inventory | 
+| `Left Mouse Button` (Release) | Place / Swap Items in Inventory|
+
+### Developer / Debug
+| Feature | Details |
+|---|---|
+| Path Visualization | Available through `game_conf["debug paths"]` in `main.py`; disabled by default |
+| Console Logs | Displays forest generation, obstacle creation, pathfinding time, tower position, and reachable cells |
 
 ## Status
 WORK IN PROGRESSS RAHH!!!!!
 
-(Prep-Week 3 SHIP APPROVED)
-(Week 1 SHIPPED! In review [this is the latest])
-(Week 2 None)
-(Week 3 None)
-(Week 4 None)
+ - (Prep-Week 3 SHIP APPROVED)
+ - (Week 1 SHIPPED! In review [this is the latest])
+ - (Week 2 None)
+ - (Week 3 None)
+ - (Week 4 None)
+ - And so on...
