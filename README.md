@@ -64,7 +64,7 @@ python main.py
 | `B` | Toggle Backpack |
 | `Mouse Wheel` | Zoom In / Out |
 | `ESC` (3 times quickly) | Quit Game |
-### Debug controls
+### Debug controls (cuz its still not finished :< )
 | Key / Input | Action |
 |---|---|
 | `SPACE` | Start Night Wave | 
