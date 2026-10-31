@@ -14,7 +14,7 @@ default_conf = {
 }
 
 class ProximityPrompt:
-    def __init__(self, target_pos, tween_service, interact_distance=100, Key=pygame.K_e, hold=300, context="Something", action="Interact"): #100 dist by default | 300ms hold?
+    def __init__(self, target_pos, tween_service, interact_distance=100, Key=pygame.K_e, hold=300, context="Something", action="Interact", on_triggered=None): #100 dist by default | 300ms hold?
         self.target_pos = pygame.Vector2(target_pos)
         self.interact_dist = interact_distance
         self.is_visible = False
@@ -22,6 +22,9 @@ class ProximityPrompt:
         self.hold = hold
         self.context = context
         self.action = action
+
+        self.on_triggered = on_triggered
+        self.is_near = False
 
         self.tween_service = tween_service
         self.alpha = 0.0
@@ -34,8 +37,10 @@ class ProximityPrompt:
     def update(self, plr_pos):
         plr_pos = pygame.Vector2(plr_pos)
         
+        self.is_near = distance <= self.interact_dist
+
         distance = plr_pos.distance_to(self.target_pos)
-        is_near = distance <= self.interact_dist
+        is_near = self.is_near
 
         if is_near and not self._was_near:
             self.is_visible = True
@@ -69,7 +74,14 @@ class ProximityPrompt:
         
         self._was_near = is_near
 
-    
+    def handle_event(self, event):
+        if(event.type==pygame.KEYDOWN and event.key==self.Key and self.is_near):
+            if self.on_triggered is not None:
+                self.on_triggered()
+            return True
+        return False
+
+
     def draw_prompt(self, screen, camera, zoom):
         prompt_scale = zoom
         prompt_font = pygame.font.Font(None, max(1, round(21 * prompt_scale)))

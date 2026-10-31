@@ -1,5 +1,8 @@
 import pygame
 from classes.aboutplayer.inventory import Inventory,InventorySlot
+
+from classes.aboutplayer.item_types import EquipmentSlot
+
 class BackpackUI:
     def __init__(self, hotbar, backpack, equipment):
         self.hotbar = hotbar
@@ -61,7 +64,11 @@ class BackpackUI:
         
         equipment_x = start_x + grid_width + equip_gap
 
-        equipment_types = ("helmet","armor", "accessory")
+        equipment_types = (
+            EquipmentSlot.HELMET,
+            EquipmentSlot.ARMOR,
+            EquipmentSlot.ACCESSORY
+        )
 
         for equipment_index, slot_type in enumerate(equipment_types):
             rect = pygame.Rect(
@@ -101,7 +108,9 @@ class BackpackUI:
             if event.key==pygame.K_b:
                 self.toggle()
                 return True
-    
+            if event.key == pygame.K_ESCAPE and self.is_open:
+                self.toggle()
+                return True
         if not self.is_open:
             return False
         
@@ -185,18 +194,10 @@ class BackpackUI:
     def can_place(self,item,target_slot):
         if item is None:
             return True
-        
-        if target_slot.slot_type == "helmet":
-            return item.definition.category == "helmet"
-
-        if target_slot.slot_type=="armor":
-            return item.definition.category == "armor"
-        
-        if target_slot.slot_type=="accessory":
-            return item.definition.category == "accessory"
-
-        return True  
-    
+        if isinstance(target_slot.slot_type, EquipmentSlot):
+            equipment = item.definition.equipment
+            return(equipment is not None and equipment.slot == target_slot.slot_type)
+        return True
     def draw(self,screen):
         if not self.is_open:
             return
@@ -219,7 +220,15 @@ class BackpackUI:
 
             if item is None:
                 if slot.slot_type != "item":
-                    label=label_font.render(slot.slot_type,True,"#111111")
+
+                    label_txt = (
+                        slot.slot_type.value
+                        if isinstance(slot.slot_type, EquipmentSlot)
+                        else slot.slot_type
+                    )
+
+                    label = label_font.render(label_txt, True, "#111111")
+
                     screen.blit(label, label.get_rect(center=slot.rect.center))
                 
                 continue

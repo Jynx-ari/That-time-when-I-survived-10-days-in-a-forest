@@ -26,8 +26,7 @@ from classes.screen_state import ScreenState
 
 from classes.aboutplayer.inventory import Inventory, InventoryItem
 from classes.aboutplayer.backpack import BackpackUI
-
-
+from classes.aboutplayer.item_types import EquipmentSlot
 
 
 #----------------------------------------
@@ -556,9 +555,9 @@ def main():
 
         backpack = Inventory(slot_count=3*9)
         equipment = {
-            "helmet": None,
-            "armor": None,
-            "accessory": None,
+           EquipmentSlot.HELMET: None,
+           EquipmentSlot.ARMOR: None,
+           EquipmentSlot.ACCESSORY: None,
         }
 
         backpack_ui = BackpackUI(hotbar, backpack, equipment)
@@ -641,7 +640,7 @@ def main():
 
             if event.type == pygame.KEYDOWN:
                 hotbar.handle_event(event)
-                if event.key == pygame.K_ESCAPE:
+                if event.key == pygame.K_HOME:
 
                     now = pygame.time.get_ticks()
 
@@ -757,8 +756,11 @@ def main():
         keys = pygame.key.get_pressed()
         
 
-        if rounds.phase != RoundPhase.DEFEAT:
+        if rounds.phase != RoundPhase.DEFEAT: #It means the game isnt finished and its running
             player.move(keys, dt, (m_w, m_h), screen, obstacle_grid)
+            if not backpack_ui.is_open:
+                game["plrinventory_hotbar"].draw(screen)
+            game["backpack_ui"].draw(screen)
             workbench_prompt.update(player.pos)
             if hotbar.selected_is_weapon() and not backpack_ui.is_open and pygame.mouse.get_pressed()[0] and weapon.is_bro_disabled():
                 mouse_screen = pygame.mouse.get_pos()
@@ -777,6 +779,8 @@ def main():
                 )
                 trigger_camera_shake()
 
+
+                
 
         zoom = game_conf["zoom"]
         camera.follow(player.pos, (m_w, m_h), (w / zoom, h / zoom), dt )
@@ -952,9 +956,7 @@ def main():
         # Deprecated: player.update_healthbar(dt)
         player.healthui(screen)
         tower.healthui(screen, font)
-        if not backpack_ui.is_open:
-            game["plrinventory_hotbar"].draw(screen)
-        game["backpack_ui"].draw(screen)
+        
 
         if rounds.phase == RoundPhase.DEFEAT:
             draw_defeat(screen, font)

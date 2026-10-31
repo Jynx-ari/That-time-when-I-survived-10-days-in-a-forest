@@ -3,23 +3,36 @@ import pygame
 from dataclasses import dataclass
 
 
+
+from .item_types import (
+    ItemCategory,
+    AmmoType,
+    WeaponType,
+    EquipmentSlot,
+    ConsumableType,
+
+)
+
+from .item_properties import (
+    WeaponProperties,
+    AmmoProperties,
+    HealingProperties,
+    EquipmentProperties,
+    MaterialProperties,
+    ConsumableProperties,
+
+)
+
+from .item_definitions import ItemDefinition
+
+
+
+
+
 size = 72-23
 
 #NOTE: the inventory hud is max at 3 slots but the backpack has 10 i guess? then ill make chests
 #NOTE: And make item mapping and inventory mapping
-
-@dataclass(frozen=True) #First time using dis shi, like the frozen=true
-class ItemDefinition:
-    name: str
-    category: str
-    color: str
-    max_stack: int = 1
-    heal_amount: int = 0
-    damage_amount: float = 0.0
-    ammo_type: str | None = None #Okay this is really helpful
-    pellet_count: int=1
-    fire_interval: float =0.0
-    
 
 @dataclass(frozen=True)
 class BuildingDefinition:
@@ -65,104 +78,110 @@ class InventoryItem:
 ITEMS = {
     "pistol": ItemDefinition(
         name="Glock 17",
-        category="weapon",
+        category=ItemCategory.WEAPON,
         color="#d2372d",
         max_stack=1,
-        ammo_type="9mm"
+        weapon=WeaponProperties(
+            damage=12.5,
+            weapon_type=WeaponType.PISTOL,
+            ammo_type=AmmoType.N9MM
+
+        )
     ),
     "9mm_ammo": ItemDefinition(
         name="9mm Ammo",
-        category="ammo",
-        color="#d2d237",
+        category=ItemCategory.AMMO,
+        color="#d2372d",
         max_stack=16,
-        ammo_type="9mm"
+        ammo=AmmoProperties(
+            ammo_type=AmmoType.N9MM
+        )
     ),
     "12gauge_ammo": ItemDefinition(
         name="12-Gauge Ammo",
-        category="ammo",
+        category=ItemCategory.AMMO,
         color="#6b3f24",
         max_stack=20,
-        ammo_type="12gauge"
+        ammo=AmmoProperties(
+            ammo_type=AmmoType.T12_GAUGE,
+        ),
     ),
     "wood": ItemDefinition(
         name="Wood Scrap",
-        category="material",
+        category=ItemCategory.MATERIAL,
         color="#8b4513",
         max_stack=64,
+        material=MaterialProperties(
+            tags=frozenset({"wood"}),
+        ),
     ),
+
     "metal": ItemDefinition(
         name="Metal Scrap",
-        category="material",
+        category=ItemCategory.MATERIAL,
         color="#808080",
         max_stack=64,
+        material=MaterialProperties(
+            tags=frozenset({"metal"}),
+        ),
     ),
+
     "large_medkit": ItemDefinition(
         name="Large Medkit",
-        category="consumable",
+        category=ItemCategory.CONSUMABLE,
         color="#ff0000",
         max_stack=4,
-        heal_amount=70,
+        healing=HealingProperties(heal_amount=70),
+        consumable=ConsumableProperties(
+            consumable_type=ConsumableType.HEALING,
+        ),
     ),
+
     "medium_medkit": ItemDefinition(
         name="Health Pack",
-        category="consumable",
+        category=ItemCategory.CONSUMABLE,
         color="#ff0000",
         max_stack=4,
-        heal_amount=25,
-
+        healing=HealingProperties(heal_amount=25),
+        consumable=ConsumableProperties(
+            consumable_type=ConsumableType.HEALING,
+        ),
     ),
+
     "small_medkit": ItemDefinition(
         name="Bandage",
-        category="consumable",
+        category=ItemCategory.CONSUMABLE,
         color="#ff0000",
         max_stack=8,
-        heal_amount=10,
+        healing=HealingProperties(heal_amount=10),
+        consumable=ConsumableProperties(
+            consumable_type=ConsumableType.HEALING,
+        ),
     ),
 
     "shotgun": ItemDefinition(
         name="Pump Shotgun",
-        category="weapon",
+        category=ItemCategory.WEAPON,
         color="#6b3f24",
-        damage_amount=15.0,
-        ammo_type="12gauge",
-        pellet_count=6,
-        fire_interval=0.135,
+        weapon=WeaponProperties(
+            damage=15.0,
+            weapon_type=WeaponType.SHOTGUN,
+            ammo_type=AmmoType.T12_GAUGE,
+            pellet_count=6,
+            fire_interval=0.135,
+        ),
     ),
 
     "helmet": ItemDefinition(
         name="Hard Hat",
-        category="helmet",
+        category=ItemCategory.EQUIPMENT,
         color="#556b2f",
-        max_stack=1
-    )
-}
-
-
-BUILDINGS = {
-    "barricade": BuildingDefinition(
-        name="Barricade",
-        category="defense",
-        cost={"wood": 5, "metal": 2},
-        max_health=100,
+        max_stack=1,
+        equipment=EquipmentProperties(
+            slot=EquipmentSlot.HELMET,
+        ),
     ),
-    "turret": BuildingDefinition(
-        name="Brrt brrt sahur", #POOTIS SENTRY HERE!! -Heavy from TF2
-        category="defense",
-        cost={"metal": 10, "9mm_ammo": 5, "wood":3 },
-        max_health=200,
-        damage=6.5,
-        attack_range=250.0,
-        fire_interval=0.1,
-    ),
-    "bear_trap": BuildingDefinition(
-        name="Bear Trap",
-        category="defense",
-        cost={"metal":2},
-        max_health=1, #One time use
-        damage=20.0,        
-        stun_dur=3.0,
 
-    ),
 }
 
 
@@ -217,7 +236,10 @@ class Inventory:
 
     def selected_is_weapon(self):
         item = self.get_selected_item()
-        return (item is not None and item.definition.category == "weapon")
+        return(
+            item is not None
+            and item.definition.weapon is not None
+        )
 
     def set_item(self, index, item):
         if 0<=index<len(self.slots):

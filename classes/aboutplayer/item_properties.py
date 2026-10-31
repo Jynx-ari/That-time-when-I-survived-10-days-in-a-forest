@@ -40,5 +40,5 @@ class DeployableProperties:
 @dataclass(frozen=T)
 class ConsumableProperties:
     consumable_type: ConsumableType
-    effect_value: float = 0.0
-    duration: float = 0.0
+    effect_value: float = 0.0 #future implementation
+    duration: float = 0.0 

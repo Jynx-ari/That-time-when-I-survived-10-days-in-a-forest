@@ -63,7 +63,7 @@ python main.py
 | `1 – 3` | Select Hotbar Slot |
 | `B` | Toggle Backpack |
 | `Mouse Wheel` | Zoom In / Out |
-| `ESC` (3 times quickly) | Quit Game |
+| `HOME (the home button thingy on your keyboard)` (3 times quickly) | Quit Game |
 ### Debug controls (cuz its still not finished :< )
 | Key / Input | Action |
 |---|---|
@@ -75,7 +75,7 @@ python main.py
 ### Backpack
 | Input | Action |
 |---|---|
-| `B` | Open / Close Backpack |
+| `B or ESC (if backpack is open)` | Open / Close Backpack |
 | `Left Mouse Button` | Pick Up / Move Items in Inventory | 
 | `Left Mouse Button` (Release) | Place / Swap Items in Inventory|
 
