@@ -29,14 +29,6 @@ from classes.proximity_prompt import ProximityPrompt
 
 
 
-from classes.square_wipe_transition import squarewipetransition
-from classes.screen_state import ScreenState
-
-
-
-
-
-
 from classes.aboutplayer.camera import Camera
 from classes.aboutplayer.player import Player
 
@@ -51,7 +43,8 @@ from classes.aboutplayer.item_types import EquipmentSlot, ToolType
 ### SCREENS
 
 from screens.main_menu import MainMenu
-
+from screens.transitions.dropping_bars_transition import DroppingBarsTransition
+from classes.screen_state import ScreenState
 
 
 
@@ -344,9 +337,7 @@ def main():
     clock = pygame.time.Clock()
     running = True
 
-    transition = squarewipetransition(
-        dur=0.8,grid=40
-    )
+    transition = DroppingBarsTransition((w,h), bar_width=20)
     tween_service = TweenService()
 
 
@@ -630,24 +621,9 @@ def main():
             if screen_state == ScreenState.MAIN_MENU:
                 action = menu.handle_event(event)
 
-                if action == "start":
-                    game = start_game()
+                if action == "start" and not transition.active:
+                    transition.start()
                     
-                    trees = game["trees"]
-                    solid_obs = game["solid_obs"]
-                    tower = game["tower"]
-                    obstacle_grid = game["obstacle_grid"]
-                    workbench_prompt = game["workbench_prompt"]
-                    flowfield = game["flowfield"]
-                    player = game["player"]
-                    camera = game["camera"]
-                    hotbar = game["plrinventory_hotbar"]
-                    backpack_ui = game["backpack_ui"]
-                    resource_inventory = game["resource_inventory"]
-                    
-                    
-                    screen_state = ScreenState.PLAYING
-                    main_sound.fadeout(1500)
                     
                 elif action == "quit":
                     running = False
@@ -732,9 +708,34 @@ def main():
 
 
         dt = clock.tick(game_conf["fps"]) /1000
+        transition.update(dt)
         if screen_state == ScreenState.MAIN_MENU:
             #clock.tick(game_conf["fps"])
             menu.draw()
+            
+            
+            
+
+            if transition.is_covered:
+                game = start_game()
+                
+                trees = game["trees"]
+                solid_obs = game["solid_obs"]
+                tower = game["tower"]
+                obstacle_grid = game["obstacle_grid"]
+                workbench_prompt = game["workbench_prompt"]
+                flowfield = game["flowfield"]
+                player = game["player"]
+                camera = game["camera"]
+                hotbar = game["plrinventory_hotbar"]
+                backpack_ui = game["backpack_ui"]
+                resource_inventory = game["resource_inventory"]
+                
+                
+                screen_state = ScreenState.PLAYING
+                main_sound.fadeout(2000)
+                transition.begin_reveal()
+            transition.draw(screen)
             pygame.display.flip()
             continue
         tower.update_health_bar(dt)
@@ -996,8 +997,9 @@ def main():
 
         if rounds.phase == RoundPhase.DEFEAT:
             draw_defeat(screen, font)
+        
 
-
+        transition.draw(screen)
         pygame.display.flip()
        
 
