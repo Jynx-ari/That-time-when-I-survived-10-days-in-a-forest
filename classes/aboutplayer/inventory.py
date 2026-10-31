@@ -20,7 +20,7 @@ from .item_properties import (
     EquipmentProperties,
     MaterialProperties,
     ConsumableProperties,
-
+    ToolType
 )
 
 from .item_definitions import ItemDefinition
@@ -189,6 +189,17 @@ ITEMS = {
             slot=EquipmentSlot.HELMET,
         ),
     ),
+    "axe": ItemDefinition(
+        name="Axe",
+        category=ItemCategory.AXE,
+        max_stack=1,
+        color="#",
+        tool=ToolProperties(
+        tool_type=ToolType.AXE,
+        power=25.0,
+        durability=100,
+        )
+    )
 
 }
 

@@ -10,7 +10,7 @@ from .item_properties import(
     MaterialProperties,
     DeployableProperties,
     ConsumableProperties,
-
+    ToolProperties,
 )
 
 @dataclass(frozen=True)
@@ -28,4 +28,4 @@ class ItemDefinition:
     material : MaterialProperties | None = None
     deployable : DeployableProperties | None = None
     consumable : ConsumableProperties | None = None
-
+    tool : ToolProperties | None = None

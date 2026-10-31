@@ -6,6 +6,7 @@ from .item_types import (
     EquipmentSlot,
     WeaponType,
     ConsumableType,
+    ToolType,
 )
 T = True
 @dataclass(frozen=T)
@@ -16,6 +17,12 @@ class WeaponProperties:
     pellet_count : int = 1
     fire_interval : float=0.0
     damage_type : DamageType = DamageType.PHYSICAL
+
+@dataclass(frozen=T)
+class ToolProperties:
+    tool_type : ToolType
+    power : float #tree damage or repair factor
+    durability : int = 100
 
 @dataclass(frozen=T)
 class AmmoProperties:

@@ -7,6 +7,7 @@ class ItemCategory(Enum):
     MATERIAL = "material"
     EQUIPMENT = "equipment"
     DEPLOYABLE = "deployable"
+    TOOL = "tool"
 
 class ItemRarity(Enum): #Yes.
     COMMON = "common"
@@ -58,3 +59,8 @@ class ConsumableType(Enum):
     HEALING = "healing"
     REPAIR = "repair"
     BOOST = "boost"
+
+class ToolType(Enum):
+    AXE = "axe"
+    PICKAXE = "pickaxe"
+    HAMMER = "hammer"

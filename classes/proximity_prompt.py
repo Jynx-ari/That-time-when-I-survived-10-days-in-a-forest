@@ -37,9 +37,9 @@ class ProximityPrompt:
     def update(self, plr_pos):
         plr_pos = pygame.Vector2(plr_pos)
         
+        distance = plr_pos.distance_to(self.target_pos)
         self.is_near = distance <= self.interact_dist
 
-        distance = plr_pos.distance_to(self.target_pos)
         is_near = self.is_near
 
         if is_near and not self._was_near:
