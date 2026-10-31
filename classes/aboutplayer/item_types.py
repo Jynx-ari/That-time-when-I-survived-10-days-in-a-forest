@@ -53,3 +53,8 @@ class PlacementType(Enum):
     GROUND = "unrestricted"
     WALL = "unrestricted"
     UNRESTRICTED = "unrestricted"
+
+class ConsumableType(Enum):
+    HEALING = "healing"
+    REPAIR = "repair"
+    BOOST = "boost"
