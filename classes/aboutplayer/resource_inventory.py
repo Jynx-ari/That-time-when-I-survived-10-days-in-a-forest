@@ -3,8 +3,8 @@ from .item_types import ItemCategory
 
 
 class ResourceInventory:
-    def __init__(self):
-        self.resources = {}
+    def __init__(self, inventory):
+        self.inventory = inventory
     
     def manage_resource(self, item_id, amount):
         if amount <= 0:
