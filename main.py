@@ -661,14 +661,6 @@ def main():
             if backpack_ui.handle_event(event):
                 continue
             
-            if (
-                event.type == pygame.MOUSEBUTTONDOWN
-                and event.button == 1
-                and not backpack_ui.is_open
-                and hotbar.selected_is_tool(ToolType.AXE)
-            ):
-                
-                player.swing_tool()
 
 
             if event.type == pygame.KEYDOWN:
@@ -793,6 +785,16 @@ def main():
             player.move(keys, dt, (m_w, m_h), screen, obstacle_grid)
             
             workbench_prompt.update(player.pos)
+
+            if (
+                pygame.mouse.get_pressed()[0]
+                and not backpack_ui.is_open
+                and hotbar.selected_is_tool(ToolType.AXE)
+            ):
+                
+                player.swing_tool()
+
+
             if hotbar.selected_is_weapon() and not backpack_ui.is_open and pygame.mouse.get_pressed()[0] and weapon.is_bro_disabled():
                 mouse_screen = pygame.mouse.get_pos()
                 mouse_world = pygame.Vector2(

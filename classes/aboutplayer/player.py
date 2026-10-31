@@ -27,14 +27,19 @@ default_conf = {
     "walkspeed": 90 #base 90
 }
 
+
+swing_arc = 180
+hold_distance = 2.0
 swing_steps = [
-    (-15, 0.06, EasingDirection.OUT),
-    (55, 0.08, EasingDirection.IN),
-    (0, 0.18, EasingDirection.OUT),
+    #NOTE to self: (angle offset, extra reach, duration, easing direction)
+    (swing_arc/2, 0.0,0.08, EasingDirection.IN_OUT),
+    #(0,           0.8,0.6, EasingDirection.OUT_OUT),
+    (-swing_arc/2, 0.6,0.2, EasingDirection.IN),
+    (0, 0.0,0.17, EasingDirection.OUT),
 ]
 
 
-SPRITE_ROTATION = 180
+SPRITE_ROTATION = -90
 
 
 
@@ -88,6 +93,7 @@ class Player:
 
 
         self.swing_offset = 0.0
+        self.swing_reach = 0.0
         self.swinging = False
         self.axe_image = pygame.image.load(str(resource_path("Assets/textures/tool/axe.png"))).convert_alpha()
 
@@ -103,11 +109,11 @@ class Player:
         if i >= len(swing_steps):
             self.swinging = False
             return
-        angle, dur, direction = swing_steps[i]
+        angle, reach, dur, direction = swing_steps[i]
         self.tween_service.create(
             self,
             TweenInfo(dur, EasingStyle.QUAD, direction),
-            {"swing_offset": angle},
+            {"swing_offset": angle, "swing_reach": reach},
             on_complete=lambda: self._swing_step(i+1),
         ).play()
 
@@ -116,7 +122,7 @@ class Player:
         direction = pygame.Vector2(1,0).rotate(angle)
 
         image = pygame.transform.rotozoom(self.axe_image, -angle + SPRITE_ROTATION, zoom)
-        pos = pygame.Vector2(x,y) + direction * self.size * 1.6 * zoom
+        pos = pygame.Vector2(x,y) + direction * self.size * (hold_distance + self.swing_reach) * zoom
         screen.blit(image, image.get_rect(center=pos))
 
 
