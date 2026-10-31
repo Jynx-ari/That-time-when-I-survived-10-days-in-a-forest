@@ -264,80 +264,28 @@ once.
 
 ### Placement system
 
-The player selects a structure, then places it at a valid location in
-the world. Placement is instant in the first version.
+The player selects a structure and places it at a valid location. Placement is instant in the first version.
 
-A location is valid only if: - It is inside the playable map. - It does
-not overlap the player, tower, obstacles, enemies, or another
-structure. - It respects any minimum spacing rules introduced later. -
-The player has enough scrap.
+A valid location must:
 
-Show a placement preview or clear valid/invalid indicator if practical.
-Deduct scrap only when placement succeeds.
+- Be inside the playable map.
+- Not overlap the player, tower, obstacles, enemies, or another structure.
+- Follow any later minimum-spacing rule.
+- Have every ingredient required by the selected structure's crafting recipe in the player's inventory.
+
+Check the recipe before placement, but consume its ingredients only after placement succeeds. Failed or cancelled placement must not remove materials. Building recipes consume item stacks; they do **not** directly deduct scrap.
 
 ### Initial structures
 
-  ------------------------------------------------------------------------
-  Structure                           Prototype cost Function
-  --------------------- ---------------------------- ---------------------
-  Wooden/bamboo                             15 scrap Blocks or redirects
-  barricade                                          ordinary enemies; can
-                                                     be destroyed by heavy
-                                                     enemies
+| Structure | Crafting recipe | Scrap-equivalent material value | Function |
+| --- | --- | ---: | --- |
+| Wooden/bamboo barricade | 5 wooden planks | 15 scrap value (5 × 3) | Blocks or redirects ordinary enemies; can be destroyed by heavy enemies. |
+| Spike trap | To be defined | Undecided | Damages enemies that cross it; uses or cooldown can be decided later. |
+| Scrap turret | To be defined | Undecided | Automatically attacks enemies within a limited range. |
 
-  Spike trap                                20 scrap Damages enemies that
-                                                     cross it; limited
-                                                     uses or a cooldown
-                                                     can be decided later
+The first defined recipe is the wooden/bamboo barricade. Each wooden plank has a reference value of 3 scrap, so five planks have a calculated material value of 15 scrap. The player supplies **five wooden planks**, not 15 scrap. The calculated value is not a purchase price.
 
-  Scrap turret                              40 scrap Automatically attacks
-                                                     enemies within a
-                                                     limited range
-  ------------------------------------------------------------------------
-
-These costs are placeholders. Start with barricades only, then add one
-structure at a time.
-
-## 9. Resources and scavenging
-
-### Primary currency: scrap
-
-Scrap pays for structures and selected supplies. It is earned through
-enemy rewards, wave completion, and scavenging.
-
-### Consumables
-
--   **Ammunition:** needed to keep the player's weapon firing. Starting balance goal: the player's available ammunition should be enough to handle much of the pressure in Days 1–2, but not enough to eliminate the entire Day 3 swarm and beyond. This is a balancing target, not a fixed final ammo count; surviving should still be possible by repositioning, conserving shots, and using tower/placed defenses rather than killing every zombie.
--   **Medical supplies:** restore player health.
--   **Repair materials or scrap:** repair the tower or structures if
-    repair costs are included.
-
-Avoid introducing too many resource types at the beginning. The first
-playable version can use **scrap and ammunition** only, with player
-health represented by a simple health bar.
-
-### Loot sources
-
--   Junk piles: small amounts of scrap.
--   Supply crates: ammunition or scrap.
--   Abandoned shed or house: a larger, limited loot cache.
--   Enemy drops: small scrap rewards if appropriate.
--   Wave-clear reward: a predictable amount of scrap.
--   **Airdrops (later feature):** occasional supply drops placed away from the tower, with a visible landing marker or signal. They can contain a more valuable mix of scrap, ammunition, or medical supplies, creating a choice between staying near the tower and exploring farther from safety. Airdrops are planned, not part of the first playable build.
-
-Scavenging should create choices about what to afford before the next
-wave. Loot locations should be limited and easy to understand, not
-random coins scattered everywhere.
-
-### Example starting economy (for testing)
-
--   Starting scrap: 20.
--   Each basic enemy defeated: 2 scrap.
--   Wave-clear reward: 30 scrap.
--   Junk piles: approximately 5--15 scrap.
-
-These numbers are not final. Test whether a player can afford one useful
-defense after Wave 1 without being able to buy everything.
+The recipes for the spike trap and scrap turret are undecided. Their old prototype scrap prices are superseded by the recipe-based design; do not convert those prices into ingredient quantities without a separate design decision.
 
 ## 10. Campaign structure: 10 days
 
@@ -406,7 +354,7 @@ Keep the initial HUD small and legible:
 -   Current day and wave status.
 -   Scrap count.
 -   Ammunition.
--   Selected build item and its cost during placement.
+-   Selected build item and its required recipe ingredients during placement; show scrap-equivalent material value as reference information only.
 -   Short status message for wave start, wave clear, tower critical,
     defeat, and victory.
 
@@ -455,9 +403,8 @@ wilderness_survival/
     start waves and transition to daylight when time expires. The main
     loop removes remaining zombies on a successful daylight transition.
     Enemy count reaching zero does not end the wave.
--   **Economy:** scrap checks and transaction logic.
--   **Placement validation:** check location and resources before
-    creating a structure.
+-   **Economy:** scrap/fuel balances, item inventory, recipe validation, and guarded transactions.
+-   **Placement validation:** check location and recipe ingredients before creating a structure; consume ingredients only after placement succeeds.
 -   **Game states:** preparation, active wave, wave cleared/transition, defeat, victory. Keep the round/day transition rules in `classes/round_manager.py`; the main loop should read the manager's state rather than duplicating transition logic in `main.py`.
 
 Use delta time (`dt`) for movement and cooldowns so behavior does not
@@ -571,14 +518,16 @@ Implement this before adding any enemies, so enemy spawning can later plug into 
 
 -   Add scrap display and limited loot spots.
 -   Allow the player to collect a loot spot once.
--   Add enemy and wave rewards.
+-   Add enemy and wave scrap rewards.
+-   Add item-stack inventory for scavenged materials, keeping item scrap_value separate from the scrap balance.
 -   Make the player travel a short distance from the tower to reach at least some loot, so the forest layout supports small exploration decisions.
 -   **Done when:** the player can collect and spend scrap across waves and at least one loot spot encourages a short trip beyond the central clearing.
 
 ### Milestone 7 --- Barricade placement and pathing
 
 -   Add a placement preview and validity checks.
--   Place a barricade for scrap.
+-   Place a barricade using its recipe: 5 wooden planks, consumed only after successful placement.
+-   Display the recipe ingredients and quantities; the 15-scrap-equivalent material value is informational, not a payment.
 -   Make ordinary enemies route around it.
 -   Add the Brute's ability to damage blocking barricades later.
 -   **Done when:** barricades create a meaningful route choice and
@@ -622,9 +571,7 @@ is:
 Then add waves. Then scrap. Then placement. Then reliable pathfinding
 and more enemies.
 
-Postpone power consumption, signal integrity, advanced crafting, complex
-inventory, procedural maps, multiple weapons, elaborate narrative
-scenes, and extra enemy types until the core loop is enjoyable.
+Postpone power consumption, signal integrity, large crafting trees, complex inventory grids, procedural maps, multiple weapons, elaborate narrative scenes, and extra enemy types until the core loop is enjoyable. The first simple recipe (five wooden planks for a barricade) is part of the planned building system.
 
 ## 15. First playable prototype acceptance checklist
 
@@ -674,7 +621,7 @@ These can remain undecided while the prototype is built:
 
 ## 17. Reference and inspiration
 
-**Reference:** [Defend Bunker from Zombies on Roblox](https://www.roblox.com/games/134361906638337/Defend-Bunker-from-Zombies). Its public description highlights building, fortifying, and upgrading a base, rescuing and training survivors, and exploring for resources and rare loot. We can learn from the broad loop of leaving a defended base to gather resources, then returning to prepare for escalating attacks. For this game, adapt that idea to a solo 10-day rescue countdown: short scavenging trips, limited loot locations, scrap-funded defenses, and optional airdrops that tempt the player to travel farther. Airdrops are our planned idea, not a claim that the reference game has that exact mechanic. This project remains a distinct, single-player bird's-eye-view wilderness survival game centered on a radio tower; do not copy the reference game's specific assets or progression systems.
+**Reference:** [Defend Bunker from Zombies on Roblox](https://www.roblox.com/games/134361906638337/Defend-Bunker-from-Zombies). Its public description highlights building, fortifying, and upgrading a base, rescuing and training survivors, and exploring for resources and rare loot. We can learn from the broad loop of leaving a defended base to gather resources, then returning to prepare for escalating attacks. For this game, adapt that idea to a solo 10-day rescue countdown: short scavenging trips, limited loot locations, recipe-based defenses, and optional airdrops that tempt the player to travel farther. Airdrops are our planned idea, not a claim that the reference game has that exact mechanic. This project remains a distinct, single-player bird's-eye-view wilderness survival game centered on a radio tower; do not copy the reference game's specific assets or progression systems.
 
 **Design principle:** finish a small, coherent survival loop first.
 Expand only when the current version is fun enough to justify the next
