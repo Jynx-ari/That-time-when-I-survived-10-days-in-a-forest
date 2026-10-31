@@ -27,7 +27,7 @@ from classes.screen_state import ScreenState
 from classes.aboutplayer.inventory import Inventory, InventoryItem
 from classes.aboutplayer.backpack import BackpackUI
 from classes.aboutplayer.item_types import EquipmentSlot
-
+from classes.aboutplayer.resource_inventory import ResourceInventory
 
 #----------------------------------------
 
@@ -554,6 +554,7 @@ def main():
         )
 
         backpack = Inventory(slot_count=3*9)
+        resource_inventory = ResourceInventory(backpack)
         equipment = {
            EquipmentSlot.HELMET: None,
            EquipmentSlot.ARMOR: None,
@@ -580,6 +581,7 @@ def main():
             "camera": camera,
             "plrinventory_hotbar": hotbar,
             "backpack_ui": backpack_ui,
+            "resource_inventory": resource_inventory,
         }
 
     hit_sound = pygame.mixer.Sound(

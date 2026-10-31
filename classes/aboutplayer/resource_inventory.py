@@ -1,4 +1,4 @@
-from .inventory import ITEMS
+from .inventory import ITEMS, InventoryItem
 from .item_types import ItemCategory
 
 
@@ -24,16 +24,51 @@ class ResourceInventory:
     
     def add(self, item_id, amount=1):
         definition = self.manage_resource(item_id,amount)
-        new_amount = self.resources.get(item_id, 0) + amount
+        
+        remaining = amount
 
-        if new_amount > definition.max_stack:
-            raise ValueError(
-                f"HEY! {item_id} CAN ONLY STACK UP TO {definition.max_stack}!!"
-            )
-        self.resources[item_id] = new_amount
+        available = 0
+        for item in self.inventory.slots:
+            if item is None:
+                available += definition.max_stack
+            elif item.item_id == item_id:
+                available += item.max_stack - item.amount
+        
+        if available < amount:
+            return False
+        
+        for item in self.inventory.slots:
+            if item is not None and item.item_id == item_id:
+                space = item.max_stack - item.amount
+                added = min(space, remaining)
+                item.amount += added
+                remaining -= added
+        
+        for index, item in enumerate(self.inventory.slots):
+            if item is None:
+                added = min(definition.max_stack, remaining)
+
+                self.inventory.set(
+                    index, InventoryItem(item_id, added)
+                )
+
+                remaining -= added
+
+                if remaining ==0:
+                    return True
+        
+        return True
+
+
+
     def get_amount(self, item_id):
-        return self.resources.get(item_id,0)
-    
+        total = 0
+        
+        for item in self.inventory.slots:
+            if item is not None and item.item_id == item_id:
+                total += item.amount
+
+        return total
     def bro_has(self,item_id,amount):
         return self.get_amount(item_id) >= amount
     
