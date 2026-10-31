@@ -261,7 +261,7 @@ This calculation is informational. It does not mean that the player pays 15 scra
 
 Crafting consumes the specified item quantities. For the wooden barricade, the player must have 5 wooden planks; after successful placement, those 5 planks are removed from inventory. If placement fails, the planks remain.
 
-The source of wooden planks and other materials is still to be decided. They may come from scavenging, another crafting recipe, dismantling, or a combination later; do not assume a source until it is designed.
+The finalized sources and rules for wooden logs and planks are recorded in **Finalized resource gathering and crafting design** below.
 
 ### Fuel
 
@@ -572,3 +572,61 @@ With wooden planks valued at 3 scrap each, the recipe has a calculated material 
 - The Inventory HUD and backpack remain separate presentation/storage concerns.
 
 Do not reintroduce a generic building cost field that treats every recipe as a scrap price. Use a recipe/ingredient field for material requirements.
+
+
+## Finalized resource gathering and crafting design
+
+This section records the finalized resource rules and supersedes any earlier statement that the source of wooden materials is undecided.
+
+### Resource sources
+
+The game uses two complementary sources for wood:
+
+1. **Fallen logs:** The player can collect logs from fallen trees and designated natural resource piles.
+2. **Standing tree harvesting:** The player can chop standing trees using an axe. A harvested tree is removed as a usable resource and its trunk obstacle is removed from the world. The exact axe damage, number of hits, and log yield are implementation/balance values to be tested.
+3. **Direct plank scavenging:** Wooden planks can also be found in finite abandoned loot sources such as crates, lumber piles, and abandoned structures.
+
+Fallen logs and natural resource piles are renewable natural sources. Abandoned containers and structures are finite loot sources.
+
+### Respawning
+
+Resource availability is mixed:
+
+- Abandoned loot containers and abandoned structures do not respawn during a run.
+- Natural resource sources, including designated fallen-log piles, replenish slowly.
+- The initial prototype respawn interval is **2 in-game days**, and each source replenishes only up to its original capacity.
+- Standing trees are harvestable natural resources. Their regrowth behavior should follow the slow natural-resource respawn rule; the implementation may respawn a tree at its original resource location rather than immediately replacing it after chopping.
+- The two-day interval and source capacities are prototype balance values and must be playtested.
+
+### Log processing
+
+- Processing takes place **only at the workbench**.
+- Processing is **instant**; no timer or waiting interaction is required.
+- Recipe: **1 wooden log → 2 wooden planks**.
+- Processing consumes one log and grants two planks immediately.
+- The player must have the required log before processing.
+
+### Material values and construction
+
+- Wooden log: prototype scrap reference value **6**.
+- Wooden plank: prototype scrap reference value **3**.
+- One wooden barricade requires **5 wooden planks**.
+- The barricade's calculated material reference value is **15 scrap-equivalent** (5 × 3), but the player pays with 5 planks, not scrap.
+- Scrap reference values do not automatically permit selling, trading, or converting materials into currency.
+- Construction checks both ingredients and placement validity before consuming anything. Materials are removed only after the structure is successfully placed. Failed or cancelled placement consumes nothing.
+
+### Resource model
+
+Each gatherable resource source should track its resource type, position, current stock, maximum capacity, whether it is finite or renewable, and its next replenishment day when applicable. A source must not award the same stock twice. Harvesting a standing tree must also remove or update its world obstacle so collision and pathfinding remain consistent.
+
+### First implementation scope
+
+Implement the resource system incrementally:
+1. Add log and plank item definitions with their reference values.
+2. Add a small resource inventory/ledger with safe add, check, and consume operations.
+3. Add gatherable resource sources and interaction handling.
+4. Add workbench log processing.
+5. Add standing-tree harvesting and keep obstacle/pathfinding data synchronized.
+6. Add the wooden barricade recipe and guarded placement transaction.
+
+Do not mark any implementation step complete until it exists in the repository and has been tested. Spike-trap and scrap-turret recipes remain undecided.
