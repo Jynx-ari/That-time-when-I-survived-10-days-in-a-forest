@@ -12,7 +12,7 @@ T = True
 class WeaponProperties:
     damage : float
     weapon_type : WeaponType
-    ammot_type: AmmoType | None = None
+    ammo_type: AmmoType | None = None
     pellet_count : int = 1
     fire_interval : float=0.0
     damage_type : DamageType = DamageType.PHYSICAL
@@ -41,4 +41,4 @@ class DeployableProperties:
 class ConsumableProperties:
     consumable_type: ConsumableType
     effect_value: float = 0.0
-    dur: float = 0.0
+    duration: float = 0.0
