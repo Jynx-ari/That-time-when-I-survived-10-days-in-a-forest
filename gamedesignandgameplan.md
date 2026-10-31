@@ -710,4 +710,13 @@ Implement the resource system incrementally:
 5. Add standing-tree harvesting and keep obstacle/pathfinding data synchronized.
 6. Add the wooden barricade recipe and guarded placement transaction.
 
-Do not mark any implementation step complete until it exists in the repository and has been tested. Spike-trap and scrap-turret recipes remain undecided.
+### Implementation progress
+
+- [x] Add wooden log and wooden plank item definitions with scrap reference values (6 and 3).
+- [x] Add a separate resource inventory ledger with stack limits and atomic multi-item consumption; six unit tests pass.
+- [ ] Add finite and renewable gatherable resource sources with slow replenishment.
+- [ ] Add workbench-only instant log processing.
+- [ ] Add standing-tree harvesting and synchronize obstacle/pathfinding data.
+- [ ] Add the wooden barricade recipe and guarded placement transaction.
+
+The resource ledger is a foundation and is not yet connected to the live game loop or inventory UI. Do not describe gathering, processing, tree chopping, or construction as playable until those systems are integrated and tested. Spike-trap and scrap-turret recipes remain undecided.
