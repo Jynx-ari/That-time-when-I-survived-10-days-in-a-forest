@@ -552,6 +552,10 @@ def main():
             1,
             InventoryItem("wood", amount=12)
         )
+        hotbar.set_item(
+            2,
+            InventoryItem("axe")
+        )
 
         backpack = Inventory(slot_count=3*9)
         resource_inventory = ResourceInventory(backpack)
@@ -761,9 +765,7 @@ def main():
 
         if rounds.phase != RoundPhase.DEFEAT: #It means the game isnt finished and its running
             player.move(keys, dt, (m_w, m_h), screen, obstacle_grid)
-            if not backpack_ui.is_open:
-                game["plrinventory_hotbar"].draw(screen)
-            game["backpack_ui"].draw(screen)
+            
             workbench_prompt.update(player.pos)
             if hotbar.selected_is_weapon() and not backpack_ui.is_open and pygame.mouse.get_pressed()[0] and weapon.is_bro_disabled():
                 mouse_screen = pygame.mouse.get_pos()
@@ -794,7 +796,7 @@ def main():
 
         # Draw the world
         screen.fill(game_conf["grass"])
-
+        
         
         center_world = (m_w // 2, m_h // 2)
         center_screen = camera.syncworld_to_screen(center_world, zoom)
@@ -955,7 +957,9 @@ def main():
         )
         screen.blit(time_surface, (10, 90))
 
-
+        if not backpack_ui.is_open:
+                game["plrinventory_hotbar"].draw(screen)
+        game["backpack_ui"].draw(screen)
         # Deprecated: player.update_healthbar(dt)
         player.healthui(screen)
         tower.healthui(screen, font)

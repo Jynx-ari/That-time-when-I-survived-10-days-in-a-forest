@@ -10,7 +10,7 @@ from .item_types import (
     WeaponType,
     EquipmentSlot,
     ConsumableType,
-
+    ToolType
 )
 
 from .item_properties import (
@@ -20,7 +20,7 @@ from .item_properties import (
     EquipmentProperties,
     MaterialProperties,
     ConsumableProperties,
-    ToolType
+    ToolProperties
 )
 
 from .item_definitions import ItemDefinition
@@ -191,7 +191,7 @@ ITEMS = {
     ),
     "axe": ItemDefinition(
         name="Axe",
-        category=ItemCategory.AXE,
+        category=ItemCategory.TOOL,
         max_stack=1,
         color="#",
         tool=ToolProperties(
