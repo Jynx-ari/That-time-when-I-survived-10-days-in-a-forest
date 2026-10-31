@@ -20,7 +20,6 @@ class ItemDefinition:
     color : str
     max_stack : int = 1
     rarity : ItemRarity = ItemRarity.COMMON
-    scrap_value : int | None = None
 
     weapon : WeaponProperties | None = None
     ammo : AmmoProperties | None = None
