@@ -34,6 +34,8 @@ class Tween:
         self.elapsed = 0.0
         self.playing = False
         self.completed = False
+        self.on_complete = None
+
 
     def play(self):
         self.start_vals = {
@@ -75,6 +77,8 @@ class Tween:
                 setattr(self.target, property_name, end_value)
             self.playing = False
             self.completed = True
+            if self.on_complete:
+                self.on_complete()
 
 #yo i made so many typos smh
 
@@ -95,8 +99,9 @@ class TweenService:    # HEHEHE >:3
             f"Unkown easing style!! {tween_info.easing_style}"
         )
 
-    def create(self, target, tween_info, goals):
+    def create(self, target, tween_info, goals, on_complete=None):
         tween = Tween(target,goals,tween_info)
+        tween.on_complete = on_complete
         self.active_tweens.append(tween)
         return tween
 

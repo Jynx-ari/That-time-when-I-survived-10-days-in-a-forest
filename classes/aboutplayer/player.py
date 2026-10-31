@@ -5,21 +5,53 @@ import math #math..
 from functions.easing_styles import EasingStyle, EasingDirection
 from functions.tween_service import TweenInfo, TweenService
 
+
+from dataclasses import dataclass
+from typing import Optional #this is new :0
+
 default_conf = {
     "size": 10,
     "walkspeed": 90 #base 90
 }
 
+swing_steps = [
+    (-15, 0.06, EasingDirection.OUT),
+    (55, 0.08, EasingDirection.IN),
+    (0, 0.18, EasingDirection.OUT),
+]
+
+
+
+@dataclass
+class PlayerProperties:
+    axe_hold : bool = False #temporary
+#   tool_hold : bool = False
+#   weapon_hold : bool = False
+#   is_building : bool = False #similar to weapon and tool hold but if its on building mode
+    backpack_open : bool = False
+    downed : bool = False
+    stunned : bool = False
+
+
+    spawn_pos : Optional[pygame.Vector2] = None
+    max_hp : int = 100
+    walkspeed : int = default_conf["walkspeed"]
+
+
 
 class Player:
     def __init__(self, pos, ws=default_conf["walkspeed"], size=default_conf["size"], max_health=100):
+        
+        self.properties = PlayerProperties()
+        self.properties.max_hp = max_health
+
+
         self.pos = pygame.Vector2(pos)
         self.speed = ws
         self.size = size
         self.angle = 90
-        self.max_hp = max_health
-        self.hp = self.max_hp #i forgor about this lil guy
-        self.display_hp = self.max_hp
+        self.hp = self.properties.max_hp
+        self.display_hp = self.properties.max_hp
         self.health_shake = 0.0
         self.shake_time = 0.0
         self.shake_frequency = 45.0 #uh oh..
@@ -36,7 +68,50 @@ class Player:
             easing_style=EasingStyle.QUAD,
             easing_direction=EasingDirection.OUT
         )
-    
+
+
+        self.swing_offset = 0.0
+        self.swinging = False
+
+
+
+    def swing_tool(self):
+        if self.swinging:
+            return
+        self.swinging = True
+        self._swing_step(0)
+
+
+    def _swing_step(self, i):
+        if i >= len(swing_steps):
+            self.swinging = False
+            return
+        angle, dur, direction = swing_steps[i]
+        self.tween_service.create(
+            self,
+            TweenInfo(dur, EasingStyle.QUAD, direction),
+            {"swing_offset": angle},
+            on_complete=lambda: self._swing_step(i+1),
+        ).play()
+
+    def draw_axe(self, screen,x,y,zoom):
+        direction = pygame.Vector2(1,0).rotate(self.angle + self.swing_offset)
+        side = direction.rotate(90)
+        s = self.size * zoom
+        center = pygame.Vector2(x,y)
+
+        handle_start = center + direction * s * 0.8
+        handle_end = center + direction * s * 2.4
+
+        pygame.draw.line(screen, "#8b5a2b", handle_start, handle_end, max(2, round(3 * zoom)))
+        pygame.draw.line(
+            screen, "#b0b0b0",
+            handle_end - side * s * 0.2,
+            handle_end + side * s * 0.8,
+            max(3, round(5 * zoom)),
+        )
+
+
 
     def update(self, dt):
         self.shake_time += dt
@@ -61,8 +136,8 @@ class Player:
         )
 
         #get ratio'ed
-        health_ratio = max(0, min(1, self.hp / self.max_hp))
-        display_ratio = max(0, min(1, self.display_hp / self.max_hp))
+        health_ratio = max(0, min(1, self.hp / self.properties.max_hp))
+        display_ratio = max(0, min(1, self.display_hp / self.properties.max_hp))
         current_width = round(bar_width * health_ratio)
         display_width = round(bar_width * display_ratio)
 
@@ -239,6 +314,8 @@ class Player:
 
 
     def draw(self, screen, screen_pos, zoom=1.0):
+
+        
         x,y = round(screen_pos[0]), round(screen_pos[1])
         
         size = self.size * zoom
@@ -262,4 +339,6 @@ class Player:
             rotated_points,
               width=max(1, round(3*zoom)))
 
+        if self.properties.axe_hold:
+            self.draw_axe(screen,x,y,zoom)
 

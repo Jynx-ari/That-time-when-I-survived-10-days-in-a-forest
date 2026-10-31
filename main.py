@@ -6,9 +6,11 @@ from pathlib import Path
 
 ###   CLASSES
 
+
+
+
+
 from classes.tree import gen_Tree
-from classes.aboutplayer.camera import Camera
-from classes.aboutplayer.player import Player
 from classes.obstacle import Obstacle
 from classes.round_manager import RoundManager, RoundPhase
 #from classes.zom.shambler import Shambler
@@ -21,13 +23,27 @@ from classes.tower import Tower
 from classes.combat.hitscan_weapon import HitscanWeapon
 from classes.proximity_prompt import ProximityPrompt
 
+
+
+
+
+
+
 from classes.square_wipe_transition import squarewipetransition
 from classes.screen_state import ScreenState
 
+
+
+
+
+
+from classes.aboutplayer.camera import Camera
+from classes.aboutplayer.player import Player
+
 from classes.aboutplayer.inventory import Inventory, InventoryItem
 from classes.aboutplayer.backpack import BackpackUI
-from classes.aboutplayer.item_types import EquipmentSlot
 from classes.aboutplayer.resource_inventory import ResourceInventory
+from classes.aboutplayer.item_types import EquipmentSlot, ToolType
 
 #----------------------------------------
 
@@ -644,6 +660,16 @@ def main():
             
             if backpack_ui.handle_event(event):
                 continue
+            
+            if (
+                event.type == pygame.MOUSEBUTTONDOWN
+                and event.button == 1
+                and not backpack_ui.is_open
+                and hotbar.selected_is_tool(ToolType.AXE)
+            ):
+                
+                player.swing_tool()
+
 
             if event.type == pygame.KEYDOWN:
                 hotbar.handle_event(event)
@@ -819,6 +845,7 @@ def main():
 
         player_screen_pos = camera.syncworld_to_screen(player.pos,zoom)
         player.aimlook(pygame.mouse.get_pos(), camera, zoom)
+        player.properties.axe_hold = hotbar.selected_is_tool(ToolType.AXE)
         player.draw(screen, player_screen_pos, zoom)
 
         if rounds.phase == RoundPhase.ACTIVE_WAVE:

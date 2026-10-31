@@ -193,7 +193,7 @@ ITEMS = {
         name="Axe",
         category=ItemCategory.TOOL,
         max_stack=1,
-        color="#",
+        color="#8b5a2b",
         tool=ToolProperties(
         tool_type=ToolType.AXE,
         power=25.0,
@@ -259,6 +259,11 @@ class Inventory:
             item is not None
             and item.definition.weapon is not None
         )
+    
+    def selected_is_tool(self, tool_type=None):
+        item = self.get_selected_item()
+        tool = item.definition.tool if item else None
+        return tool is not None and (tool_type is None or tool.tool_type == tool_type)
 
     def set_item(self, index, item):
         if 0<=index<len(self.slots):
