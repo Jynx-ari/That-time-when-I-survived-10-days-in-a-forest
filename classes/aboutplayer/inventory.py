@@ -66,6 +66,26 @@ class InventoryItem:
         return self.definition.max_stack
 
 ITEMS = {
+    "wood_log": ItemDefinition(
+        name="Wooden Log",
+        category=ItemCategory.MATERIAL,
+        color="#8b5a2b",
+        max_stack=64,
+        scrap_value=6,
+        material=MaterialProperties(
+            tags=frozenset({"wood", "log"}),
+        ),
+    ),
+    "wood_plank": ItemDefinition(
+        name="Wooden Plank",
+        category=ItemCategory.MATERIAL,
+        color="#b8874b",
+        max_stack=64,
+        scrap_value=3,
+        material=MaterialProperties(
+            tags=frozenset({"wood", "plank"}),
+        ),
+    ),
     "pistol": ItemDefinition(
         name="Glock 17",
         category=ItemCategory.WEAPON,
