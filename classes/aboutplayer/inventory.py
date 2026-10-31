@@ -34,16 +34,6 @@ size = 72-23
 #NOTE: the inventory hud is max at 3 slots but the backpack has 10 i guess? then ill make chests
 #NOTE: And make item mapping and inventory mapping
 
-@dataclass(frozen=True)
-class BuildingDefinition:
-    name: str
-    category: str
-    cost: dict[str, int]
-    max_health: int
-    damage: float = 0.0
-    attack_range: float = 0.0
-    fire_interval: float = 0.0
-    stun_dur: float =0.0
 
     
 @dataclass
