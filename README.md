@@ -76,6 +76,7 @@ python main.py
 | Input | Action |
 |---|---|
 | `B or ESC (if backpack is open)` | Open / Close Backpack |
+| Just Drag and Drop 'em |
 | `Left Mouse Button` | Pick Up / Move Items in Inventory | 
 | `Left Mouse Button` (Release) | Place / Swap Items in Inventory|
 
