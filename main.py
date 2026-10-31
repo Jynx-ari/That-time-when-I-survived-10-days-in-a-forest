@@ -623,6 +623,7 @@ def main():
                     camera = game["camera"]
                     hotbar = game["plrinventory_hotbar"]
                     backpack_ui = game["backpack_ui"]
+                    resource_inventory = game["resource_inventory"]
                     
                     
                     screen_state = ScreenState.PLAYING

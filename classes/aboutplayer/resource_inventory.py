@@ -43,7 +43,8 @@ class ResourceInventory:
                 added = min(space, remaining)
                 item.amount += added
                 remaining -= added
-        
+        if remaining == 0:
+            return True
         for index, item in enumerate(self.inventory.slots):
             if item is None:
                 added = min(definition.max_stack, remaining)
@@ -77,9 +78,18 @@ class ResourceInventory:
 
         if not self.bro_has(item_id, amount):
             return False
-        
-        self.resources[item_id] -= amount
-        if self.resources[item_id] == 0:
-            del self.resources[item_id] #ooh what this?
-        
+        remaining = amount
+
+        for index, item in enumerate(self.inventory.slots):
+            if item is not None and item.item_id == item_id:
+                consumed = min(item.amount, remaining)
+
+                item.amount -= consumed
+                remaining -= consumed
+
+                if item.amount == 0:
+                    self.inventory.set(index, None)
+                
+                if remaining == 0:
+                    break
         return True
