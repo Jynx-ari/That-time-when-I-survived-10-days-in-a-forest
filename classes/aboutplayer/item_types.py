@@ -50,8 +50,8 @@ class BuildingCategory(Enum):
     TRAP = "trap"
 
 class PlacementType(Enum):
-    GROUND = "unrestricted"
-    WALL = "unrestricted"
+    GROUND = "ground"
+    WALL = "wall"
     UNRESTRICTED = "unrestricted"
 
 class ConsumableType(Enum):
