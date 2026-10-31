@@ -21,7 +21,7 @@
 ## 2. Design Pillars
 
 1. **The player matters.** Automated defenses and the radio tower support the player but cannot win every wave by themselves.
-2. **Resources create trade-offs.** Scrap spent on a turret cannot also be spent on repairs, upgrades, or emergency fuel.
+2. **Resources create trade-offs.** Materials used in a building recipe cannot also be used for other recipes; scrap remains a separate currency for direct purchases, upgrades, repairs, and emergency fuel.
 3. **Terrain shapes tactics.** The open central clearing, forest gaps, trails, and outer vegetation create different approaches and retreat routes.
 4. **Waves test decisions.** Difficulty should increase through enemy combinations, routes, pressure, and behavior, not only larger health numbers.
 5. **Build a complete loop first.** Movement, shooting, survival, scavenging, and wave progression should be enjoyable before complex crafting, equipment, or many enemy types are added.
@@ -214,25 +214,31 @@ A valid location must:
 - Be inside the playable map.
 - Not overlap the player, tower, obstacles, enemies, or another structure.
 - Follow any later minimum-spacing rule.
-- Have enough scrap available.
+- Have all ingredients required by the structure's crafting recipe in the player's inventory.
 
-Deduct scrap only after placement succeeds. A placement preview or clear valid/invalid indicator should be added when practical.
+Check the recipe before placement, but consume its ingredients only after placement succeeds. A failed or cancelled placement must not remove materials. Building recipes consume item stacks; they do **not** directly deduct scrap.
 
 ### Initial structures
 
-| Structure | Prototype cost | Function |
-| --- | ---: | --- |
-| Wooden or bamboo barricade | 15 scrap | Blocks or redirects ordinary enemies; can be destroyed by heavy enemies. |
-| Spike trap | 20 scrap | Damages enemies that cross it; uses or cooldown to be decided later. |
-| Scrap turret | 40 scrap | Automatically attacks enemies within a limited range. |
+| Structure | Crafting recipe | Scrap-equivalent material value | Function |
+| --- | --- | ---: | --- |
+| Wooden or bamboo barricade | 5 wooden planks | 15 scrap value (5 × 3) | Blocks or redirects ordinary enemies; can be destroyed by heavy enemies. |
+| Spike trap | To be defined | Undecided | Damages enemies that cross it; uses or cooldown to be decided later. |
+| Scrap turret | To be defined | Undecided | Automatically attacks enemies within a limited range. |
 
-Start with barricades, then add one structure at a time.
+The wooden barricade is the first defined example: one wooden plank has a reference value of 3 scrap, and the recipe requires 5 planks. Its calculated material value is therefore 15 scrap. The player supplies **5 wooden planks**, not 15 scrap. Do not treat the calculated value as a purchase price.
+
+Start with barricades, then add one structure at a time. Recipes for the spike trap and scrap turret remain undecided; do not infer them from their names or their previous prototype scrap prices.
 
 ## 10. Resources and Scavenging
 
-### Scrap
+The game distinguishes between **scrap currency** and **items/materials**. An item's scrap value is a reference valuation; it is not automatically a currency balance or a crafting cost.
 
-Scrap is the primary currency. It can pay for structures, tower upgrades, repairs, and inefficient emergency fuel conversion.
+### Scrap currency
+
+Scrap is a spendable currency used for direct transactions that explicitly require it, such as tower upgrades during preparation, repairs if their eventual design uses a direct scrap payment, and inefficient emergency fuel conversion at the tower.
+
+Crafting a building from a recipe does not spend scrap unless a future recipe explicitly introduces scrap as an ingredient. The current wooden barricade recipe does not.
 
 **Prototype economy:**
 
@@ -241,7 +247,21 @@ Scrap is the primary currency. It can pay for structures, tower upgrades, repair
 - Wave-clear reward: 30 scrap.
 - Junk-pile reward: approximately 5-15 scrap.
 
-These values should be tested to determine whether a player can afford one useful defense after Wave 1 without buying everything.
+These values should be tested to determine whether a player can afford useful direct purchases without making every resource decision trivial.
+
+### Item and material value
+
+Item definitions may include a scrap_value field. This records the item's reference value in scrap-equivalent terms.
+
+- Wooden plank: scrap_value = 3.
+- Wooden barricade recipe: 5 wooden planks.
+- Calculated material value: 5 × 3 = 15 scrap-equivalent value.
+
+This calculation is informational. It does not mean that the player pays 15 scrap, receives 15 scrap when crafting, or can automatically sell the planks for 3 scrap each. Selling, trading, or converting items into scrap would be separate mechanics and are not established by this rule.
+
+Crafting consumes the specified item quantities. For the wooden barricade, the player must have 5 wooden planks; after successful placement, those 5 planks are removed from inventory. If placement fails, the planks remain.
+
+The source of wooden planks and other materials is still to be decided. They may come from scavenging, another crafting recipe, dismantling, or a combination later; do not assume a source until it is designed.
 
 ### Fuel
 
@@ -249,16 +269,16 @@ Fuel is a separate numeric resource used by the tower. Preferred fuel sources sh
 
 ### Loot sources
 
-- **Junk piles:** Small amounts of scrap and/or fuel.
-- **Supply crates:** Fuel, ammunition in a later version, or scrap.
-- **Abandoned structures:** Larger limited caches.
-- **Enemy drops:** Small scrap rewards if appropriate.
-- **Wave-clear rewards:** Predictable scrap and possible fuel.
+- **Junk piles:** Scrap currency, materials, and/or fuel.
+- **Supply crates:** Fuel and item supplies; ammunition may be included when that system is active.
+- **Abandoned structures:** Larger limited caches of items and resources.
+- **Enemy drops:** Small scrap rewards or item drops if appropriate.
+- **Wave-clear rewards:** Predictable scrap and possible fuel or items.
 - **Airdrops:** Later optional event with a visible landing marker and a higher-value cache away from the tower.
 
 Loot locations should be limited and easy to understand. Each loot spot should have a position, contents, and collected state. Collection should use an explicit proximity and interaction action, and a collected spot must not reward the player twice.
 
-Avoid introducing too many resource types at the beginning. The first economy slice should focus on scrap and fuel. Ammunition, medical supplies, and complex consumables can follow later.
+Keep the first economy slice small. Scrap and fuel remain the initial numeric resources; add only the item materials needed for the first recipe when the inventory/crafting milestone is reached. Ammunition, medical supplies, and more complex consumables can follow later.
 
 ## 11. Campaign Progression
 
@@ -289,7 +309,7 @@ The initial HUD should remain small and readable. It should show:
 - Scrap count.
 - Fuel count and tower powered/vulnerable status.
 - Ammunition when ammunition becomes an active system.
-- Selected build item and cost during placement.
+- Selected build item and required recipe ingredients during placement; show calculated scrap-equivalent material value only as reference information, not as a price.
 - Short status messages for wave start, wave clear, tower critical state, defeat, and victory.
 
 The tower pulse should have a visible effect and a clear cooldown cue. Avoid a full inventory screen until there are enough distinct items to justify one.
@@ -316,8 +336,8 @@ Keep gameplay rules separate from drawing where practical. The HUD should read s
 - **Combat:** Cooldowns, hitscan or projectiles, health, damage, feedback, and defeat/removal.
 - **Tower pulse:** Timer, radius check, and one limited effect.
 - **Round manager:** Preparation, active wave, wave-cleared, defeat, and victory transitions.
-- **Economy:** Resource balances and guarded transactions.
-- **Placement validation:** Location and resource checks before creating structures.
+- **Economy:** Scrap/fuel balances, item inventory, recipe validation, and guarded transactions.
+- **Placement validation:** Location and recipe-ingredient checks before creating structures; consume ingredients only after successful placement.
 - **Camera:** World-to-screen conversion, following, bounds, and zoom.
 
 Use `dt` for movement, cooldowns, timers, fuel drain, and recovery. Keep the existing round manager as the source of truth for day and phase transitions rather than duplicating transition rules in `main.py`.
@@ -328,8 +348,9 @@ Inventory belongs to the current run/application context. It should not be place
 
 The first inventory model should be a compact resource ledger with guarded operations such as:
 
-- Add scrap or fuel.
-- Spend scrap or fuel only when the balance is sufficient.
+- Add or spend scrap/fuel through guarded resource operations.
+- Add, remove, and count item stacks for scavenging and crafting.
+- Check recipe ingredients and consume them only after a successful craft/placement.
 - Prevent negative balances.
 - Return success or the actual change so callers cannot silently overspend.
 
@@ -375,8 +396,9 @@ Persistence is not part of the current milestone. If saving is added later, seri
 
 ### Milestone 6: Scrap, fuel, and scavenging
 
-- Scrap and fuel resources.
-- HUD readout.
+- Scrap and fuel resources with HUD readout.
+- Item-stack inventory for recipe ingredients, including wooden planks when the crafting slice begins.
+- Keep item scrap_value separate from the scrap currency balance.
 - Limited loot spots and explicit collection.
 - Wave, enemy, and loot rewards.
 - Continuous active-wave fuel drain.
@@ -386,7 +408,8 @@ Persistence is not part of the current milestone. If saving is added later, seri
 ### Milestone 7: Barricades and pathing
 
 - Placement preview and validation.
-- Scrap-funded barricades.
+- Recipe-backed barricades: require 5 wooden planks and consume them only after successful placement.
+- Show required ingredients and their quantities; do not deduct the calculated 15-scrap material value.
 - Enemy routing around barricades.
 - Brute interaction later.
 
@@ -421,7 +444,7 @@ After that, add waves and progression, then scavenging and resources, then place
 Do not add the following until the core loop is enjoyable:
 
 - Complex inventory grids.
-- Advanced crafting.
+- Large crafting trees (the first simple five-plank barricade recipe remains in scope).
 - Multiple weapons and ammo management.
 - Signal integrity systems.
 - Procedural maps.
@@ -482,129 +505,70 @@ The guiding principle is simple: finish a small, coherent survival loop first, t
 
 
 
-# NOTE TO SELF:
-making item maps for heal items, weapons, scraps, types and sstuffs are very tedious in making it manually.
+# Item and Building Data Model Notes
 
-And Inventory HUD is very different from Backpack
+The game uses data-driven definitions: define an item or building once, then refer to it by its ID. Keep carried items, resource balances, and buildable structures as distinct concepts.
 
+**1. Item definitions describe carried items**
 
-Overall, the new system is becoming **data-driven**: you define an item or building once in a map, then create/use it by its ID.
-
-**1. `ItemDefinition` describes carried items**
+An item definition contains its identity and properties. Material items may have a scrap_value field:
 
 ```python
 @dataclass(frozen=True)
 class ItemDefinition:
     name: str
-    category: str
-    color: str
-    max_stack: int = 1
-    heal_amount: int = 0
-    damage_amount: float = 0.0
-    ammo_type: str | None = None
+    scrap_value: int = 0
+    # Other item properties remain separate and optional.
 ```
 
-Examples:
+For example, a wooden plank has a reference value of 3 scrap. This is a valuation field, not a price that is automatically charged or paid.
 
-```text
-pistol       -> weapon, uses 9mm
-9mm_ammo     -> ammo
-small_med    -> heal, restores health
-wood         -> material
-metal        -> material
-```
-
-**2. `InventoryItem` is an actual stack**
+**2. Inventory stacks store item IDs and quantities**
 
 ```python
-InventoryItem("metal", amount=12)
+InventoryItem("wooden_plank", amount=5)
 ```
 
-The item stores only its ID and amount. Its name, color, category, and rules come from `ITEMS`.
+The item's name, properties, and scrap value come from its definition. The inventory stores the actual quantity available to the player.
 
-**3. `ITEMS` is the item map**
+**3. Crafting recipes specify ingredients**
 
 ```python
-ITEMS = {
-    "pistol": ItemDefinition(...),
-    "9mm_ammo": ItemDefinition(...),
-    "wood": ItemDefinition(...),
-    "metal": ItemDefinition(...),
-}
+@dataclass(frozen=True)
+class CraftingRecipe:
+    ingredients: dict[str, int]
 ```
 
-This prevents repeatedly writing names, colors, stack limits, and categories.
+A recipe lists item IDs and the quantities required. Crafting checks that the inventory has every ingredient and consumes those ingredients only when the operation succeeds.
 
-**4. `BuildingDefinition` describes constructable objects**
+**4. Building definitions reference recipes, not direct scrap costs**
 
 ```python
 @dataclass(frozen=True)
 class BuildingDefinition:
     name: str
-    category: str
-    cost: dict[str, int]
+    category: BuildingCategory
+    recipe: CraftingRecipe
     max_health: int
-    damage: float = 0.0
-    attack_range: float = 0.0
 ```
 
-Examples:
-
-```text
-barricade -> costs wood and metal, has health
-turret    -> costs wood and metal, has health, damage, and range
-```
-
-You still need a separate map:
+The wooden barricade example is:
 
 ```python
-BUILDINGS = {
-    "barricade": BuildingDefinition(
-        name="Barricade",
-        category="defense",
-        cost={"wood": 10, "metal": 2},
-        max_health=300,
-    ),
-
-    "turret": BuildingDefinition(
-        name="Turret",
-        category="defense",
-        cost={"wood": 8, "metal": 20},
-        max_health=500,
-        damage=15,
-        attack_range=250,
-    ),
-}
+WOODEN_BARRICADE_RECIPE = CraftingRecipe(
+    ingredients={"wooden_plank": 5}
+)
 ```
 
-**5. The backpack and HUD remain separate concepts**
+With wooden planks valued at 3 scrap each, the recipe has a calculated material value of 15 scrap. The player still provides 5 wooden planks; the game does not deduct 15 scrap. Recipes for other structures are not defined yet.
 
-Your current `Inventory` still combines both:
+**5. Keep the systems separate**
 
-- backpack storage
-- selected slot
-- keyboard input
-- drawing the HUD
+- Item inventory stores carried item stacks and crafting materials.
+- Scrap and fuel are separate resource balances.
+- scrap_value describes an item's reference value only.
+- Crafting recipes describe which items and quantities are consumed.
+- Building definitions describe constructable objects and their recipes.
+- The Inventory HUD and backpack remain separate presentation/storage concerns.
 
-Eventually:
-
-```text
-Inventory       -> stores 10 backpack slots
-InventoryHUD    -> displays 3 selected backpack slots
-BUILDINGS       -> stores buildable definitions
-ITEMS           -> stores item definitions
-```
-
-One correction in your current code:
-
-```python
-attackc_range
-```
-
-should be:
-
-```python
-attack_range
-```
-
-And `BuildingDefinition` currently exists but is not used until you create the `BUILDINGS` map and a function that checks and removes crafting materials.
+Do not reintroduce a generic building cost field that treats every recipe as a scrap price. Use a recipe/ingredient field for material requirements.
