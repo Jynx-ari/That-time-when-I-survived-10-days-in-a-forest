@@ -1,13 +1,31 @@
 from dataclasses import dataclass
 
+from .item_types import ItemCategory, ItemRarity
+
+from .item_properties import(
+    WeaponProperties,
+    AmmoProperties,
+    HealingProperties,
+    EquipmentProperties,
+    MaterialProperties,
+    DeployableProperties,
+    ConsumableProperties,
+
+)
+
 @dataclass(frozen=True)
-class ItemDefinition: #frozen!!!
-    name: str
-    category: str
-    color:str
-    max_stack: int = 1
-    heal_amount: int = 0
-    damage_amount: float = 0.0
-    ammo_type: str | None = None
-    pellet_count: int = 1
-    fire_interval: float = 0.0
+class ItemDefinition:
+    name : str
+    category : ItemCategory
+    color : str
+    max_stack : int = 1
+    rarity : ItemRarity = ItemRarity.COMMON
+
+    weapon : WeaponProperties | None = None
+    ammo : AmmoProperties | None = None
+    healing : HealingProperties | None = None
+    equipment : EquipmentProperties | None = None
+    material : MaterialProperties | None = None
+    deployable : DeployableProperties | None = None
+    consumable : ConsumableProperties | None = None
+
