@@ -3,9 +3,10 @@
 import pygame
 
 class Obstacle:
-    def __init__(self, rect, name="obstacle", blocks_movement=True, blocks_shots=True):
+    def __init__(self, rect, name="obstacle", blocks_movement=True, blocks_shots=True, owner=None):
         self.rect = pygame.Rect(rect)
         self.name=name
         self.blocks_movement = blocks_movement
         self.blocks_shots = blocks_shots
+        self.owner = owner
         

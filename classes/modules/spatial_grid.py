@@ -39,3 +39,8 @@ class SpatialGrid:
                     nearby.append(obstacle)
         return nearby
     
+    def remove(self, obstacle):
+        for cell in self._cell_range(obstacle.rect):
+            bucket = self.cells.get(cell)
+            if bucket and obstacle in bucket:
+                bucket.remove(obstacle)

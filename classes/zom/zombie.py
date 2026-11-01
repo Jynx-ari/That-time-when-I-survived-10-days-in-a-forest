@@ -1,5 +1,5 @@
 import pygame
-from classes.pathfinding import next_cell_toward_goal
+from classes.modules.pathfinding import next_cell_toward_goal
 
 from functions.tween_service import TweenInfo
 from functions.easing_styles import EasingDirection, EasingStyle

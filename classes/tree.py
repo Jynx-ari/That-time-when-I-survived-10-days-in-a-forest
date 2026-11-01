@@ -1,5 +1,6 @@
 
 import pygame
+import random
 
 default_trunk = [
     10,                 # Width
@@ -20,6 +21,9 @@ class gen_Tree:
         scale = max(0.0, min(1.0, tree_scale))
         size_multiplier = 1.0 + scale * 0.5
         self.leaves_pos = position
+        self.max_hp = 100.0
+        self.hp = self.max_hp
+        self.log_yield = random.randint(2,3) #random drop per 3
 
         if treeconfig is not None:
             # Format: [(width, height), trunk_color, leaves_color, leaves_radius]

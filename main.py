@@ -11,17 +11,17 @@ from pathlib import Path
 
 
 from classes.tree import gen_Tree
-from classes.obstacle import Obstacle
+from classes.modules.obstacle import Obstacle
 from classes.round_manager import RoundManager, RoundPhase
 #from classes.zom.shambler import Shambler
-from classes.spatial_grid import SpatialGrid
-from classes.pathfinding import (
+from classes.modules.spatial_grid import SpatialGrid
+from classes.modules.pathfinding import (
     build_world_flow_field,
     next_cell_toward_goal,
 )
 from classes.tower import Tower
 from classes.combat.hitscan_weapon import HitscanWeapon
-from classes.proximity_prompt import ProximityPrompt
+from classes.modules.proximity_prompt import ProximityPrompt
 
 
 
@@ -55,6 +55,11 @@ from classes.screen_state import ScreenState
 
 from functions.center import draw_center
 from functions.zombie_spawner import spawn_shamblers
+
+
+from functions.tree_chopping import chop_tree
+
+
 
 #not really a "function" but a class but still.. i wanna put it here >:(
 from functions.easing_styles import (
@@ -444,7 +449,7 @@ def main():
                 tree.trunk_size[1]
             )
             solid_obs.append(
-                Obstacle(tree_rect, name="tree trunk")
+                Obstacle(tree_rect, name="tree trunk", owner=tree)
             )
 
         obstacle_end = time.perf_counter()
@@ -795,6 +800,19 @@ def main():
                 
                 player.swing_tool()
 
+
+            if player.swing_hit_ready:
+                player.swing_hit_ready = False
+                if hotbar.selected_is_tool(ToolType.AXE):
+                    axe = hotbar.get_selected_item()
+                    chop_tree(
+                        player,
+                        axe.definition.tool.power,
+                        trees,
+                        solid_obs,
+                        obstacle_grid,
+                        resource_inventory
+                    )
 
             if hotbar.selected_is_weapon() and not backpack_ui.is_open and pygame.mouse.get_pressed()[0] and weapon.is_bro_disabled():
                 mouse_screen = pygame.mouse.get_pos()

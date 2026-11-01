@@ -1,5 +1,5 @@
 import pygame
-from ..obstacle import Obstacle
+from ..modules.obstacle import Obstacle
 
 import sys
 
@@ -95,6 +95,7 @@ class Player:
         self.swing_offset = 0.0
         self.swing_reach = 0.0
         self.swinging = False
+        self.swing_hit_ready = False
         self.axe_image = pygame.image.load(str(resource_path("Assets/textures/tool/axe.png"))).convert_alpha()
 
 
@@ -109,6 +110,8 @@ class Player:
         if i >= len(swing_steps):
             self.swinging = False
             return
+        if i == 2:
+            self.swing_hit_ready = True
         angle, reach, dur, direction = swing_steps[i]
         self.tween_service.create(
             self,
