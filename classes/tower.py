@@ -11,6 +11,13 @@ class Tower:
         self.display_hp = self.max_hp
 
         self.size = 42
+
+        self._health_font = None
+        self._hp_text = None
+        self._hp_text_key = None
+
+
+
     
     #Its this decorator again :0
     @property
@@ -69,12 +76,20 @@ class Tower:
             (x,y,bar_w,bar_h),
             width=2
         )
-        health_font = pygame.font.Font(None, 20)
-        health_text = health_font.render(
-            f"{int(self.curr_hp)} / {int(self.max_hp)}",
-            True,
-            "#000000"
-        )
+        
+        if self._health_font is None:
+            self._health_font = pygame.font.Font(None, 20)
+        
+        key = (int(self.curr_hp), int(self.max_hp))
+        if key != self._hp_text:
+            self._hp_text = self._health_font.render(f"{key[0]} / {key[1]}", True, "#000000")
+            self._hp_text_key = key
+        
+        health_text = self._hp_text
+
+
+
+
 
         screen.blit(
             health_text,

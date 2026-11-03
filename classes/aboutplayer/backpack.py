@@ -1,5 +1,5 @@
 import pygame
-from classes.aboutplayer.inventory import Inventory,InventorySlot
+from classes.aboutplayer.inventory import Inventory,InventorySlot, render_text
 
 from classes.aboutplayer.item_types import EquipmentSlot
 
@@ -15,7 +15,7 @@ class BackpackUI:
         
         self.slot_rects =[]
         self.panel_rect = pygame.Rect(0,0,0,0)
-
+        self._overlay = None
     def build_slots(self,screen):
         #HOLY REWRITE!!
 
@@ -202,13 +202,13 @@ class BackpackUI:
         if not self.is_open:
             return
         
-        overlay = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
-        overlay.fill((0,0,0,140))
-        screen.blit(overlay, (0,0))
+        if self._overlay is None or self._overlay.get_size() != screen.get_size():
+            self._overlay= pygame.Surface(screen.get_size(), pygame.SRCALPHA)
+            self._overlay.fill((0,0,0,140))
+        screen.blit(self._overlay, (0,0))
+
 
         pygame.draw.rect(screen, "#595959", self.panel_rect, border_radius=10)
-
-        label_font = pygame.font.Font(None, 14)
 
         for slot in self.slot_rects:
             pygame.draw.rect(screen, "#909090", slot.rect, border_radius=6)
@@ -227,7 +227,7 @@ class BackpackUI:
                         else slot.slot_type
                     )
 
-                    label = label_font.render(label_txt, True, "#111111")
+                    label = render_text(label_txt, True, "#111111")
 
                     screen.blit(label, label.get_rect(center=slot.rect.center))
                 
@@ -247,15 +247,15 @@ class BackpackUI:
         inner = rect.inflate(-10,-10)
         pygame.draw.rect(screen,item.color,inner,border_radius=4)
 
-        font = pygame.font.Font(None,12)
+        
 
         screen.set_clip(rect) #clip the texts!
 
-        shadow = font.render(item.name, True, "#000000")
+        shadow = render_text(item.name, 12, "#000000")
         screen.blit(shadow, shadow.get_rect(center=(inner.centerx + 1, inner.centery + 1)))
-        name = font.render(item.name, True, "#ffffff")
+        name = render_text(item.name, 12, "#ffffff")
         screen.blit(name,name.get_rect(center=inner.center))
         screen.set_clip(None)
         if item.amount > 1:
-            amount = font.render(str(item.amount), True, "#111111")
+            amount = render_text(str(item.amount), 12, "#111111")
             screen.blit(amount,amount.get_rect(bottomright=(rect.right-4,rect.bottom-3)))

@@ -31,6 +31,23 @@ from .item_definitions import ItemDefinition
 
 size = 72-23
 
+
+_fonts = {}
+_text_cache = {}
+#OPTIMIZATION TIME!
+def render_text(text, px, color):
+    key = (text, px, color)
+    surf = _text_cache.get(key)
+
+    if surf is None:
+        if px not in _fonts:
+            _fonts[px] = pygame.font.Font(None, px)
+        surf = _fonts[px].render(text, True, color)
+        _text_cache[key] = surf
+    return surf
+
+
+
 #NOTE: the inventory hud is max at 3 slots but the backpack has 10 i guess? then ill make chests
 #NOTE: And make item mapping and inventory mapping
 
@@ -323,7 +340,7 @@ class Inventory:
             border_radius=8,
         )
 
-        font = pygame.font.Font(None, 14)
+        
 
         for index, item in enumerate(self.slots):
             x = (
@@ -350,9 +367,9 @@ class Inventory:
                     border_radius=6,
                 )
 
-            number_text = font.render(
+            number_text = render_text(
                 str(index + 1),
-                True,
+                14,
                 self.text_color
             )
             number_rect = number_text.get_rect(
@@ -367,7 +384,7 @@ class Inventory:
                 item_font = pygame.font.Font(None, 12)
                 item_text = item_font.render(
                     item.name,
-                    True,
+                    12,
                     self.text_color
                 )
                 item_rect = item_text.get_rect(
@@ -379,9 +396,9 @@ class Inventory:
                 screen.blit(
                     item_text, item_rect
                 )
-                amount_text = font.render(
+                amount_text = render_text(
                     str(item.amount),
-                    True,
+                    14,
                     self.text_color,
                 )
                 

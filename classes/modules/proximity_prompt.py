@@ -13,6 +13,22 @@ default_conf = {
     }
 }
 
+
+#OPTIMIZATION!
+
+_font_cache = {}
+
+def _font(px):
+    if px not in _font_cache:
+        _font_cache[px] = pygame.font.Font(None, px)
+    
+    return _font_cache[px]
+
+
+
+
+
+
 class ProximityPrompt:
     def __init__(self, target_pos, tween_service, interact_distance=100, Key=pygame.K_e, hold=300, context="Something", action="Interact", on_triggered=None): #100 dist by default | 300ms hold?
         self.target_pos = pygame.Vector2(target_pos)
@@ -83,16 +99,17 @@ class ProximityPrompt:
 
 
     def draw_prompt(self, screen, camera, zoom):
+        if self.alpha <= 0:
+            return
+        
         prompt_scale = zoom
-        prompt_font = pygame.font.Font(None, max(1, round(21 * prompt_scale)))
-        small_font = pygame.font.Font(None, max(1, round(17 * prompt_scale)))
+        prompt_font = _font(max(1, round(21 * prompt_scale)))
+        small_font = _font(max(1, round(17 * prompt_scale)))
         
         #prompt_y_offset = round(60 *prompt_scale)
         padding_X = round(20*prompt_scale)
         padding_Y = round(12 * prompt_scale)
 
-        if self.alpha <= 0:
-            return
         
         screen_pos = camera.syncworld_to_screen(
             self.target_pos,

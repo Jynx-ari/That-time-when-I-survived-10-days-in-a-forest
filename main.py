@@ -619,6 +619,22 @@ def main():
     )
     
     ## Game loop
+  
+ 
+    fps_stats  = {"frames": 0, "time": 0.0, "min_dt": 1e9, "max_dt": 0.0, "warmup": 30}
+    fps_window = {"frames": 0, "time": 0.0, "min_dt": 1e9, "max_dt": 0.0}
+
+    def fps_line(s):
+        if s["frames"] == 0 or s["time"] == 0:
+            return "no data"
+        return (f"low {1 / s['max_dt']:.1f} | "
+                f"avg {s['frames'] / s['time']:.1f} | "
+                f"high {1 / s['min_dt']:.1f}")
+
+
+  
+ 
+
     while running:
         # Keybinds
         for event in pygame.event.get():
@@ -634,6 +650,19 @@ def main():
                     running = False
                 
                 continue
+
+            if fps_stats["warmup"] > 0:
+                fps_stats["warmup"] -= 1   # skip the load-time spike after start_game()
+            else:
+                for s in (fps_stats, fps_window):
+                    s["frames"] += 1
+                    s["time"] += dt
+                    s["min_dt"] = min(s["min_dt"], max(dt, 1e-6))
+                    s["max_dt"] = max(s["max_dt"], dt)
+                if fps_window["time"] >= 5:
+                    print("FPS (last 5s):", fps_line(fps_window), "| trees:", len(trees))
+                    fps_window.update(frames=0, time=0.0, min_dt=1e9, max_dt=0.0)
+
 
 
             if event.type == pygame.QUIT:
@@ -851,9 +880,20 @@ def main():
 
         tower_rect, wb_rect = draw_center(screen, center_screen, game_conf["tower color"], game_conf["antenna color"],game_conf["workbench"], game_conf["grass"], zoom, game_conf["dirt_size"])
 
+        view_left = camera.offset[0]-60
+        view_top = camera.offset[1] - 60
+        view_right = camera.offset[0] + w/zoom +60
+        view_bottom = camera.offset[1] + h/zoom+60
+
+        visible_trees = [
+            t for t in trees
+            if view_left < t.leaves_pos[0]<view_right
+            and view_top<t.leaves_pos[1]<view_left
+        ]
+
+        print(len(visible_trees))
         
-        
-        for tree in trees:
+        for tree in visible_trees:
             trunk_screen_pos = camera.syncworld_to_screen(
                 tree.trunk_pos,
                 zoom,
@@ -943,7 +983,7 @@ def main():
                 zombie.draw(screen, camera,zoom)
         
 
-        for tree in trees:
+        for tree in visible_trees:
             screen_pos = camera.syncworld_to_screen(
                 tree.leaves_pos,zoom
             )
@@ -1020,7 +1060,7 @@ def main():
         transition.draw(screen)
         pygame.display.flip()
        
-
+    print("FPS overall:", fps_line(fps_stats))
     pygame.quit()
 
 
