@@ -57,7 +57,7 @@ from functions.center import draw_center
 from functions.zombie_spawner import spawn_shamblers
 
 
-from functions.tree_chopping import chop_tree
+from functions.tree_chopping import chop_tree, shaking_trees
 
 
 
@@ -651,17 +651,17 @@ def main():
                 
                 continue
 
-            if fps_stats["warmup"] > 0:
-                fps_stats["warmup"] -= 1   # skip the load-time spike after start_game()
-            else:
-                for s in (fps_stats, fps_window):
-                    s["frames"] += 1
-                    s["time"] += dt
-                    s["min_dt"] = min(s["min_dt"], max(dt, 1e-6))
-                    s["max_dt"] = max(s["max_dt"], dt)
-                if fps_window["time"] >= 5:
-                    print("FPS (last 5s):", fps_line(fps_window), "| trees:", len(trees))
-                    fps_window.update(frames=0, time=0.0, min_dt=1e9, max_dt=0.0)
+            # if fps_stats["warmup"] > 0:
+            #     fps_stats["warmup"] -= 1   # skip the load-time spike after start_game()
+            # else:
+            #     for s in (fps_stats, fps_window):
+            #         s["frames"] += 1
+            #         s["time"] += dt
+            #         s["min_dt"] = min(s["min_dt"], max(dt, 1e-6))
+            #         s["max_dt"] = max(s["max_dt"], dt)
+            #     if fps_window["time"] >= 5:
+            #         print("FPS (last 5s):", fps_line(fps_window), "| trees:", len(trees))
+            #         fps_window.update(frames=0, time=0.0, min_dt=1e9, max_dt=0.0)
 
 
 
@@ -780,6 +780,12 @@ def main():
         weapon.update(dt)
         tween_service.update(dt)
 
+        for shaking_tree in shaking_trees[:]:
+            shaking_tree.shake -= dt
+            if shaking_tree.shake <= 0:
+                shaking_tree.shake = 0.0
+                shaking_trees.remove(shaking_tree)
+
         if (
             shake_phase == "out"
             and shake_out_tween is not None
@@ -891,7 +897,7 @@ def main():
             and view_top<t.leaves_pos[1]<view_left
         ]
 
-        print(len(visible_trees))
+        # print(len(visible_trees))
         
         for tree in visible_trees:
             trunk_screen_pos = camera.syncworld_to_screen(

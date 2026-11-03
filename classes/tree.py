@@ -1,6 +1,7 @@
 
 import pygame
 import random
+import math #NOT AGAINNN
 
 default_trunk = [
     10,                 # Width
@@ -24,7 +25,7 @@ class gen_Tree:
         self.max_hp = 100.0
         self.hp = self.max_hp
         self.log_yield = random.randint(2,3) #random drop per 3
-
+        self.shake = 0.0
         if treeconfig is not None:
             # Format: [(width, height), trunk_color, leaves_color, leaves_radius]
             self.trunk_size = treeconfig[0]
@@ -86,6 +87,8 @@ class gen_Tree:
             screen_pos = self.leaves_pos
         
         x,y = round(screen_pos[0]), round(screen_pos[1])
+        if self.shake > 0:
+            x += round(math.sin(self.shake * 120) * self.shake * 30 * zoom)
         radius = max(1, round(self.leaves_size *zoom))
 
         if transparent:

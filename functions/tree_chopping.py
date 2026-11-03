@@ -9,6 +9,9 @@ CHOP_REACH = 45
 CHOP_HALF_ANGLE = 50
 CHOP_PARAMS = OverlapParams(names=frozenset({"tree trunk"}))
 
+shaking_trees = []
+
+
 def resource_path(relative_p):
     if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
         base_path = Path(sys._MEIPASS)
@@ -33,13 +36,16 @@ def chop_tree(player, dmg, trees, solid_obs, obstacle_grid, resource_inventory):
 
     if not hits:
         return False #swing!!
-    
+
     chopped.play()
 
     closest_obstacle = hits[0]
     tree = closest_obstacle.owner
     tree.hp -= dmg
     if tree.hp > 0:
+        tree.shake = 0.18
+        if tree not in shaking_trees:
+            shaking_trees.append(tree)
         return True
     
     if not resource_inventory.add("wood_log", tree.log_yield):
